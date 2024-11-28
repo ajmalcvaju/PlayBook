@@ -8,7 +8,7 @@ interface Props {
   children: React.ReactNode;
   user?: string;
   page?:string
-}
+} 
 
 const Layout = ({ children, user,page }: Props) => {
   return (
