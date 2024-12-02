@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 export interface Turf {
   turfName: string;
   email: string;
@@ -16,4 +17,12 @@ export interface TurfDetails{
     turfOverview?: string;
     facilities?:string
     gallery?: string[];
+}
+
+export interface Slot {
+  date: string;    
+  time: string;
+  isBooked: boolean; 
+  turfId: string | ObjectId;
+  userId?: string | ObjectId;
 }

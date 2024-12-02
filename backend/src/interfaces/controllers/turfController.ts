@@ -1,12 +1,18 @@
 import { Request,Response } from "express";
 import { listTurf } from "../../application/usecases/listTurf";
 import { loginTurf } from "../../application/usecases/loginTurf";
-import { TurfModel } from "../../infrastructure/database/models/turfModel";
 import { TurfRepositoryImpl } from "../../infrastructure/database/repositories/TurfRepositoryImpl";
 import { generateOtp } from "../../application/usecases/generateOtp";
 import { validateOtp } from "../../application/usecases/validateOtp";
 import { updateTurfDetails } from "../../application/usecases/updateTurfDetails";
+import { uploadedImage } from "../../application/usecases/UploadImage";
+import { updateSlot } from "../../application/usecases/updateSlot";
+import { getTurfDetailsFromMail } from "../../application/usecases/getTurfId";
+import { getSlots } from "../../application/usecases/getSlots";
 
+interface CustomRequest extends Request {
+    files?: Express.Multer.File[];
+  }
 
 export const turfController={
     list:async(req:Request,res:Response)=>{
@@ -38,13 +44,44 @@ export const turfController={
             res.status(400).json({message:error.message})
         }
     },
-    updateTurfDetails:async(req:Request,res:Response)=>{ 
+    updateTurfDetails: async (req: Request, res: Response) => {
         try {
-            let {email,...data}=req.body
-            const updatedTurf = await updateTurfDetails(TurfRepositoryImpl,email,data);
+            const customReq = req as CustomRequest;
+            if (!customReq.files) throw new Error("No files uploaded");
+            const uploadedImages = await uploadedImage(customReq.files);
+            const { email, ...data } = customReq.body;
+            const updatedData={data,...{gallery:uploadedImages}}
+            const updatedTurf = await updateTurfDetails(TurfRepositoryImpl, email, updatedData);
+      
             res.status(200).json(updatedTurf);
-        } catch (error:any) {
-            res.status(400).json({message:error.message})
-        }
-    }
+          } catch (error: any) {
+            res.status(400).json({ message: error.message });
+          }
+      },
+      slotUpdate:async (req: Request, res: Response) => {
+        try {
+            console.log(req.body)
+            const {email,interval,noOfSlots,...slot}=req.body
+            const turfDetails=await getTurfDetailsFromMail(email)
+            const id=turfDetails?._id as string
+            console.log(id)
+            const updatedTurf = await updateSlot(TurfRepositoryImpl, id,slot,interval,noOfSlots);
+            res.status(200).json({ message: 'Slot updated successfully.'});
+          } catch (error: any) {
+            res.status(400).json({ message: error.message }); 
+          }
+      },
+      getSlots:async (req: Request, res: Response) => {
+        try {
+            const email=req.params.email
+            const turfDetails=await getTurfDetailsFromMail(email)
+            const id=turfDetails?._id as string
+            console.log(id)
+            const slots = await getSlots(TurfRepositoryImpl,id);
+            res.status(200).json({slots});
+          } catch (error: any) {
+            res.status(400).json({ message: error.message }); 
+          }
+      }
 }
+ 

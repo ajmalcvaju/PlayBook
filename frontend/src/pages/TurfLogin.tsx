@@ -22,6 +22,7 @@ const TurfLogin = () => {
     setIsLoading(true)
     setErrorMessage(null)
     try {
+      localStorage.removeItem("userEmail");
       const response = await fetch("http://localhost:7000/api/turfs/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -30,7 +31,7 @@ const TurfLogin = () => {
       const result = await response.json();
       if (response.ok) {
         localStorage.setItem("turfToken",result.token);
-        localStorage.setItem("userEmail", data.email);
+        localStorage.setItem("turfEmail", data.email);
         navigate("/turf/dashboard");
       } else {
         setErrorMessage(result.message)

@@ -8,7 +8,7 @@ interface Props {
   children: React.ReactNode;
   user?: string;
   page?:string
-} 
+}
 
 const Layout = ({ children, user,page }: Props) => {
   return (
@@ -19,7 +19,8 @@ const Layout = ({ children, user,page }: Props) => {
       {(user === "turf"&&page!=='authentication')&& (<div className="flex flex-1"><TurfSidePanel page={page}/><div className="flex-1">{children}</div></div>)}
       {(page === 'authentication' && user === 'admin') && (<div className="container mx-auto py-10 flex-1">{children}</div>)}
       {(user === "admin"&&page!=='authentication') && (<div className="flex flex-1"><TurfSidePanel page={page}/><div className="flex-1">{children}</div></div>)}
-      {(user === "user") && (<div className="container mx-auto py-10 flex-1">{children}</div>)}
+      {(user === "user"&&page=='authentication') && (<div className="my-auto flex-1">{children}</div>)}
+      {(user === "user"&&page!=='authentication') && (<div className="flex-1">{children}</div>)}
       
       
       <Footer />

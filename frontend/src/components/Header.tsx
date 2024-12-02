@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, {useLayoutEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 interface HeroProps {
@@ -8,7 +8,7 @@ interface HeroProps {
 const Header = ({ user }: HeroProps) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate=useNavigate()
-  useEffect(() => {
+  useLayoutEffect(() => {
     const userToken = localStorage.getItem('userToken');
     const turfToken = localStorage.getItem('turfToken');
     const adminToken = localStorage.getItem('adminToken');

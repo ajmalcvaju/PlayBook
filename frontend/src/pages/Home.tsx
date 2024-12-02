@@ -42,9 +42,9 @@ const Home: React.FC = () => {
       <h1 className="text-3xl font-bold justify-center text-center mb-8">Score Big with Every Booking – Reserve Your Turf Today</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {turfs.map((turf) => (
-          <div
+          <div onClick={()=>navigate(`/turf-page/${turf._id}`)}
             key={turf._id}
-            className="bg-blue-300 border border-gray-200 rounded-lg shadow-lg overflow-hidden"
+            className="bg-black border border-gray-200 rounded-lg shadow-lg overflow-hidden"
           >
             <img
               src={turf.gallery[0]}
@@ -52,14 +52,8 @@ const Home: React.FC = () => {
               className="w-full h-40 object-cover"
             />
             <div className="p-4">
-              <h2 className="text-xl font-semibold mb-2">{turf.turfName}</h2>
-              <p className="text-black mb-1">
-                <strong>Mobile:</strong> {turf.mobileNumber}
-              </p>
-              <p className="text-black mb-1">
-                <strong>Email:</strong> {turf.email}
-              </p>
-              <p className="text-black text-sm mt-2">{turf.turfAddress}</p>
+              <h2 className="text-xl text-white font-semibold mb-2">{turf.turfName}</h2>
+              <p className="text-white text-sm mt-2">{turf.turfAddress}</p>
             </div>
           </div>
         ))}

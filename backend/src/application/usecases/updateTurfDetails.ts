@@ -12,6 +12,6 @@ export const updateTurfDetails = async (
   if (!turf) {
     throw new Error("Turf not found");
   }
-
+  console.log(details)
   return await turfrepository.updateDetails(email, details);
 };
