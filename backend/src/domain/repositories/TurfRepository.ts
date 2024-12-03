@@ -6,4 +6,6 @@ export interface TurfRepository{
   updateDetails(email:string,details:Partial<TurfDetails>): Promise<Turf>;
   updateSlot(id:string,Slot:Partial<Slot>,interval:string,noOfSlots:string): Promise<Slot[]>;
   getSlots(id:string): Promise<Slot[]|void>;
+  currentSlots(turfId: string,date:string): Promise<Slot[]|void>;
+  deleteSlot(id:string): Promise<void>
 }

@@ -22,7 +22,6 @@ export interface TurfDetails{
 export interface Slot {
   date: string;    
   time: string;
-  isBooked: boolean; 
-  turfId: string | ObjectId;
-  userId?: string | ObjectId;
+  isBooked: boolean;
+  price:string 
 }

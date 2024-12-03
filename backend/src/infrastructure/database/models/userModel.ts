@@ -1,7 +1,8 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import { User } from '../../../domain/entities/User'; 
 
-export interface UserDocument extends User, Document {}
+export interface UserDocument extends User {
+}
 
 const UserSchema = new Schema<UserDocument>({
   firstName: { type: String, required: true },

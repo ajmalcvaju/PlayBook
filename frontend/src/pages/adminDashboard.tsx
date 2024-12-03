@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useLayoutEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 const AdminDashboard = () => {
     let navigate=useNavigate()
   let token=localStorage.getItem("adminToken")
-  useEffect(()=>{
+  useLayoutEffect(()=>{
    if(!token){
     navigate("/adminLogin")
    }

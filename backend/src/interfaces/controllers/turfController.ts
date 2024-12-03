@@ -9,6 +9,8 @@ import { uploadedImage } from "../../application/usecases/UploadImage";
 import { updateSlot } from "../../application/usecases/updateSlot";
 import { getTurfDetailsFromMail } from "../../application/usecases/getTurfId";
 import { getSlots } from "../../application/usecases/getSlots";
+import { currentSlots } from "../../application/usecases/turf/currentSots";
+import { deleteSlot } from "../../application/usecases/turf/deleteSlot";
 
 interface CustomRequest extends Request {
     files?: Express.Multer.File[];
@@ -65,9 +67,11 @@ export const turfController={
             const turfDetails=await getTurfDetailsFromMail(email)
             const id=turfDetails?._id as string
             console.log(id)
-            const updatedTurf = await updateSlot(TurfRepositoryImpl, id,slot,interval,noOfSlots);
-            res.status(200).json({ message: 'Slot updated successfully.'});
+            const slots = await updateSlot(TurfRepositoryImpl, id,slot,interval,noOfSlots);
+            console.log(slots)
+            res.status(200).json({slots});
           } catch (error: any) {
+            console.log(error)
             res.status(400).json({ message: error.message }); 
           }
       },
@@ -79,6 +83,28 @@ export const turfController={
             console.log(id)
             const slots = await getSlots(TurfRepositoryImpl,id);
             res.status(200).json({slots});
+          } catch (error: any) {
+            res.status(400).json({ message: error.message }); 
+          }
+      },
+      currentSlots:async (req: Request, res: Response) => {
+        try {
+            const {email,date}=req.params
+            const turfDetails=await getTurfDetailsFromMail(email)
+            const id=turfDetails?._id as string
+            console.log(id)
+            const slots = await currentSlots(TurfRepositoryImpl,id,date);
+            console.log(slots)
+            res.status(200).json({slots});
+          } catch (error: any) {
+            res.status(400).json({ message: error.message }); 
+          }
+      },
+      deleteSlot:async (req: Request, res: Response) => {
+        try {
+            const id=req.params.id
+            await deleteSlot(TurfRepositoryImpl,id);
+            res.status(200).json({success:true});
           } catch (error: any) {
             res.status(400).json({ message: error.message }); 
           }

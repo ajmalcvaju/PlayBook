@@ -46,14 +46,15 @@ export const TurfRepositoryImpl: TurfRepository = {
     const intervalTotalMinutes = intervalHours * 60 + intervalMinutes;
     const slots=[]
     const date=slotDetails.date
+    const price=slotDetails.price
     for (let i = 0; i < parseInt(noOfSlots); i++) {
         const totalMinutes = baseTotalMinutes + i * intervalTotalMinutes;
         const resultHours = Math.floor(totalMinutes / 60) % 24;
         const resultMinutes = totalMinutes % 60;
         const time = `${resultHours.toString().padStart(2, "0")}:${resultMinutes.toString().padStart(2, "0")}`;
         console.log("New slot time:", time);
-        const newSlot=await SlotModel.create({turfId,date,time});
-        slots.push(newSlot.toObject() as Slot)
+        const newSlot=await SlotModel.create({turfId,date,time,price});
+        slots.push(newSlot)
     }
     if (!slots) {
         throw new Error("Failed to create the initial slot.");
@@ -68,6 +69,15 @@ async getSlots(turfId: string): Promise<Slot[]|void>{
     throw new Error("No slot Found.");
   }
   return slots
+},
+async currentSlots(turfId: string,date:string): Promise<Slot[]|void>{
+  const slots = await SlotModel.find({turfId,date})
+  if(!slots){
+    throw new Error("No slot Found.");
+  }
+  return slots
+},
+async deleteSlot(id:string): Promise<void>{
+  const slots = await SlotModel.deleteOne({_id:id})
 }
-
 };

@@ -1,13 +1,16 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { registerUser } from "../../application/usecases/registerUser";
 import { loginUser } from "../../application/usecases/loginUser";
-import { UserModel } from "../../infrastructure/database/models/userModel";
 import { UserRepositoryImpl } from "../../infrastructure/database/repositories/UserRepositoryImpl";
 import { generateOtp } from "../../application/usecases/generateOtp";
 import { validateOtp } from "../../application/usecases/validateOtp";
-import jwt from "jsonwebtoken";
 import { getTurfs } from "../../application/usecases/getTurfs";
 import { getTurfDetails } from "../../application/usecases/getTurfDetails";
+import { getSlots } from "../../application/usecases/user/getSlots";
+import { SlotModel } from "../../infrastructure/database/models/slotModel";
+import mongoose from "mongoose";
+import { confirmBooking } from "../../application/usecases/user/confirmBooking";
+import { getIdFrommail } from "../../application/usecases/user/getIdFrommail";
 
 export const userController = {
   register: async (req: Request, res: Response) => {
@@ -76,8 +79,27 @@ export const userController = {
         res.status(200).json({ turfDetails });
       }
     } catch (error: any) {
-      console.log("by");
       res.status(400).json({ message: error.message });
     }
   },
+  getSlots :async (req: Request, res: Response) => {
+    try {
+      const { id, date } = req.query;
+      const slots = await getSlots(UserRepositoryImpl,id,date);
+      console.log(slots)
+      res.status(200).json({ slots });
+    } catch (error:any) {
+      res.status(400).json({ message: error.message }); 
+    }
+  },
+  confirmBooking:async (req: Request, res: Response) => {
+    try {
+      const { slotId,email } = req.body;
+      const userId=await getIdFrommail(UserRepositoryImpl,email)
+      await confirmBooking(UserRepositoryImpl,slotId,userId);
+      res.status(200).json({ message:"Slot Booked successfully" });
+    } catch (error:any) {
+      res.status(400).json({ message: error.message }); 
+    }
+  }
 };

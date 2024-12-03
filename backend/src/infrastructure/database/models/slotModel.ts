@@ -1,15 +1,12 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
+import { Slot } from '../../../domain/entities/Turf';
 
-
-export interface Slot extends Document {
-  date: string;
-  time: string;
-  isBooked: boolean;
-  turfId: Types.ObjectId;
-  userId: Types.ObjectId; 
+export interface SlotDocument extends Slot, Document {
+  turfId: string | Types.ObjectId;
+  userId?: string | Types.ObjectId;
 }
 
-const slotSchema = new Schema<Slot>({
+const slotSchema = new Schema<SlotDocument>({
   date: {
     type: String,
     required: true,
@@ -17,6 +14,10 @@ const slotSchema = new Schema<Slot>({
   time: {
     type: String,
     required: true,
+  },
+  price:{
+    type: String,
+    required: true
   },
   isBooked: {
     type: Boolean,
@@ -32,6 +33,6 @@ const slotSchema = new Schema<Slot>({
     ref: 'User',
   },
 });
-slotSchema.index({ date: 1, time: 1 }, { unique: true });
 
-export const SlotModel = mongoose.model<Slot>('Slot', slotSchema);
+
+export const SlotModel = mongoose.model<SlotDocument>('Slot', slotSchema);
