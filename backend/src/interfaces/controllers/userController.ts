@@ -11,6 +11,7 @@ import { SlotModel } from "../../infrastructure/database/models/slotModel";
 import mongoose from "mongoose";
 import { confirmBooking } from "../../application/usecases/user/confirmBooking";
 import { getIdFrommail } from "../../application/usecases/user/getIdFrommail";
+import { getBookings } from "../../application/usecases/user/getBookings";
 
 export const userController = {
   register: async (req: Request, res: Response) => {
@@ -98,6 +99,17 @@ export const userController = {
       const userId=await getIdFrommail(UserRepositoryImpl,email)
       await confirmBooking(UserRepositoryImpl,slotId,userId);
       res.status(200).json({ message:"Slot Booked successfully" });
+    } catch (error:any) {
+      res.status(400).json({ message: error.message }); 
+    }
+  },
+  getBookings:async (req: Request, res: Response) => {
+    try {
+      const {email}=req.body
+      const userId=await getIdFrommail(UserRepositoryImpl,email)
+      console.log(userId)
+        const bookings=await getBookings(UserRepositoryImpl,userId)
+        res.status(200).json(bookings);
     } catch (error:any) {
       res.status(400).json({ message: error.message }); 
     }

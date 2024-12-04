@@ -26,7 +26,7 @@ const slotSchema = new Schema<SlotDocument>({
   turfId: {
     type: Schema.Types.ObjectId,
     required: true,
-    ref: 'TurfOwner',
+    ref: 'Turf',
   },
   userId: {
     type: Schema.Types.ObjectId,

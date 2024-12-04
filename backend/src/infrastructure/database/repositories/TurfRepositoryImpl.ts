@@ -4,6 +4,7 @@ import { TurfModel,TurfDocument } from "../models/turfModel";
 import { TurfDetails } from "../../../domain/entities/Turf";
 import { Slot } from "../../../domain/entities/Turf";
 import { SlotModel } from "../models/slotModel";
+import { User } from "../../../domain/entities/User";
 
 interface UpdatedTurf extends Turf,TurfDetails{}
 export const TurfRepositoryImpl: TurfRepository = {
@@ -79,5 +80,22 @@ async currentSlots(turfId: string,date:string): Promise<Slot[]|void>{
 },
 async deleteSlot(id:string): Promise<void>{
   const slots = await SlotModel.deleteOne({_id:id})
+},
+async getBookings(id:string):Promise<any[]>{
+  const bookings = await SlotModel.find({ turfId: id, isBooked: true }).select("_id time date").populate("userId", "firstName lastName mobileNumber email");
+  const flatBookings = bookings.map((booking) => {
+    const user = booking.userId as User|any;
+    return {
+      _id: booking._id,
+      time: booking.time,
+      date: booking.date,
+      firstName: user.firstName || "",
+      lastName: user.lastName || "",
+      mobileNumber: user.mobileNumber || "",
+      email: user.email || "",
+    };
+  });
+  
+  return flatBookings
 }
 };

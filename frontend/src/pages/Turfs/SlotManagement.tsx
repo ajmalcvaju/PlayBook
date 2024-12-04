@@ -13,6 +13,13 @@ interface Slot {
 
 
 const AdminDashboard: React.FC = () => {
+  const navigate=useNavigate()
+  const token = localStorage.getItem("turfToken");
+  useEffect(() => {
+    if (!token) {
+      navigate("/turf-login");
+    }
+  }, [token]);
   const [slots, setSlots] = useState<Slot[]>([]);
   const [currentSlots, setCurrentSlots] = useState<Slot[]>([]);
   const [priceOfSlot, setPriceOfSlot] = useState<string>('');
@@ -24,7 +31,7 @@ const AdminDashboard: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [showError, setShowError] = useState(false);
   const [slotToDelete, setSlotToDelete] = useState(null);
-  const navigate=useNavigate()
+  
   const slotsPerPage = 6;
   const totalSlots = currentSlots.length;
   const totalPages = Math.ceil(totalSlots / slotsPerPage);

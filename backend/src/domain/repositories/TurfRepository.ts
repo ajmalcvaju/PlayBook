@@ -8,4 +8,5 @@ export interface TurfRepository{
   getSlots(id:string): Promise<Slot[]|void>;
   currentSlots(turfId: string,date:string): Promise<Slot[]|void>;
   deleteSlot(id:string): Promise<void>
+  getBookings(id:string):Promise<Slot[]>
 }

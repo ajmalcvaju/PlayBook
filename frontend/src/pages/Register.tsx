@@ -48,8 +48,18 @@ const Register = () => {
   });
 
   return (
+    <div
+  className="h-screen flex items-center bg-green-400 justify-center bg-cover bg-center relative"
+  style={{
+    backgroundImage:
+      "url('https://cdn-wp.thesportsrush.com/2022/11/b0682d0e-virat-kohli-is-not-playing.jpg?format=auto&w=3840&q=75')", // Replace with your image URL
+  }}
+>
+  <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+
+  <div className="relative bg-white rounded-lg bg-opacity-70 shadow-lg p-10 w-2/5 backdrop-blur-md">
     <form className="flex flex-col gap-5" onSubmit={submit}>
-      <h2 className="font-bold text-3xl">Create an Account</h2>
+      <h2 className="font-bold text-3xl text-center">Create an Account</h2>
       <div className="flex flex-col md:flex-row gap-5">
         <label className="font-bold text-gray-700 text-sm flex-1">
           First Name
@@ -131,18 +141,20 @@ const Register = () => {
         )}
       </label>
 
-      {isLoading&&<div className="text-blue-500">Registering....pease,Wait</div>}
-      {errorMessage&&<div className="text-red-500">{errorMessage}</div>}
+      {isLoading && <div className="text-blue-500">Registering....please, Wait</div>}
+      {errorMessage && <div className="text-red-500">{errorMessage}</div>}
       <div className="flex justify-center">
-      <button
-        type="submit"
-        className="bg-green-600 text-white p-2 w-3/4 rounded-md px-5 font-bold hover:bg-green-500 text-xl"
-        disabled={isLoading}
-      >
-        {isLoading ? "Submitting..." : "Register"}
-      </button>
+        <button
+          type="submit"
+          className="bg-green-600 text-white p-2 w-3/4 rounded-md px-5 font-bold hover:bg-green-500 text-xl"
+          disabled={isLoading}
+        >
+          {isLoading ? "Submitting..." : "Register"}
+        </button>
       </div>
     </form>
+  </div>
+</div>
   );
 };
 

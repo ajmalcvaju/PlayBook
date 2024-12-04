@@ -12,8 +12,8 @@ const AdminSidePanel = ({ page }: { page: string }) => {
 
   return (
     <div className="flex">
-      <div className="bg-green-300 h-full w-64 p-4 shadow-md flex flex-col">
-        <h1 className="text-center text-lg font-bold text-green-700 mb-5">Admin Panel</h1>
+      <div className="bg-gray-600 h-full w-64 p-4 shadow-md flex flex-col">
+        <h1 className="text-center text-lg font-bold text-gray-300 mb-5">Admin Panel</h1>
         <div className="flex flex-col gap-3">
           <button className={getButtonClass('dashboard')}><Link to="/admin/dashboard">Dashboard</Link></button>
           <button className={getButtonClass('user-management')}><Link to="/admin/user-management">User Management</Link></button>

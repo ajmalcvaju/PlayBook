@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "react-datepicker/dist/react-datepicker.css";
-import { useParams } from "react-router-dom";
+import { Outlet, useNavigate, useParams } from "react-router-dom";
 
 type Slot = {
   _id: string;
@@ -8,7 +8,7 @@ type Slot = {
   time: string;
   price: string;
   turfId: string;
-  isBooked: Boolean;
+  isBooked: boolean;
 };
 
 const TicketBookingModal = ({}) => {
@@ -16,11 +16,13 @@ const TicketBookingModal = ({}) => {
   const [activeDate, setActiveDate] = useState(new Date());
   const [slots, setSlots] = useState<Slot[]>([]);
   const [slotId, setSlotId] = useState('')
+  const navigate=useNavigate()
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [price, setPrice] = useState("");
   const { id } = useParams();
   const dateForm = activeDate.toISOString().split("T")[0];
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [isBookingSuccess, setIsBookingSuccess] = useState(false); 
 
   useEffect(() => {
     const fetchSlots = async () => {
@@ -64,20 +66,23 @@ const TicketBookingModal = ({}) => {
   const times = slots.map((item) => ({
     time: item?.time,
     price: item?.price,
-    id:item?._id
+    id:item?._id,
+    isBooked:item?.isBooked
   }));
 
   const bookNow = () => {
-    setShowConfirmation(true); // Open confirmation modal when "Book Now" is clicked
+    setShowConfirmation(true);
   };
 
   const handleCloseModal = () => {
-    setShowConfirmation(false); // Close the confirmation modal
+    setShowConfirmation(false); 
   };
 
   const handleConfirmBooking = async() => {
-    console.log("Booking confirmed", { selectedTime, activeDate, price,slotId });
+    
+    
     const email=localStorage.getItem("userEmail")
+    console.log("Booking confirmed", { selectedTime, activeDate, price,slotId,email });
     const response = await fetch("http://localhost:7000/api/users/confirm-booking", {
       method: "POST",
       headers: {
@@ -89,12 +94,12 @@ const TicketBookingModal = ({}) => {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
     setShowConfirmation(false);
+    setIsBookingSuccess(true); 
     const result = await response.json();
-    console.log("Booking confirmed:", result);
-
   };
 
   return (
+    
     <div>
       {/* Main Booking Modal */}
       <div
@@ -104,9 +109,7 @@ const TicketBookingModal = ({}) => {
         aria-describedby="modal-description"
       >
         <div className="bg-white flex flex-col items-center justify-center p-6 rounded-lg shadow-lg w-3/4 md:w-1/2">
-          <h2 id="modal-title" className="text-xl font-bold mb-4">
-            Book Ticket
-          </h2>
+          <h2 id="modal-title" className="text-xl font-bold mb-4">Book Ticket</h2>
 
           {/* Date Picker */}
           <div className="mb-4 w-full">
@@ -148,15 +151,18 @@ const TicketBookingModal = ({}) => {
                 <h1>No slots available on this date</h1>
               </div>
             )}
-            {times.map(({ time, price,id }) => (
+            {times.map(({ time, price, id, isBooked }) => (
               <button
-                key={time}
-                onClick={() => handleTimeSelect(time, price,id)}
+                key={id}
+                onClick={() => handleTimeSelect(time, price, id)}
                 className={`py-2 px-4 rounded-md border ${
-                  selectedTime === time
+                  isBooked
+                    ? "opacity-60 cursor-not-allowed bg-gray-300 border-gray-400"
+                    : selectedTime === time
                     ? "bg-red-600 text-white"
                     : "bg-gray-300 border-gray-400"
                 }`}
+                disabled={isBooked}
               >
                 {time}
               </button>
@@ -179,46 +185,100 @@ const TicketBookingModal = ({}) => {
 
       {/* Confirmation Modal */}
       {showConfirmation && (
-       <div
-       className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center transition-opacity duration-300"
-       role="dialog"
-       aria-labelledby="modal-title"
-       aria-describedby="modal-description"
-     >
-       <div className="bg-purple-800 flex flex-col items-center justify-center p-8 rounded-lg shadow-xl w-4/5 md:w-1/3 transform transition-transform duration-300 ease-in-out scale-100 hover:scale-105">
-         <h2 id="modal-title" className="text-3xl font-bold text-white mb-6">
-           Confirm Your Booking
-         </h2>
-     
-         <p className="mb-6 text-lg text-white">
-           <strong className="font-medium">Selected Time:</strong> {selectedTime}
-         </p>
-         <p className="mb-6 text-lg text-white">
-           <strong className="font-medium">Selected Date:</strong> {activeDate.toLocaleDateString()}
-         </p>
-         <p className="mb-6 text-lg text-white">
-           <strong className="font-medium">Price:</strong> {price}
-         </p>
-     
-         <div className="flex justify-between w-full mt-6 gap-4">
-           <button
-             className="bg-yellow-400 text-gray-900 px-6 py-3 rounded-lg hover:bg-yellow-500 transition-all duration-200 transform hover:scale-105"
-             onClick={handleCloseModal}
-           >
-             Cancel
-           </button>
-           <button
-             className="bg-green-400 text-white px-6 py-3 rounded-lg hover:bg-green-500 transition-all duration-200 transform hover:scale-105"
-             onClick={handleConfirmBooking}
-           >
-             Confirm Booking
-           </button>
-         </div>
-       </div>
-     </div>     
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center transition-opacity duration-300"
+          role="dialog"
+          aria-labelledby="modal-title"
+          aria-describedby="modal-description"
+        >
+          <div className="bg-purple-800 flex flex-col items-center justify-center p-8 rounded-lg shadow-xl w-4/5 md:w-1/3 transform transition-transform duration-300 ease-in-out scale-100 hover:scale-105">
+            <h2 id="modal-title" className="text-3xl font-bold text-white mb-6">
+              Confirm Your Booking
+            </h2>
+
+            <p className="mb-6 text-lg text-white">
+              <strong className="font-medium">Selected Time:</strong>{" "}
+              {selectedTime}
+            </p>
+            <p className="mb-6 text-lg text-white">
+              <strong className="font-medium">Selected Date:</strong>{" "}
+              {activeDate.toLocaleDateString()}
+            </p>
+            <p className="mb-6 text-lg text-white">
+              <strong className="font-medium">Price:</strong> {price}
+            </p>
+
+            <div className="flex justify-between w-full mt-6 gap-4">
+              <button
+                className="bg-yellow-400 text-gray-900 px-6 py-3 rounded-lg hover:bg-yellow-500 transition-all duration-200 transform hover:scale-105"
+                onClick={handleCloseModal}
+              >
+                Cancel
+              </button>
+              <button
+                className="bg-green-400 text-white px-6 py-3 rounded-lg hover:bg-green-500 transition-all duration-200 transform hover:scale-105"
+                onClick={handleConfirmBooking}
+              >
+                Confirm Booking
+              </button>
+            </div>
+          </div>
+        </div>
       )}
+
+      {/* Success Modal */}
+      {isBookingSuccess && (
+  <div
+    className="fixed inset-0 bg-gradient-to-r from-gray-900 via-gray-800 to-black bg-opacity-95 flex justify-center items-center"
+    role="dialog"
+    aria-labelledby="success-title"
+    aria-describedby="success-description"
+  >
+    <div className="bg-gray-600 p-8 rounded-lg shadow-2xl w-3/4 md:w-1/3 transform transition-transform duration-300 hover:scale-105">
+      <div className="text-center">
+        <h2
+          id="success-title"
+          className="text-3xl font-bold text-green-400 mb-4 animate-bounce"
+        >
+          🎉 Booking Successful!
+        </h2>
+        <p
+          id="success-description"
+          className="text-lg text-gray-300 mb-6 font-medium"
+        >
+          Thank you for booking with us! Your slot has been confirmed.
+        </p>
+        <div className="flex flex-col md:flex-row justify-center gap-4 mt-6">
+          <button
+            className="bg-blue-700 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-blue-800 transition-transform transform hover:scale-110"
+            onClick={() => {
+              setIsBookingSuccess(false);
+              // Navigate to home
+              window.location.href = "/home";
+            }}
+          >
+            Go to Home
+          </button>
+          <button
+            className="bg-purple-700 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-purple-800 transition-transform transform hover:scale-110"
+            onClick={() => {
+              setIsBookingSuccess(false);
+              // Show booking list
+              window.location.href = "/booking-list";
+            }}
+          >
+            Show Booking List
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
+
     </div>
   );
 };
+    
 
 export default TicketBookingModal;

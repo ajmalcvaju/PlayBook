@@ -11,6 +11,8 @@ import { getTurfDetailsFromMail } from "../../application/usecases/getTurfId";
 import { getSlots } from "../../application/usecases/getSlots";
 import { currentSlots } from "../../application/usecases/turf/currentSots";
 import { deleteSlot } from "../../application/usecases/turf/deleteSlot";
+import { Console } from "console";
+import { getBookings } from "../../application/usecases/turf/getBookings";
 
 interface CustomRequest extends Request {
     files?: Express.Multer.File[];
@@ -105,6 +107,19 @@ export const turfController={
             const id=req.params.id
             await deleteSlot(TurfRepositoryImpl,id);
             res.status(200).json({success:true});
+          } catch (error: any) {
+            res.status(400).json({ message: error.message }); 
+          }
+      },
+      getBookings:async (req: Request, res: Response) => {
+        try {
+          console.log("hi")
+          const {email}=req.body
+          const turfDetails=await getTurfDetailsFromMail(email)
+            const id=turfDetails?._id as string
+            const bookings=await getBookings(TurfRepositoryImpl,id)
+            console.log(bookings)
+            res.status(200).json(bookings);
           } catch (error: any) {
             res.status(400).json({ message: error.message }); 
           }

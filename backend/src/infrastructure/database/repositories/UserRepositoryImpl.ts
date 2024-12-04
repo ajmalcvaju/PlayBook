@@ -1,5 +1,5 @@
 import { User } from "../../../domain/entities/User";
-import { Slot } from "../../../domain/entities/Turf";
+import { Slot, Turf } from "../../../domain/entities/Turf";
 import { UserRepository } from "../../../domain/repositories/UserRepository";
 import { UserModel, UserDocument } from "../models/userModel";
 import { SlotModel } from "../models/slotModel";
@@ -31,5 +31,22 @@ export const UserRepositoryImpl: UserRepository = {
   async getIdByMail(email: string): Promise<string | null> {
     const user: User | null = await UserModel.findOne({ email });
     return user ? user._id.toString() : null;
+  },
+  async getBookings(id:string):Promise<any[]>{
+    const bookings = await SlotModel.find({ userId: id, isBooked: true }).select("_id time date").populate("turfId", "turfName mobileNumber email");
+    const flatBookings = bookings.map((booking) => {
+      const turf = booking.turfId as Turf|any;
+      return {
+        _id: booking._id,
+        time: booking.time,
+        date: booking.date,
+        turfName: turf.turfName || "",
+        mobileNumber: turf.mobileNumber || "",
+        email: turf.email || "",
+      };
+    });
+    
+    return flatBookings
+    // return bookings
   }
 };

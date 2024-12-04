@@ -15,6 +15,12 @@ interface Turf {
 
 const TurfPages: React.FC = () => {
   const navigate = useNavigate();
+  let token=localStorage.getItem("userToken")
+  useEffect(()=>{
+   if(!token){
+    navigate("/login")
+   }
+  },[])
   const [turf, setTurf] = useState<Turf | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState<number>(0); // Track the index of the active image
   const { id } = useParams<{ id: string }>();

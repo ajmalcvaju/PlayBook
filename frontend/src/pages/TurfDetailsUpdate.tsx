@@ -15,7 +15,7 @@ const TurfDetailsUpdate = () => {
 
   useEffect(() => {
     if (!token) {
-      navigate("/turfLogin");
+      navigate("/turf-login");
     }
   }, [token, navigate]);
 
@@ -142,23 +142,7 @@ const TurfDetailsUpdate = () => {
           multiple
           className="border border-black rounded md:w-1/2 py-1 px-2 font-normal"
         />
-        <label className="font-bold text-gray-700 text-sm flex-1">
-          Turf Address (Manually)
-          <input
-            type="text"
-            value={manualAddress}
-            onChange={handleManualLocationChange}
-            className="border border-black rounded py-1 px-2"
-            placeholder="Enter the turf address"
-          />
-        </label>
-        <button
-          type="button"
-          className="bg-blue-600 text-white p-2 rounded-md"
-          // onClick={getCurrentLocation}
-        >
-          Use My Current Location
-        </button>
+        
         {isLoading && (
           <div className="text-blue-500">Updating... Please wait</div>
         )}

@@ -12,13 +12,13 @@ const TurfSidePanel = ({ page }: { page: string }) => {
 
   return (
     <div className="flex">
-      <div className="bg-green-300 h-full w-64 p-4 shadow-md flex flex-col">
-        <h1 className="text-center text-lg font-bold text-green-700 mb-5">Turf Panel</h1>
+      <div className="bg-gray-600 h-full w-64 p-4 shadow-md flex flex-col">
+        <h1 className="text-center text-gray-300 text-lg font-bold mb-5">Turf Panel</h1>
         <div className="flex flex-col gap-3">
           <button className={getButtonClass('dashboard')}><Link to="/turf/dashboard">Dashboard</Link></button>
           <button className={getButtonClass('slot-management')}><Link to="/turf/slot-management">Slot Management</Link></button>
           <button className={getButtonClass('customer-chat')}>Customer Chat</button>
-          <button className={getButtonClass('booking-list')}>Booking List</button>
+          <button className={getButtonClass('booking-management')}><Link to="/turf/booking-management">Booking List</Link></button>
           <button className={getButtonClass('upgrade-details')}><Link to="/turf/details-update">Upgrade Details</Link></button>
         </div>
       </div>

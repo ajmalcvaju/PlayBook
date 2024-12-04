@@ -7,7 +7,7 @@ const TurfDashBoard = () => {
   let token=localStorage.getItem("turfToken")
   useEffect(()=>{
    if(!token){
-    navigate("/turfLogin")
+    navigate("/turfl-login")
    }
   },[])
   return (

@@ -7,4 +7,5 @@ export interface UserRepository{
   findSlots(id: any,date:any): Promise<Slot[] | null>
   confirmBooking(id:string,userId:string|null):Promise<UpdateResult>
   getIdByMail(email: string): Promise<string | null>
+  getBookings(id:string):Promise<any[]>
 }

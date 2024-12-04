@@ -12,6 +12,7 @@ router.get("/getTurf",userController.getTurf)
 router.get("/get-turf-details/:id",userController.getTurfDetails)
 router.post("/resend-otp",userController.resendOtp)
 router.post("/confirm-booking",userController.confirmBooking)
+router.post("/get-booking",userController.getBookings)
 
 
 export default router
