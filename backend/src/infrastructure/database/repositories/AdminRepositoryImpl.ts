@@ -38,7 +38,14 @@ async getBookings(): Promise<Slot[] | any> {
   });
   return flatBookings;
 },
-async blockUser(id:string,block:number):Promise<void>{
+async blockUser(id:string,block:boolean):Promise<User[]>{
   const result = await UserModel.updateOne({ _id: id },{ $set: { isApproved: block } });
+  const users = await UserModel.find();
+  return users
+},
+async blockTurf(id:string,block:boolean):Promise<Turf[]>{
+  const result = await TurfModel.updateOne({ _id: id },{ $set: { isApproved: block } });
+  const turfs = await TurfModel.find();
+  return turfs
 }
-}
+} 

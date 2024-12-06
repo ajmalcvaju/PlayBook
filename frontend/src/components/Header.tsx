@@ -26,7 +26,7 @@ const Header = ({ user }: HeroProps) => {
       navigate("/login")
       setIsLoggedIn(false);
     }else if(user==="turf"){
-      navigate("/turfLogin")
+      navigate("/turf-login")
       setIsLoggedIn(false);
     }else if(user==="admin"){
       navigate("/adminLogin")

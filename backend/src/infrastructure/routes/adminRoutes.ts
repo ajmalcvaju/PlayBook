@@ -7,5 +7,6 @@ router.get("/get-users",adminController.getUser)
 router.get("/get-turfs",adminController.getTurf)
 router.get("/get-booking",adminController.getBookings)
 router.get("/block-user/:id/:block",adminController.blockUser)
+router.get("/block-turf/:id/:block",adminController.blockTurf)
 
 export default router

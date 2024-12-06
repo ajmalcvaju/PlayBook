@@ -97,7 +97,9 @@ const TicketBookingModal = ({}) => {
     setIsBookingSuccess(true); 
     const result = await response.json();
   };
-
+  const close=()=>{
+    navigate(-1)
+  }
   return (
     
     <div>
@@ -170,7 +172,7 @@ const TicketBookingModal = ({}) => {
           </div>
 
           <div className="flex justify-between w-full mt-4">
-            <button className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">
+            <button onClick={close} className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">
               Close
             </button>
             <button

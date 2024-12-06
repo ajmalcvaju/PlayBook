@@ -40,12 +40,12 @@ const Login = () => {
     } finally {
       setIsLoading(false);
     }
-  });
+  }); 
   return (
     <div
     className="h-screen flex items-center bg-green-400 justify-center bg-cover bg-center relative"
     style={{
-      backgroundImage: "url('https://cdn-wp.thesportsrush.com/2022/11/b0682d0e-virat-kohli-is-not-playing.jpg?format=auto&w=3840&q=75')", // Replace with your image URL
+      backgroundImage: "url('https://static.standard.co.uk/2022/12/19/06/1450124714.jpg?crop=8:5,smart&quality=75&auto=webp&width=960')", // Replace with your image URL
     }}
   >
 

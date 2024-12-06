@@ -41,52 +41,65 @@ const AdminLogin = () => {
     }
   });
   return (
+    <div
+  className="h-screen flex items-center bg-green-400 justify-center bg-cover bg-center relative"
+  style={{
+    backgroundImage:
+      "url('https://cdn-wp.thesportsrush.com/2022/11/b0682d0e-virat-kohli-is-not-playing.jpg?format=auto&w=3840&q=75')", // Replace with your image URL
+  }}
+>
+  <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+
+  <div className="relative bg-white rounded-lg bg-opacity-70 shadow-lg p-10 w-2/3 max-w-md backdrop-blur-md">
     <form className="flex flex-col gap-5" onSubmit={submit}>
-    <h2 className="font-bold text-3xl">Login</h2>
-    <label className="font-bold text-gray-700 text-sm flex-1">
-      Email
-      <div>
-        <input
-          type="email"
-          className="border border-black rounded w-1/2 py-1 px-2 font-normal"
-          {...register("email", { required: "This field is required" })}
-        ></input>
-      </div>
-      {errors.email && (
-        <span className="text-red-500">{errors.email.message}</span>
-      )}
-    </label>
-    <label className="font-bold text-gray-700 text-sm flex-1">
-      Password
-      <div>
-        <input
-          type="password"
-          className="border border-black rounded w-1/2 py-1 px-2 font-normal"
-          {...register("password", {
-            required: "This field is required",
-            minLength: {
-              value: 6,
-              message: "password must be ateast 6 character",
-            },
-          })}
-        ></input>
-      </div>
-      {errors.password && (
-        <span className="text-red-500">{errors.password.message}</span>
-      )}
-    </label>
-    {isLoading&&<div className="text-blue-500">Submitting....pease,Wait</div>}
-      {errorMessage&&<div className="text-red-500">{errorMessage}</div>}
+      <h2 className="font-bold text-3xl text-center">Login</h2>
+      <label className="font-bold text-gray-700 text-sm flex-1">
+        Email
+        <div>
+          <input
+            type="email"
+            className="border border-black rounded w-full py-1 px-2 font-normal"
+            {...register("email", { required: "This field is required" })}
+          />
+        </div>
+        {errors.email && (
+          <span className="text-red-500">{errors.email.message}</span>
+        )}
+      </label>
+      <label className="font-bold text-gray-700 text-sm flex-1">
+        Password
+        <div>
+          <input
+            type="password"
+            className="border border-black rounded w-full py-1 px-2 font-normal"
+            {...register("password", {
+              required: "This field is required",
+              minLength: {
+                value: 6,
+                message: "password must be ateast 6 character",
+              },
+            })}
+          />
+        </div>
+        {errors.password && (
+          <span className="text-red-500">{errors.password.message}</span>
+        )}
+      </label>
+      {isLoading && <div className="text-blue-500">Submitting....pease,Wait</div>}
+      {errorMessage && <div className="text-red-500">{errorMessage}</div>}
       <div className="flex">
-      <button
-        type="submit"
-        className="bg-green-600 text-white p-2 w-1/2 rounded-md px-5 font-bold hover:bg-green-500 text-xl"
-        disabled={isLoading}
-      >
-        {isLoading ? "Submitting..." : "Login"}
-      </button>
+        <button
+          type="submit"
+          className="bg-green-600 text-white p-2 w-full rounded-md px-5 font-bold hover:bg-green-500 text-xl"
+          disabled={isLoading}
+        >
+          {isLoading ? "Submitting..." : "Login"}
+        </button>
       </div>
-  </form>
+    </form>
+  </div>
+</div>
+
   )
 };
 

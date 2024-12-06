@@ -117,6 +117,7 @@ export const turfController={
           const {email}=req.body
           const turfDetails=await getTurfDetailsFromMail(email)
             const id=turfDetails?._id as string
+            console.log(id)
             const bookings=await getBookings(TurfRepositoryImpl,id)
             console.log(bookings)
             res.status(200).json(bookings);

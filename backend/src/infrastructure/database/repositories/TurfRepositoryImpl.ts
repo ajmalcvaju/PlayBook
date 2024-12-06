@@ -13,7 +13,7 @@ export const TurfRepositoryImpl: TurfRepository = {
     return createdTurf.toObject();
   },
   async findByEmail(email: string): Promise<Turf | null> {
-    const turf = await TurfModel.findOne({ email }); 
+    const turf = await TurfModel.findOne({ email,isApproved:true }); 
     return turf ? turf.toObject() : null;
   },
   async updateDetails(email: string, turfDetails: TurfDetails): Promise<UpdatedTurf> {
@@ -81,10 +81,23 @@ async currentSlots(turfId: string,date:string): Promise<Slot[]|void>{
 async deleteSlot(id:string): Promise<void>{
   const slots = await SlotModel.deleteOne({_id:id})
 },
-async getBookings(id:string):Promise<any[]>{
-  const bookings = await SlotModel.find({ turfId: id, isBooked: true }).select("_id time date").populate("userId", "firstName lastName mobileNumber email");
+async getBookings(id: string): Promise<any[]> {
+  const bookings = await SlotModel.find({ turfId: id, isBooked: true })
+    .select("_id time date")
+    .populate("userId", "firstName lastName mobileNumber email");
   const flatBookings = bookings.map((booking) => {
-    const user = booking.userId as User|any;
+    const user = booking.userId as User | undefined;
+    if (!user) {
+      return {
+        _id: booking._id,
+        time: booking.time,
+        date: booking.date,
+        firstName: "",
+        lastName: "",
+        mobileNumber: "",
+        email: "",
+      };
+    }
     return {
       _id: booking._id,
       time: booking.time,
@@ -95,7 +108,6 @@ async getBookings(id:string):Promise<any[]>{
       email: user.email || "",
     };
   });
-  
-  return flatBookings
+  return flatBookings;
 }
 };

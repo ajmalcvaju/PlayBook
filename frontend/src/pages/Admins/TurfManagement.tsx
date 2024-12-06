@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useState, useLayoutEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 type Turf = {
@@ -12,16 +12,21 @@ type Turf = {
 };
 
 const TurfManagement = () => {
-  let navigate=useNavigate()
-  let token=localStorage.getItem("adminToken")
-  useLayoutEffect(()=>{
-   if(!token){
-    navigate("/adminLogin")
-   }
-  },[])
+  let navigate = useNavigate();
+  let token = localStorage.getItem("adminToken");
+
+  useLayoutEffect(() => {
+    if (!token) {
+      navigate("/adminLogin");
+    }
+  }, []);
+
   const [turfs, setTurfs] = useState<Turf[]>([]);
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedTurf, setSelectedTurf] = useState<Turf | null>(null);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const turfsPerPage = 5;
 
   useLayoutEffect(() => {
     const fetchTurfs = async () => {
@@ -36,24 +41,66 @@ const TurfManagement = () => {
 
   const handleApproveOrBlockClick = (turf: Turf) => {
     setSelectedTurf(turf);
-    setShowModal(true); // Show confirmation modal
+    setShowModal(true);
   };
 
   const handleConfirmAction = () => {
     if (selectedTurf) {
-      console.log(`${selectedTurf.isApproved ? "Blocking" : "Approving"} turf:`, selectedTurf);
-      // Call the API to approve or block the turf here
-      // Then close the modal
-      setShowModal(false);
+      const id = selectedTurf._id;
+      let url = '';
+      if (selectedTurf.isApproved) {
+        url = `http://localhost:7000/api/admin/block-turf/${id}/0`;
+      } else {
+        url = `http://localhost:7000/api/admin/block-turf/${id}/1`;
+      }
+      fetch(url)
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error('Failed to update turf status');
+          }
+          setTurfs((prevTurfs) =>
+            prevTurfs.map((turf) =>
+              turf._id === id ? { ...turf, isApproved: !turf.isApproved } : turf
+            )
+          );
+          setShowModal(false);
+        })
+        .catch((err) => console.error('Error handling turf action:', err));
     }
   };
 
   const handleCancelAction = () => {
-    setShowModal(false); // Just close the modal without any action
+    setShowModal(false);
   };
+
+  const filteredTurfs = turfs.filter(
+    (turf) =>
+      turf.turfName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      turf.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      turf.mobileNumber.includes(searchQuery)
+  );
+
+  // Paginate turfs
+  const indexOfLastTurf = currentPage * turfsPerPage;
+  const indexOfFirstTurf = indexOfLastTurf - turfsPerPage;
+  const currentTurfs = filteredTurfs.slice(indexOfFirstTurf, indexOfLastTurf);
+
+  // Change page
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   return (
     <div className="bg-gray-950 p-4 min-h-full">
+      <div className="mb-4 flex justify-between items-center">
+        <h1 className="text-xl font-bold text-gray-200">User Management</h1>
+        <input
+          type="text"
+          className="px-4 w-1/3 py-2 rounded-lg border border-gray-700 bg-gray-800 text-gray-300 focus:outline-none focus:ring focus:ring-yellow-500"
+          placeholder="Search by name, email, or phone..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+
       <div className="overflow-x-auto rounded-lg shadow-lg">
         <table className="min-w-full text-left text-sm text-gray-300">
           <thead className="bg-gray-800 text-xs uppercase text-gray-400">
@@ -67,27 +114,48 @@ const TurfManagement = () => {
             </tr>
           </thead>
           <tbody>
-            {turfs && turfs.map((turf) => (
-              <tr className="bg-gray-900 border-b border-gray-700 hover:bg-gray-800" key={turf._id}>
-                <td className="px-6 py-4">{turf._id}</td>
-                <td className="px-6 py-4">{turf.turfName}</td>
-                <td className="px-6 py-4">{turf.email}</td>
-                <td className="px-6 py-4">{turf.mobileNumber}</td>
-                <td className="px-6 py-4">{turf.bookingCount}</td>
-                <td className="px-6 py-4">
-                  <button
-                    className={`${
-                      turf.isApproved ? "bg-red-600 hover:bg-red-700" : "bg-yellow-500 hover:bg-yellow-600"
-                    } text-white font-bold py-2 px-4 rounded-lg`}
-                    onClick={() => handleApproveOrBlockClick(turf)}
-                  >
-                    {turf.isApproved ? "Block" : "Approve"}
-                  </button>
+            {currentTurfs.length > 0 ? (
+              currentTurfs.map((turf,index) => (
+                <tr className="bg-gray-900 border-b border-gray-700 hover:bg-gray-800" key={turf._id}>
+                  <td className="px-6 py-4">{index+1}</td>
+                  <td className="px-6 py-4">{turf.turfName}</td>
+                  <td className="px-6 py-4">{turf.email}</td>
+                  <td className="px-6 py-4">{turf.mobileNumber}</td>
+                  <td className="px-6 py-4">{turf.bookingCount}</td>
+                  <td className="px-6 py-4">
+                    <button
+                      className={`${
+                        turf.isApproved ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'
+                      } text-white font-bold py-2 px-4 rounded-lg`}
+                      onClick={() => handleApproveOrBlockClick(turf)}
+                    >
+                      {turf.isApproved ? 'Block' : 'Approve'}
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={6} className="text-center text-gray-400 py-6">
+                  No Turf found.
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
+      </div>
+
+      {/* Pagination */}
+      <div className="flex justify-center mt-4">
+        {Array.from({ length: Math.ceil(filteredTurfs.length / turfsPerPage) }, (_, index) => (
+          <button
+            key={index}
+            onClick={() => paginate(index + 1)}
+            className={`mx-1 px-3 py-2 rounded-lg font-bold ${currentPage === index + 1 ? 'bg-yellow-500' : 'bg-gray-700 hover:bg-gray-600'}`}
+          >
+            {index + 1}
+          </button>
+        ))}
       </div>
 
       {/* Confirmation Modal */}

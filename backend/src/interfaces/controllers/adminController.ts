@@ -6,6 +6,7 @@ import { AdminRepositoryImpl } from "../../infrastructure/database/repositories/
 import { getTurfs } from "../../application/usecases/admin/getTurfs";
 import { getBookings } from "../../application/usecases/admin/getBookings";
 import { blockUser } from "../../application/usecases/admin/blockUser";
+import { blockTurf } from "../../application/usecases/admin/blockTurf";
 
 
 export const adminController={
@@ -48,11 +49,19 @@ export const adminController={
     blockUser:async(req:Request,res:Response)=>{ 
         try {
             const {id,block}=req.params
-            console.log(req.params)
-            await blockUser(AdminRepositoryImpl,id,parseInt(block))
-            res.status(200)
+            const users=await blockUser(AdminRepositoryImpl,id,Boolean(parseInt(block)))
+            res.status(200).json(users)
         } catch (error:any) {
             res.status(400).json({message:error.message})
         }
-    }
+    },
+    blockTurf:async(req:Request,res:Response)=>{ 
+        try {
+            const {id,block}=req.params
+            const turfs=await blockTurf(AdminRepositoryImpl,id,Boolean(parseInt(block)))
+            res.status(200).json(turfs)
+        } catch (error:any) {
+            res.status(400).json({message:error.message})
+        }
+    } 
 }

@@ -5,5 +5,6 @@ export interface AdminRepository{
   findUsers(): Promise<User[]|null>,
   findTurfs(): Promise<Turf[] | null>
   getBookings():Promise<any[]>
-  blockUser(id:string,block:number):Promise<void>
+  blockUser(id:string,block:boolean):Promise<User[]>
+  blockTurf(id:string,block:boolean):Promise<Turf[]>
 }

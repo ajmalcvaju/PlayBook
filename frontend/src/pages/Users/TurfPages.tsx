@@ -63,7 +63,9 @@ const TurfPages: React.FC = () => {
   const openModal = () => {
     navigate("book-ticket"); // Navigate to the modal route
   };
-
+  const openChat=()=>{
+    navigate("chat-with-turf");
+  }
   return (
     <>
       <div
@@ -130,7 +132,7 @@ const TurfPages: React.FC = () => {
 
           <div className="mt-4">
             <h3 className="text-lg font-semibold text-white mb-2">Contact Us</h3>
-            <button className="bg-blue-500 text-white px-6 py-2 rounded-md shadow-md hover:bg-blue-600 transition duration-300">
+            <button onClick={openChat} className="bg-blue-500 text-white px-6 py-2 rounded-md shadow-md hover:bg-blue-600 transition duration-300">
               Chat With Us
             </button>
           </div>

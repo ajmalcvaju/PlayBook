@@ -12,7 +12,7 @@ export const UserRepositoryImpl: UserRepository = {
     return createdUser.toObject();
   },
   async findByEmail(email: string): Promise<User | null> {
-    const user = await UserModel.findOne({ email });
+    const user = await UserModel.findOne({ email,isApproved:true });
     return user ? user.toObject() : null;
   },
   async findSlots(id:string,date:any): Promise<Slot[] | null> {
