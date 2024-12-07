@@ -20,7 +20,7 @@ export const UserRepositoryImpl: UserRepository = {
     //   {$match: { turfId: new mongoose.Types.ObjectId(id), date }},
     //   {$group: {_id: "$price",slots: { $push: "$$ROOT" },},},
     //   {$sort: { time: 1 },},
-    // ]);
+    // ]); 
     const groupedSlots = await SlotModel.find({turfId:id,date})
     return groupedSlots  ? groupedSlots  : null;
   },

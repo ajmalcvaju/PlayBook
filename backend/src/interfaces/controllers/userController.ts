@@ -113,5 +113,12 @@ export const userController = {
     } catch (error:any) {
       res.status(400).json({ message: error.message }); 
     }
+  },
+  chat:async (req: Request, res: Response) => {
+    try {
+      
+    } catch (error:any) {
+      res.status(400).json({ message: error.message }); 
+    }
   }
 };

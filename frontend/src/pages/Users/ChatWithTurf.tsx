@@ -1,137 +1,84 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
 
-const VideoCall = () => {
-  const [socket, setSocket] = useState(null);
-  const [remoteSocketId, setRemoteSocketId] = useState('');
-  const [isCalling, setIsCalling] = useState(false);
-
-  const localStreamRef = useRef(null);
-  const remoteStreamRef = useRef(null);
-  const peerConnectionRef = useRef(null);
-
-  const ICE_SERVERS = {
-    iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
-  };
+const ChatWithTurf = () => {
+  const [currentMessage, setCurrentMessage] = useState('');
+  const [messages, setMessages] = useState<{ text: string; isUser: boolean }[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const socketInstance = io('http://localhost:5000');
-    setSocket(socketInstance);
+    const socketConnection = io('http://localhost:7000'); // Connect to the backend server
 
-    socketInstance.on('receiveCall', async ({ offer, from }) => {
-      setRemoteSocketId(from);
-      peerConnectionRef.current = createPeerConnection(socketInstance, from);
-
-      await peerConnectionRef.current.setRemoteDescription(offer);
-      const answer = await peerConnectionRef.current.createAnswer();
-      await peerConnectionRef.current.setLocalDescription(answer);
-
-      socketInstance.emit('answerCall', { answer, to: from });
+    socketConnection.on('chat message', (msg: string) => {
+      // Append the received message to the messages state
+      setMessages((prevMessages) => [...prevMessages, { text: msg, isUser: false }]);
     });
 
-    socketInstance.on('callAnswered', async ({ answer }) => {
-      await peerConnectionRef.current.setRemoteDescription(answer);
-    });
-
-    socketInstance.on('iceCandidate', ({ candidate }) => {
-      peerConnectionRef.current.addIceCandidate(candidate);
-    });
-
-    return () => socketInstance.disconnect();
+    return () => {
+      socketConnection.disconnect(); // Clean up on unmount
+    };
   }, []);
 
-  const createPeerConnection = (socket, remoteSocketId) => {
-    const peerConnection = new RTCPeerConnection(ICE_SERVERS);
-
-    peerConnection.onicecandidate = ({ candidate }) => {
-      if (candidate) {
-        socket.emit('iceCandidate', { candidate, to: remoteSocketId });
-      }
-    };
-
-    peerConnection.ontrack = (event) => {
-      remoteStreamRef.current.srcObject = event.streams[0];
-    };
-
-    localStreamRef.current.srcObject.getTracks().forEach((track) => {
-      peerConnection.addTrack(track, localStreamRef.current.srcObject);
-    });
-
-    return peerConnection;
+  const handleSendMessage = () => {
+    if (currentMessage.trim()) {
+      const socket = io('http://localhost:7000');
+      socket.emit('chat message', currentMessage); // Send message to the server
+      setMessages((prevMessages) => [...prevMessages, { text: currentMessage, isUser: true }]); // Display user's message locally
+      setCurrentMessage(''); // Clear input field
+    }
   };
 
-  const startCall = async () => {
-    if (!remoteSocketId) return;
-
-    peerConnectionRef.current = createPeerConnection(socket, remoteSocketId);
-    const offer = await peerConnectionRef.current.createOffer();
-    await peerConnectionRef.current.setLocalDescription(offer);
-
-    socket.emit('callUser', { offer, to: remoteSocketId });
-    setIsCalling(true);
+  const cancel = () => {
+    navigate(-1); // Navigate back on cancel
   };
-
-  const setupLocalStream = async () => {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: true,
-    });
-    localStreamRef.current.srcObject = stream;
-  };
-
-  useEffect(() => {
-    setupLocalStream();
-  }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-gray-100">
-      <h1 className="text-4xl font-extrabold mb-6">Video Call</h1>
-
-      <div className="flex flex-col md:flex-row gap-6 items-center">
-        <div className="flex flex-col items-center">
-          <video
-            ref={localStreamRef}
-            autoPlay
-            muted
-            className="w-64 h-48 md:w-80 md:h-60 rounded-lg border-4 border-gray-700 shadow-lg"
-          />
-          <p className="mt-2 text-sm italic text-gray-400">Your Video</p>
+    <div className="fixed inset-0 bg-gray-900 flex justify-center items-center">
+      <div className="bg-white flex flex-col rounded-lg shadow-2xl w-full md:w-1/2 h-full md:h-3/4">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-green-500 to-teal-400 text-white p-4 rounded-t-lg text-center font-bold text-lg flex justify-between items-center">
+          <span>Chat with Turf</span>
+          <button onClick={cancel} className="text-white hover:text-gray-200">
+            &#x2715;
+          </button>
         </div>
 
-        <div className="flex flex-col items-center">
-          <video
-            ref={remoteStreamRef}
-            autoPlay
-            className="w-64 h-48 md:w-80 md:h-60 rounded-lg border-4 border-gray-700 shadow-lg"
+        {/* Chat Messages */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-gray-50 to-gray-200">
+          {messages.map((message, index) => (
+            <div key={index} className={`flex ${message.isUser ? 'justify-end' : 'justify-start'} mt-2`}>
+              <div
+                className={`max-w-xs p-3 rounded-xl shadow-lg text-sm transition-transform transform hover:scale-105 ${
+                  message.isUser ? 'bg-gradient-to-r from-green-400 to-green-600 text-white' : 'bg-gradient-to-r from-gray-300 to-gray-400 text-black'
+                }`}
+              >
+                {message.text}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Input Area */}
+        <div className="flex items-center p-4 border-t border-gray-300 bg-white">
+          <input
+            type="text"
+            placeholder="Type a message..."
+            className="flex-1 border border-gray-300 rounded-full p-3 mr-2 focus:outline-none bg-gray-100 text-sm placeholder-gray-500"
+            value={currentMessage}
+            onChange={(e) => setCurrentMessage(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
           />
-          <p className="mt-2 text-sm italic text-gray-400">Remote Video</p>
+          <button
+            className="bg-gradient-to-r from-green-400 to-teal-500 text-white p-3 rounded-full hover:from-green-500 hover:to-teal-600 focus:outline-none transition-transform transform hover:scale-105"
+            onClick={handleSendMessage}
+          >
+            &#x27A4;
+          </button>
         </div>
       </div>
-
-      <div className="mt-6 flex flex-col md:flex-row gap-4 items-center">
-        <input
-          type="text"
-          placeholder="Enter remote socket ID"
-          value={remoteSocketId}
-          onChange={(e) => setRemoteSocketId(e.target.value)}
-          className="w-64 md:w-80 p-2 rounded-lg border-2 border-gray-700 bg-gray-800 placeholder-gray-500 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-
-        <button
-          onClick={startCall}
-          className="bg-blue-600 hover:bg-blue-700 transition text-white font-semibold py-2 px-6 rounded-lg shadow-lg"
-        >
-          Start Call
-        </button>
-      </div>
-
-      {isCalling && (
-        <p className="mt-4 text-lg font-medium text-green-400 animate-pulse">
-          Calling...
-        </p>
-      )}
     </div>
   );
 };
 
-export default VideoCall;
+export default ChatWithTurf;
