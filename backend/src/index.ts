@@ -8,10 +8,11 @@ import path from 'path';
 import http from 'http';
 import { connectDB } from './infrastructure/database/connect';
 import socketIo from 'socket.io';
+import { setupSocketListeners } from './infrastructure/socket/socketService';
 
 const app = express();
 const server = http.createServer(app);
-const io = new socketIo.Server(server, {
+export const io = new socketIo.Server(server, {
   cors: {
     origin: 'http://localhost:5173',
     methods: ['GET', 'POST']}
@@ -30,19 +31,8 @@ app.use('/api/users', userRoutes);
 app.use('/api/turfs', turfRoutes);
 app.use('/api/admin', adminRoutes);
 
-// Socket.io connection
-io.on('connection', (socket) => {
-  console.log('A user connected');
+setupSocketListeners(io);
 
-  socket.on('chat message', (msg) => {
-    console.log('Message received:', msg);
-    io.emit('chat message', msg); // Broadcast the message to all connected clients
-  });
-
-  socket.on('disconnect', () => {
-    console.log('User disconnected');
-  });
-});
 
 server.listen(7000, () => {
   console.log('Server running at http://localhost:7000');

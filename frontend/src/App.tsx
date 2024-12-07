@@ -22,6 +22,7 @@ import BookingManagement from './pages/Turfs/BookingManagement'
 import BookingList from './pages/Users/BookingList'
 import BookingListAdmin from './pages/Admins/BookingListAdmin'
 import ChatWithTurf from './pages/Users/chatWithTurf'
+import ChatWithUser from './pages/Turfs/ChatWithUser'
 
 
 
@@ -48,6 +49,7 @@ function App() {
         <Route path='/turf/dashboard' element={<Layout user="turf" page='dashboard'><TurfDashBoard/></Layout>}/>
         {/* <Route path='/turf/turf-management' element={<Layout user="turf" page='turf-management'><TurfManagement/></Layout>}/> */}
         <Route path='/turf/slot-management' element={<Layout user="turf" page='slot-management'><SlotManagement/></Layout>}/>
+        <Route path='/turf/customer-chat' element={<Layout user="turf" page='customer-chat'><ChatWithUser/></Layout>}/>
         <Route path='/turf/booking-management' element={<Layout user="turf" page='booking-management'><BookingManagement/></Layout>}/>
         <Route path='/turf/details-update' element={<Layout user="turf" page="upgrade-details"><TurfDetailsUpdate/></Layout>}/>
         <Route path='/adminLogin' element={<Layout user='admin' page='authentication'><AdminLogin/></Layout>}/>

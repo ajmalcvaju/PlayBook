@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
 
-const ChatWithTurf = () => {
+const ChatWithUser = () => {
   const [currentMessage, setCurrentMessage] = useState('');
   const [messages, setMessages] = useState<{ text: string; isUser: boolean }[]>([]);
   const navigate = useNavigate();
@@ -81,4 +81,4 @@ const ChatWithTurf = () => {
   );
 };
 
-export default ChatWithTurf;
+export default ChatWithUser;

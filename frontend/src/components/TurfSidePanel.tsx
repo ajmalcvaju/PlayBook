@@ -17,7 +17,7 @@ const TurfSidePanel = ({ page }: { page: string }) => {
         <div className="flex flex-col gap-3">
           <button className={getButtonClass('dashboard')}><Link to="/turf/dashboard">Dashboard</Link></button>
           <button className={getButtonClass('slot-management')}><Link to="/turf/slot-management">Slot Management</Link></button>
-          <button className={getButtonClass('customer-chat')}>Customer Chat</button>
+          <button className={getButtonClass('customer-chat')}><Link to="/turf/customer-chat">Customer Chat</Link></button>
           <button className={getButtonClass('booking-management')}><Link to="/turf/booking-management">Booking List</Link></button>
           <button className={getButtonClass('upgrade-details')}><Link to="/turf/details-update">Upgrade Details</Link></button>
         </div>
