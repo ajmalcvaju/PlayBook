@@ -23,6 +23,7 @@ import BookingList from './pages/Users/BookingList'
 import BookingListAdmin from './pages/Admins/BookingListAdmin'
 import ChatWithTurf from './pages/Users/chatWithTurf'
 import ChatWithUser from './pages/Turfs/ChatWithUser'
+import VideoCall from './pages/Users/VideoCall'
 
 
 
@@ -40,7 +41,9 @@ function App() {
         <Route path='book-ticket' element={<BookTurf/>}>
         {/* <Route path='booking-confirmation' element={<BookingConfirmation/>}/> */}
         </Route>
-        <Route path='chat-with-turf' element={<ChatWithTurf/>}></Route>
+        <Route path='chat-with-turf' element={<ChatWithTurf/>}>
+        <Route path='video-call-turf' element={<VideoCall/>}></Route>
+        </Route>
         </Route>
         <Route path='/booking-list' element={<Layout user='user'><BookingList/></Layout>}/>
         <Route path='/list-turf' element={<Layout user='turf' page='authentication'><ListTurf/></Layout>}/>

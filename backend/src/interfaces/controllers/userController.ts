@@ -12,7 +12,6 @@ import mongoose from "mongoose";
 import { confirmBooking } from "../../application/usecases/user/confirmBooking";
 import { getIdFrommail } from "../../application/usecases/user/getIdFrommail";
 import { getBookings } from "../../application/usecases/user/getBookings";
-import { io } from "../../index";
 
 export const userController = {
   register: async (req: Request, res: Response) => {
@@ -118,7 +117,6 @@ export const userController = {
   chat:async (req: Request, res: Response) => {
     try {
       console.log("you got a message")
-      io.emit('chat message',req.body.message);
     } catch (error:any) {
       res.status(400).json({ message: error.message }); 
     }

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
 
 const ChatWithTurf = () => {
@@ -18,26 +18,26 @@ const ChatWithTurf = () => {
       setMessages((prev) => [...prev, { text: msg, isUser: false }]);
     });
 
-    socket.on('offer', async (offer) => {
-      if (peerConnection) {
-        await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-        const answer = await peerConnection.createAnswer();
-        await peerConnection.setLocalDescription(answer);
-        socket.emit('answer', answer);
-      }
-    });
+    // socket.on('offer', async (offer) => {
+    //   if (peerConnection) {
+    //     await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+    //     const answer = await peerConnection.createAnswer();
+    //     await peerConnection.setLocalDescription(answer);
+    //     socket.emit('answer', answer);
+    //   }
+    // });
 
-    socket.on('answer', async (answer) => {
-      if (peerConnection) {
-        await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
-      }
-    });
+    // socket.on('answer', async (answer) => {
+    //   if (peerConnection) {
+    //     await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+    //   }
+    // });
 
-    socket.on('candidate', async (candidate) => {
-      if (peerConnection) {
-        await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
-      }
-    });
+    // socket.on('candidate', async (candidate) => {
+    //   if (peerConnection) {
+    //     await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+    //   }
+    // });
 
     return () => {
       socket.disconnect();
@@ -45,35 +45,7 @@ const ChatWithTurf = () => {
   }, [peerConnection]);
 
   const startCall = async () => {
-    const pc = new RTCPeerConnection();
-
-    pc.onicecandidate = (event) => {
-      if (event.candidate) {
-        socket.emit('candidate', event.candidate);
-      }
-    };
-
-    pc.ontrack = (event) => {
-      if (remoteVideoRef.current) {
-        remoteVideoRef.current.srcObject = event.streams[0];
-      }
-    };
-
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-    if (localVideoRef.current) {
-      localVideoRef.current.srcObject = stream;
-    }
-
-    stream.getTracks().forEach((track) => {
-      pc.addTrack(track, stream);
-    });
-
-    const offer = await pc.createOffer();
-    await pc.setLocalDescription(offer);
-    socket.emit('offer', offer);
-
-    setPeerConnection(pc);
-    setIsCallActive(true);
+    navigate("video-call-turf")
   };
 
   const endCall = () => {
@@ -156,11 +128,12 @@ const ChatWithTurf = () => {
           </button>
         </div>
 
-        <div className="flex items-center p-4 bg-gray-50">
+        {/* <div className="flex items-center p-4 bg-gray-50">
           <video ref={localVideoRef} autoPlay playsInline muted className="w-1/2 h-40 bg-black rounded-md mr-2" />
           <video ref={remoteVideoRef} autoPlay playsInline className="w-1/2 h-40 bg-black rounded-md" />
-        </div>
+        </div> */}
       </div>
+      <Outlet/>
     </div>
   );
 };
