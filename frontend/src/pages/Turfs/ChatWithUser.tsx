@@ -9,70 +9,69 @@ const ChatWithUser = () => {
   const [isCallActive, setIsCallActive] = useState(false);
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
+  const [stream, setStream] = useState<MediaStream | null>(null);
   const navigate = useNavigate();
   const socket = io('http://localhost:7000'); // Replace with your backend URL
-
+  const roomId = "67451984f386dd6e47fb1274";
   useEffect(() => {
     socket.on('chat message', (msg: string) => {
       setMessages((prev) => [...prev, { text: msg, isUser: false }]);
     });
+    const pc = new RTCPeerConnection({
+      iceServers: [
+          { urls: "stun:stun.l.google.com:19302" }, // Google STUN server
+      ],
+  });
+  pc.onicecandidate = (event) => {
+    if (event.candidate) {
+        socket.emit("ice-candidate", event.candidate);
+    }
+};
 
-    socket.on('offer', async (offer) => {
-      if (peerConnection) {
-        await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-        const answer = await peerConnection.createAnswer();
-        await peerConnection.setLocalDescription(answer);
-        socket.emit('answer', answer);
-      }
-    });
-
-    socket.on('answer', async (answer) => {
-      if (peerConnection) {
-        await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
-      }
-    });
-
-    socket.on('candidate', async (candidate) => {
-      if (peerConnection) {
-        await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
-      }
-    });
-
-    return () => {
-      socket.disconnect();
-    };
+pc.ontrack = (event) => {
+    // Set the remote stream to the remote video element
+    if (remoteVideoRef.current) {
+        remoteVideoRef.current.srcObject = event.streams[0];
+    }
+};
+setPeerConnection(pc);
+return () => {
+  socket.disconnect();
+  pc.close();
+};
   }, [peerConnection]);
 
-  const startCall = async () => {
-    const pc = new RTCPeerConnection();
+  useEffect(() => {
+    if (socket && peerConnection) {
+        // Listen for signaling messages
+        socket.on("offer", async (offer) => {
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+            const answer = await peerConnection.createAnswer();
+            await peerConnection.setLocalDescription(answer);
+            socket.emit("answer", answer);
+        });
 
-    pc.onicecandidate = (event) => {
-      if (event.candidate) {
-        socket.emit('candidate', event.candidate);
-      }
-    };
+        socket.on("answer", async (answer) => {
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+        });
 
-    pc.ontrack = (event) => {
-      if (remoteVideoRef.current) {
-        remoteVideoRef.current.srcObject = event.streams[0];
-      }
-    };
-
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-    if (localVideoRef.current) {
-      localVideoRef.current.srcObject = stream;
+        socket.on("ice-candidate", async (candidate) => {
+            try {
+                await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+            } catch (error) {
+                console.error("Error adding ICE candidate:", error);
+            }
+        });
     }
+}, [socket, peerConnection]);
 
-    stream.getTracks().forEach((track) => {
-      pc.addTrack(track, stream);
-    });
 
-    const offer = await pc.createOffer();
-    await pc.setLocalDescription(offer);
-    socket.emit('offer', offer);
-
-    setPeerConnection(pc);
-    setIsCallActive(true);
+  const startCall = async () => {
+    if (peerConnection && socket) {
+      const offer = await peerConnection.createOffer();
+      await peerConnection.setLocalDescription(offer);
+      socket.emit("offer", offer);
+  }
   };
 
   const endCall = () => {
@@ -154,12 +153,11 @@ const ChatWithUser = () => {
             &#x27A4;
           </button>
         </div>
-
-        <div className="flex items-center p-4 bg-gray-50">
+      </div>
+      <div className="flex items-center p-4 bg-gray-50">
           <video ref={localVideoRef} autoPlay playsInline muted className="w-1/2 h-40 bg-black rounded-md mr-2" />
           <video ref={remoteVideoRef} autoPlay playsInline className="w-1/2 h-40 bg-black rounded-md" />
         </div>
-      </div>
     </div>
   );
 };

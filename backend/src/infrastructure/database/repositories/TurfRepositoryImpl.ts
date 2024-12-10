@@ -109,5 +109,9 @@ async getBookings(id: string): Promise<any[]> {
     };
   });
   return flatBookings;
+},
+async addLocation(id:string,locationName:string,latitude:number,longitude:number): Promise<void>{
+  const slots = await TurfModel.updateOne({_id:id},{locationName:locationName,latitude:latitude,longitude:longitude})
+  return
 }
 };

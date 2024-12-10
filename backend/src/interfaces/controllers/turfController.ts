@@ -13,6 +13,7 @@ import { currentSlots } from "../../application/usecases/turf/currentSots";
 import { deleteSlot } from "../../application/usecases/turf/deleteSlot";
 import { Console } from "console";
 import { getBookings } from "../../application/usecases/turf/getBookings";
+import { addingLocation } from "../../application/usecases/turf/addingLocation";
 
 interface CustomRequest extends Request {
     files?: Express.Multer.File[];
@@ -124,6 +125,14 @@ export const turfController={
           } catch (error: any) {
             res.status(400).json({ message: error.message }); 
           }
-      }
+      },
+      addLocation:async (req: Request, res: Response) => {
+        try {
+            const {locationName,latitude,longitude}=req.body
+            await addingLocation(TurfRepositoryImpl,locationName,latitude,longitude)
+          } catch (error: any) {
+            res.status(400).json({ message: error.message }); 
+          }
+      } 
 }
  

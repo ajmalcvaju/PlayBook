@@ -14,6 +14,7 @@ const TurfSchema = new Schema<TurfDocument>({
   isVerified:{type:Number,default:0},
   isApproved:{type:Number,default:0},
   turfAddress: { type: String, required: false },
+  locationName:{ type: String, required: false },
   turfMap: { type: String, required: false },
   latitude: { type: Number, required: false },
   longitude: { type: Number, required: false },

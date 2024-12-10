@@ -15,6 +15,7 @@ export interface TurfDetails{
     latitude?: number;
     longitude?: number;
     turfOverview?: string;
+    locationName?:string;
     facilities?:string
     gallery?: string[];
 }
