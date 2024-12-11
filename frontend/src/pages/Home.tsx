@@ -26,6 +26,7 @@ const Home: React.FC = () => {
   const token = localStorage.getItem('userToken');
 
   const [turfs, setTurfs] = useState<Turf[]>([]);
+  const [sortOrder, setSortOrder] = useState('default');
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [locations, setLocations] = useState<any>([]);
@@ -210,7 +211,9 @@ const Home: React.FC = () => {
       }
     }
   };
-  const filteredTurfs = turfs.filter((turf) => turf.distance <= distanceFilter);
+  const filteredTurfs = turfs
+    .filter((turf) => turf.distance <= distanceFilter)
+    .sort((a, b) => {if (sortOrder === 'distance') {return a.distance - b.distance;}return 0;});
   const startIndex = (currentPage - 1) * turfsPerPage;
   const endIndex = startIndex + turfsPerPage;
   const paginatedTurfs = filteredTurfs.slice(startIndex, endIndex);
@@ -276,42 +279,59 @@ const Home: React.FC = () => {
         </div>
       )}
       <div className="bg-gray-700 w-64 h-auto p-6">
-        <div className="bg-gray-700 p-6 rounded-lg shadow-lg flex flex-col items-center justify-center space-y-4">
-          <h2 className="text-lg text-white font-bold">Your Location</h2>
-          <span
-            className="flex items-center text-white text-lg font-light space-x-2 cursor-pointer hover:text-blue-400 transition-all duration-300"
-            onClick={locationFromMap}
-          >
-            <span>{locations.locationName}</span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="w-5 h-5"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </span>
-        </div>
-        <div className="mt-6 text-white">
-      <h3 className="font-bold mb-2">Filter by Distance (km)</h3>
-      <input
-        type="range"
-        min="0"
-        max="50"
-        value={distanceFilter}
-        onChange={(e) => setDistanceFilter(e.target.value)}
-        className="w-full"
-      />
-      <div className="text-sm mt-2">Up to {distanceFilter} km</div>
-    </div>
-      </div>
+  {/* Location Section */}
+  <div className="bg-gray-700 p-6 rounded-lg shadow-lg flex flex-col items-center justify-center space-y-4">
+    <h2 className="text-lg text-white font-bold">Your Location</h2>
+    <span
+      className="flex items-center text-white text-lg font-light space-x-2 cursor-pointer hover:text-blue-400 transition-all duration-300"
+      onClick={locationFromMap}
+    >
+      <span>{locations.locationName}</span>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={2}
+        stroke="currentColor"
+        className="w-5 h-5"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M19 9l-7 7-7-7"
+        />
+      </svg>
+    </span>
+  </div>
+
+  {/* Distance Filter Section */}
+  <div className="mt-6 text-white">
+    <h3 className="font-bold mb-2">Filter by Distance (km)</h3>
+    <input
+      type="range"
+      min="0"
+      max="50"
+      value={distanceFilter}
+      onChange={(e) => setDistanceFilter(e.target.value)}
+      className="w-full"
+    />
+    <div className="text-sm mt-2">Up to {distanceFilter} km</div>
+  </div>
+
+  {/* Sort by Distance Section */}
+  <div className="mt-6 text-white">
+    <h3 className="font-bold mb-2">Sort by</h3>
+    <select
+      onChange={(e) => setSortOrder(e.target.value)}
+      value={sortOrder}
+      className="w-full p-2 bg-gray-800 text-white rounded shadow"
+    >
+      <option value="default">Default</option>
+      <option value="distance">Distance (Ascending)</option>
+    </select>
+  </div>
+</div>
+
       <div className="flex-1 p-6 bg-gray-900 min-h-screen text-white">
       <h1 className="text-3xl font-bold text-center mb-8">
         Score Big with Every Booking – Reserve Your Turf Today
