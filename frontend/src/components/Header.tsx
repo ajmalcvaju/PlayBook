@@ -34,7 +34,7 @@ const Header = ({ user }: HeroProps) => {
     }
   }
   return (
-    <div className='bg-green-800 py-2'>
+    <div className='bg-gradient-to-r from-gray-900 via-gray-700 to-gray-900 pt-4 shadow-lg transform transition-all duration-300'>
       <div className='container mx-auto flex justify-between'>
         <span className='text-2xl text-white font-bold tracking-tight'>
         <Link to="/">PlayBook.com</Link>

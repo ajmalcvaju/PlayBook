@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { Outlet, useNavigate, useParams } from "react-router-dom";
 
@@ -11,6 +11,8 @@ interface Turf {
   turfAddress: string;
   turfOverview: string;
   facilities: string;
+  latitude:number;
+  longitude:number
 }
 
 const TurfPages: React.FC = () => {
@@ -22,9 +24,14 @@ const TurfPages: React.FC = () => {
    }
   },[])
   const [turf, setTurf] = useState<Turf | null>(null);
-  const [activeImageIndex, setActiveImageIndex] = useState<number>(0); // Track the index of the active image
+  const [activeImageIndex, setActiveImageIndex] = useState<number>(0); 
+  const [currentWeather, setCurrentWeather] = useState(null);
+  const [forecast, setForecast] = useState(null);
   const { id } = useParams<{ id: string }>();
-
+  const mapRef = useRef(null);
+  const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+  // const API_KEY = import.meta.env.VITE_API_KEY;
+  const API_KEY = 'cc4cb52276bae2c8af66db640565551b';
   useEffect(() => {
     const fetchTurfDetails = async () => {
       try {
@@ -49,6 +56,59 @@ const TurfPages: React.FC = () => {
 
     fetchTurfDetails();
   }, [id]);
+  useEffect(() => {
+    if (turf?.latitude && turf?.longitude) {
+      const latitude = turf.latitude;
+      const longitude = turf.longitude;
+  
+      fetch(
+        `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=${API_KEY}`
+      )
+        .then((response) => response.json())
+        .then((data) => setCurrentWeather(data))
+        .catch((error) => console.error("Error fetching current weather:", error));
+  
+      fetch(
+        `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&units=metric&appid=${API_KEY}`
+      )
+        .then((response) => response.json())
+        .then((data) => setForecast(data))
+        .catch((error) => console.error("Error fetching weather forecast:", error));
+    }
+  }, [turf]);
+  
+
+  useEffect(() => {
+    // Load the Google Maps script
+    const loadGoogleMaps = () => {
+      const script = document.createElement("script");
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}`;
+      script.async = true;
+      script.onload = () => initializeMap();
+      document.head.appendChild(script);
+    };
+
+    const initializeMap = () => {
+      const location = { lat: turf?.latitude, lng: turf?.longitude };
+
+      const map = new google.maps.Map(mapRef.current, {
+        center: location,
+        zoom: 13,
+      });
+
+      new google.maps.Marker({
+        position: location,
+        map: map,
+        title: "Turf Location", 
+      });
+    };
+
+    if (!window.google || !google.maps) {
+      loadGoogleMaps();
+    } else {
+      initializeMap();
+    }
+  }, [turf]);
 
   const handleNextImage = () => {
     setActiveImageIndex((prevIndex) =>
@@ -68,6 +128,7 @@ const TurfPages: React.FC = () => {
   }
   return (
     <>
+    <div className="bg-gray-900 text-gray-200 min-h-screen p-5">
       <div
         className="bg-black text-white rounded-2xl shadow-xl w-full hover:shadow-2xl transition-shadow duration-300 flex flex-col md:flex-row relative bg-cover bg-center"
         style={{
@@ -140,9 +201,86 @@ const TurfPages: React.FC = () => {
       </div>
       {/* Outlet to render modal */}
       <Outlet />
-      <div>
-        
+      
+      <div className="flex flex-col mt-20 gap-10 px-5">
+  {/* Turf Overview Section */}
+  <div className="flex gap-5">
+  {/* Turf Overview Section */}
+  <div className="w-1/2 p-5 border-2 border-gray-600 rounded-lg bg-gray-800 text-gray-200">
+    <h1 className="text-center text-xl mb-5 border-b-2 border-gray-600 pb-2">
+      Turf Overview
+    </h1>
+    <p>
+      {turf?.turfOverview}
+    </p>
+  </div>
+
+  {/* Turf Facilities Section */}
+  <div className="w-1/2 p-5 border-2 border-gray-600 rounded-lg bg-gray-800 text-gray-200">
+    <h1 className="text-center text-xl mb-5 border-b-2 border-gray-600 pb-2">
+      Turf Facilities
+    </h1>
+    <p>
+      {turf?.facilities}
+    </p>
+  </div>
+</div>
+
+
+  {/* Map and Weather Information Section */}
+  <div className="flex justify-between items-start gap-5">
+    {/* Map Section */}
+    <div className="w-1/2 p-5 border-2 border-gray-600 rounded-lg bg-gray-800">
+      <h1 className="text-center mb-5 text-xl border-b-2 border-gray-600 pb-2">
+        Location
+      </h1>
+      <h2 className="mt-7">{turf?.turfAddress || "Address not available."}</h2>
+      <div
+        ref={mapRef}
+        className="h-[500px] mt-7 w-full border-2 border-gray-600 rounded-lg"
+      >
+        {/* Map content will be rendered here */}
       </div>
+    </div>
+
+    {/* Weather Information Section */}
+    <div className="w-1/2 p-5 border-2 border-gray-600 rounded-lg bg-gray-800">
+      <h1 className="text-center mb-5 text-xl border-b-2 border-gray-600 pb-2">
+        Weather Information
+      </h1>
+      {currentWeather ? (
+        <div>
+          <h2 className="text-lg mb-3">Current Weather</h2>
+          <p>Temperature: {currentWeather.main.temp}°C</p>
+          <p>Condition: {currentWeather.weather[0].description}</p>
+          <p>Humidity: {currentWeather.main.humidity}%</p>
+        </div>
+      ) : (
+        <p>Loading current weather...</p>
+      )}
+      {forecast ? (
+        <div className="mt-5">
+          <h2 className="text-lg mb-3">Today's Expected Weather</h2>
+          {forecast.list.slice(0, 4).map((entry, index) => (
+            <div
+              key={index}
+              className="mb-3 p-3 bg-gray-900 rounded-md border border-gray-700"
+            >
+              <p>Date: {new Date(entry.dt_txt).toLocaleString()}</p>
+              <p>Temperature: {entry.main.temp}°C</p>
+              <p>Condition: {entry.weather[0].description}</p>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p>Loading forecast...</p>
+      )}
+    </div>
+  </div>
+</div>
+
+</div>
+
     </>
   );
 };

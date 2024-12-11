@@ -21,7 +21,7 @@ interface Location {
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
-  const GOOGLE_MAPS_API_KEY = 'AIzaSyAfew-4pbm7e88NH-V_t5eboujt_LKKESI';
+  const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string;
   const email = localStorage.getItem('userEmail') ;
   const token = localStorage.getItem('userToken');
 

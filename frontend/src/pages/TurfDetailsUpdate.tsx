@@ -9,8 +9,9 @@ type RegisterFormData = {
   facilities: string;
   email: string;
 };
-const GOOGLE_MAPS_API_KEY = 'AIzaSyAfew-4pbm7e88NH-V_t5eboujt_LKKESI';
+const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string;
 const TurfDetailsUpdate = () => {
+  
   const navigate = useNavigate();
   const token = localStorage.getItem("turfToken");
 
@@ -45,6 +46,7 @@ const TurfDetailsUpdate = () => {
       setGallery(e.target.files);
     }
   };
+  
   const locationFromMap = () => {
     setIsModalOpen(true)
   };
@@ -116,7 +118,7 @@ const TurfDetailsUpdate = () => {
   };
 
   const addMarker = (latLng) => {
-    if (marker) marker.setMap(null); // Remove previous marker
+    if (marker) marker.setMap(null);
 
     const newMarker = new window.google.maps.Marker({
       position: latLng,
@@ -167,7 +169,6 @@ const TurfDetailsUpdate = () => {
           email
         });
         console.log(response.data);
-        fetchLocations();
       } catch (error) {
         console.error('Error saving location:', error);
       }
@@ -322,7 +323,7 @@ const TurfDetailsUpdate = () => {
         <label className="font-bold text-gray-700 text-sm">
           Turf Facilities
           <div>
-            <input
+            <input 
               className="border border-black rounded md:w-1/2 py-1 px-2 font-normal"
               {...register("facilities", {
                 required: "This field is required",

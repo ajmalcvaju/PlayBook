@@ -21,7 +21,7 @@ const Hero = ({ user }: HeroProps) => {
   }
 
   return (
-    <div className="bg-green-800 pb-7">
+    <div className='bg-gradient-to-r from-gray-900 via-gray-700 to-gray-900 shadow-lg py-4 transform transition-all duration-300'>
       <div className="container mx-auto flex flex-col gap-1">
         <h1 className="text-3xl text-white font-bold">{title}</h1>
         <p className="text-1.5xl text-white">{description}</p>
