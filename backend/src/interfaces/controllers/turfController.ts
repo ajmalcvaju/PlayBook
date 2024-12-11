@@ -55,7 +55,8 @@ export const turfController={
             if (!customReq.files) throw new Error("No files uploaded");
             const uploadedImages = await uploadedImage(customReq.files);
             const { email, ...data } = customReq.body;
-            const updatedData={data,...{gallery:uploadedImages}}
+            const updatedData={...data,...{gallery:uploadedImages}}
+            console.log(updatedData)
             const updatedTurf = await updateTurfDetails(TurfRepositoryImpl, email, updatedData);
       
             res.status(200).json(updatedTurf);
@@ -128,11 +129,25 @@ export const turfController={
       },
       addLocation:async (req: Request, res: Response) => {
         try {
+            const {email}=req.body
+            const turfDetails=await getTurfDetailsFromMail(email)
+            const id=turfDetails?._id as string
             const {locationName,latitude,longitude}=req.body
-            await addingLocation(TurfRepositoryImpl,locationName,latitude,longitude)
+            const location=await addingLocation(TurfRepositoryImpl,id,locationName,latitude,longitude)
+            res.status(200).json({message:"success"});
           } catch (error: any) {
             res.status(400).json({ message: error.message }); 
           }
-      } 
+      },
+      turfDetais:async (req: Request, res: Response) => {
+        try {
+          const {email}=req.body
+          const turfDetails=await getTurfDetailsFromMail(email)
+          console.log(turfDetails)
+            res.status(200).json(turfDetails);
+          } catch (error: any) {
+            res.status(400).json({ message: error.message }); 
+          }
+      }
 }
  

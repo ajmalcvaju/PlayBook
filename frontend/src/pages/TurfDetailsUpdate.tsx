@@ -27,9 +27,6 @@ const TurfDetailsUpdate = () => {
   } = useForm<RegisterFormData>();
 
   const [isLoading, setIsLoading] = useState(false);
-  const [manualAddress, setManualAddress] = useState('');
-  const [latitude, setLatitude] = useState<number | null>(null);
-  const [longitude, setLongitude] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [gallery, setGallery] = useState<FileList | null>(null);
@@ -37,11 +34,12 @@ const TurfDetailsUpdate = () => {
   const [map, setMap] = useState<google.maps.Map | null>(null); 
   const [marker, setMarker] = useState<google.maps.Marker | null>(null);
   const [locations, setLocations] = useState<Location[]>([]);
-  const addressRef = useRef<HTMLInputElement | null>(null);
+  const [overView,setOverView]=useState<string>('')
+  const [facilities,setFacilities]=useState<string>('')
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [locationName,setLocationName]=useState<string>(null);
+  const [locationName,setLocationName]=useState<string>('');
   const [address, setAddress] = useState<string>('Click on the map to set a location');
-
+  const email=localStorage.getItem("turfEmail")
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setGallery(e.target.files);
@@ -50,6 +48,22 @@ const TurfDetailsUpdate = () => {
   const locationFromMap = () => {
     setIsModalOpen(true)
   };
+  useEffect(() => {
+    const fetchTurfDetails = async () => {
+      try {
+        const response = await axios.post('http://localhost:7000/api/turfs/get-turfDetails', {
+          email: email,
+        });
+        const data=response.data
+        setOverView(data.turfOverview)
+        setFacilities(data.facilities)
+        setAddress(data.turfAddress)
+      } catch (error) {
+        console.error('Error fetching turf details:', error);
+      }
+    };
+    fetchTurfDetails();
+  }, [email]);
   useEffect(() => {
     if (isModalOpen) {
       initMap();
@@ -62,21 +76,11 @@ const TurfDetailsUpdate = () => {
     script.onload = () => initMap();
     document.body.appendChild(script);
 
-    fetchLocations();
-
     return () => {
       document.body.removeChild(script);
     };
   }, []);
 
-  const fetchLocations = async () => {
-    try {
-      const response = await axios.get('http://localhost:5000/api/locations');
-      setLocations(response.data);
-    } catch (error) {
-      console.error('Error fetching locations:', error);
-    }
-  };
 
   const initMap = () => {
     const mapInstance = new window.google.maps.Map(document.getElementById('map'), {
@@ -105,6 +109,7 @@ const TurfDetailsUpdate = () => {
 
     mapInstance.addListener('click', (event) => {
       addMarker(event.latLng);
+      console.log(event.latLng)
     });
 
     setMap(mapInstance);
@@ -159,8 +164,8 @@ const TurfDetailsUpdate = () => {
           locationName,
           latitude: position?.lat(),
           longitude: position?.lng(),
+          email
         });
-        alert('Location saved successfully!');
         console.log(response.data);
         fetchLocations();
       } catch (error) {
@@ -230,7 +235,7 @@ const TurfDetailsUpdate = () => {
             >
               &times;
             </button>
-            <h1 className="text-xl font-bold mb-4">Google Map with Location Features</h1>
+            <h1 className="text-xl font-bold mb-4">Choose Your Location From Google Map</h1>
             <div id="map" style={{ height: '300px', width: '100%' }}></div>
             <button
               onClick={saveLocation}
@@ -240,14 +245,6 @@ const TurfDetailsUpdate = () => {
             </button>
             <h2 className="text-lg font-bold mt-4">Marked Location Address:</h2>
             <p className="text-gray-700">{address}</p>
-            <h2 className="text-lg font-bold mt-4">Saved Locations:</h2>
-            <ul className="list-disc pl-5 text-gray-700">
-              {locations.map((loc) => (
-                <li key={loc._id}>
-                  {loc.name} - ({loc.latitude}, {loc.longitude})
-                </li>
-              ))}
-            </ul>
           </div>
         </div>
       )}

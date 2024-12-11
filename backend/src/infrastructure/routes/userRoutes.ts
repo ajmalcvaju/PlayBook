@@ -14,6 +14,8 @@ router.post("/resend-otp",userController.resendOtp)
 router.post("/confirm-booking",userController.confirmBooking)
 router.post("/get-booking",userController.getBookings)
 router.post("/chat",userController.chat)
+router.post("/add-location",userController.addLocation)
+router.get("/location",userController.getLocation)
 
 
 export default router

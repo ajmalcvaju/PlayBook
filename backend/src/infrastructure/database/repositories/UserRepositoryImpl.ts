@@ -48,5 +48,14 @@ export const UserRepositoryImpl: UserRepository = {
     
     return flatBookings
     // return bookings
+  },
+  async addLocation(id:string,locationName:string,latitude:number,longitude:number): Promise<void>{
+    const slots = await UserModel.updateOne({_id:id},{locationName:locationName,latitude:latitude,longitude:longitude})
+    return
+  },
+  async getUserDetails(id:string|null):Promise<any|null>{
+    const user: User | null = await UserModel.findOne({_id:id});
+    return user ?user :null
   }
+
 };

@@ -13,7 +13,10 @@ const UserSchema = new Schema<UserDocument>({
   otp:{ type: String},
   otpExpiresAt:{type:Date},
   isVerified:{type:Number,default:0},
-  isApproved:{type:Number,default:0}
+  isApproved:{type:Number,default:0},
+  locationName:{ type: String, required: false },
+  latitude: { type: Number, required: false },
+  longitude: { type: Number, required: false }
 });
 
 export const UserModel = mongoose.model<UserDocument>('User', UserSchema);

@@ -13,6 +13,7 @@ router.get("/slots/:email/:date",turfController.currentSlots)
 router.delete("/delete-slots/:id",turfController.deleteSlot)
 router.post("/get-booking",turfController.getBookings)
 router.post("/add-location",turfController.addLocation)
+router.post("/get-turfDetails",turfController.turfDetais)
 
 
 export default router

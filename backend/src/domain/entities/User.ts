@@ -8,5 +8,8 @@ export interface User{
     otp?:string,
     otpExpiresAt?:Date,
     isVerified?:number,
-    isApproved?:number
+    isApproved?:number,
+    latitude?: number;
+    longitude?: number;
+    locationName?:string;
 }

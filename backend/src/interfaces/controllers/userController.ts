@@ -12,6 +12,9 @@ import mongoose from "mongoose";
 import { confirmBooking } from "../../application/usecases/user/confirmBooking";
 import { getIdFrommail } from "../../application/usecases/user/getIdFrommail";
 import { getBookings } from "../../application/usecases/user/getBookings";
+import { addingLocation } from "../../application/usecases/user/addingLocation";
+import { getUserDetails } from "../../application/usecases/user/getUserDetails";
+
 
 export const userController = {
   register: async (req: Request, res: Response) => {
@@ -120,5 +123,30 @@ export const userController = {
     } catch (error:any) {
       res.status(400).json({ message: error.message }); 
     }
+  },
+  addLocation:async (req: Request, res: Response) => {
+    try {
+        const {email}=req.body
+        const userId=await getIdFrommail(UserRepositoryImpl,email)
+        console.log(userId)
+        const {locationName,latitude,longitude}=req.body
+        console.log(req.body)
+        const location=await addingLocation(UserRepositoryImpl,userId,locationName,latitude,longitude)
+        res.status(200).json({message:"success"});
+      } catch (error: any) {
+        res.status(400).json({ message: error.message }); 
+      }
+  },
+  getLocation:async (req: Request, res: Response) => {
+    try {
+        const {email}=req.query
+        const userId=await getIdFrommail(UserRepositoryImpl,email)
+        console.log(userId)
+        const user=await getUserDetails(UserRepositoryImpl,userId)
+        console.log(user)
+        res.status(200).json({user});
+      } catch (error: any) {
+        res.status(400).json({ message: error.message }); 
+      }
   }
 };
