@@ -21,9 +21,12 @@ import BookingConfirmation from './pages/Users/BookingConfirmation'
 import BookingManagement from './pages/Turfs/BookingManagement'
 import BookingList from './pages/Users/BookingList'
 import BookingListAdmin from './pages/Admins/BookingListAdmin'
-import ChatWithTurf from './pages/Users/chatWithTurf'
+// import ChatWithTurf from './pages/Users/chatWithTurf'
 import ChatWithUser from './pages/Turfs/ChatWithUser'
 import VideoCall from './pages/Users/VideoCall'
+import ChatWithTurf from './pages/Users/ChatWithTurf'
+import PaymentConfirmation from './pages/Users/PaymentConfirmation'
+
 
 
 
@@ -37,14 +40,16 @@ function App() {
         <Route path='/otp' element={<Layout user='user' page='authentication'><Otp/></Layout>}/>
         <Route path='/login' element={<Layout user='user' page='authentication'><Login/></Layout>}/>
         <Route path='/home' element={<Layout user='user'><Home/></Layout>}/>
-        <Route path='/turf-page/:id' element={<Layout user='user'><TurfPages/></Layout>}>
-        <Route path='book-ticket' element={<BookTurf/>}>
-        {/* <Route path='booking-confirmation' element={<BookingConfirmation/>}/> */}
+        <Route path="/turf-page/:id" element={<Layout user="user"><TurfPages /></Layout>}>
+         <Route path="book-ticket" element={<BookTurf />}>
+        <Route path="payment-confirmation" element={<PaymentConfirmation />} />
+    {/* Uncomment if needed */}
+    {/* <Route path="booking-confirmation" element={<BookingConfirmation />} /> */}
         </Route>
-        <Route path='chat-with-turf' element={<ChatWithTurf/>}>
-        <Route path='video-call-turf' element={<VideoCall/>}></Route>
-        </Route>
-        </Route>
+        <Route path="chat-with-turf" element={<ChatWithTurf />}>
+        <Route path="video-call-turf" element={<VideoCall />} />
+      </Route>
+      </Route>
         <Route path='/booking-list' element={<Layout user='user'><BookingList/></Layout>}/>
         <Route path='/list-turf' element={<Layout user='turf' page='authentication'><ListTurf/></Layout>}/>
         <Route path='/turfOtp' element={<Layout user='turf' page='authentication'><OtpTurf/></Layout>}/>

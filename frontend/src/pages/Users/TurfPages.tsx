@@ -261,7 +261,7 @@ const TurfPages: React.FC = () => {
       {forecast ? (
         <div className="mt-5">
           <h2 className="text-lg mb-3">Today's Expected Weather</h2>
-          {forecast.list.slice(0, 4).map((entry, index) => (
+          {forecast.list.slice(2,6).map((entry, index) => (
             <div
               key={index}
               className="mb-3 p-3 bg-gray-900 rounded-md border border-gray-700"

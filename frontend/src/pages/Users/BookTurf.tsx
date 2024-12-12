@@ -100,11 +100,18 @@ const TicketBookingModal = ({}) => {
   const close=()=>{
     navigate(-1)
   }
+  const bookingTest=()=>{
+    // fetch("http://localhost:7000/api/users/test")
+    navigate("payment-confirmation")
+  }
   return (
     
     <div>
+      
       {/* Main Booking Modal */}
+      <Outlet/>
       <div
+      
         className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
         role="dialog"
         aria-labelledby="modal-title"
@@ -121,6 +128,7 @@ const TicketBookingModal = ({}) => {
             >
               Select Date:
             </label>
+            <button className="text-black" onClick={bookingTest}>Booking Test by ajmal</button>
             <div className="flex gap-4 justify-between flex-wrap text-center">
               {datesArray.map((date, index) => (
                 <div
@@ -159,18 +167,19 @@ const TicketBookingModal = ({}) => {
                 onClick={() => handleTimeSelect(time, price, id)}
                 className={`py-2 px-4 rounded-md border ${
                   isBooked
-                    ? "opacity-60 cursor-not-allowed bg-gray-300 border-gray-400"
+                    ? "opacity-60 cursor-not-allowed bg-gray-500 border-gray-400"
                     : selectedTime === time
                     ? "bg-red-600 text-white"
-                    : "bg-gray-300 border-gray-400"
+                    : "text-black border-gray-400"
                 }`}
                 disabled={isBooked}
               >
                 {time}
               </button>
+              
             ))}
           </div>
-
+          
           <div className="flex justify-between w-full mt-4">
             <button onClick={close} className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">
               Close
@@ -276,8 +285,6 @@ const TicketBookingModal = ({}) => {
     </div>
   </div>
 )}
-
-
     </div>
   );
 };

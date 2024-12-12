@@ -18,4 +18,7 @@ router.post("/add-location",userController.addLocation)
 router.get("/location",userController.getLocation)
 
 
+
+
+
 export default router

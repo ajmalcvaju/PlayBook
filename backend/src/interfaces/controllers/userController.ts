@@ -16,6 +16,8 @@ import { addingLocation } from "../../application/usecases/user/addingLocation";
 import { getUserDetails } from "../../application/usecases/user/getUserDetails";
 
 
+
+
 export const userController = {
   register: async (req: Request, res: Response) => {
     try {
@@ -148,5 +150,6 @@ export const userController = {
       } catch (error: any) {
         res.status(400).json({ message: error.message }); 
       }
-  }
+  },
+  
 };
