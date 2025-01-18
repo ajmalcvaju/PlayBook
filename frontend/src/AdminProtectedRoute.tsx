@@ -1,15 +1,24 @@
-import { useSelector } from "react-redux"
-import { Outlet,Navigate } from "react-router-dom"
+import { useSelector } from "react-redux";
+import { Outlet, Navigate } from "react-router-dom";
+
+interface RootState {
+  admin: {
+    isAuthenticated: boolean;
+  };
+}
 
 function AdminProtectedRoute() {
-    const {admin} = useSelector(state=>state.admin)
-  return admin? <Outlet/> : <Navigate to='/adminLogin'/>
+  const { isAuthenticated } = useSelector((state: RootState) => state.admin);
+
+  return isAuthenticated ? <Outlet /> : <Navigate to="/adminLogin" />;
 }
 
 export function AdminAuthProtectedRoute() {
-const {admin} = useSelector(state=>state.admin)
-return admin? <Navigate to='/admin/dashboard'/>:<Outlet/>
+  const { isAuthenticated } = useSelector((state: RootState) => state.admin);
+
+  return isAuthenticated ? <Navigate to="/admin/dashboard" /> : <Outlet />;
 }
 
-export default AdminProtectedRoute
+export default AdminProtectedRoute;
+
 
