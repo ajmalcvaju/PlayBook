@@ -1,0 +1,17 @@
+import { Slot, Turf, TurfDetails } from "../entities/Turf";
+import { User } from "../entities/User";
+
+export interface TurfRepository{
+  createTurf(turf:Turf): Promise<Turf>;
+  findByEmail(email: string): Promise<Turf | null>;
+  updateDetails(email:string,details:Partial<TurfDetails>): Promise<Turf>;
+  updateSlot(turfId: string,startDate:Date,endDate:Date,prices:{[key: string]: string}): Promise<Slot[]>
+  getSlots(id:string): Promise<Slot[]|void>;
+  currentSlots(turfId: string,date:string): Promise<Slot[]|void>;
+  deleteSlot(id:string): Promise<void>
+  getBookings(id:string):Promise<Slot[]>
+  addLocation(id:string,locationName:string,latitude:number,longitude:number): Promise<void>
+  getUsers():Promise<User[]>
+  cancellBooking(slotId:string,bookingId:string):Promise<any|null>
+  changePassword(id:string|null,password:string):Promise<Turf|null>
+}

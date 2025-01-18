@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.notification {
+    @apply fixed top-5 right-5 z-50 space-y-3;
+  }
+  
+  .notification-item {
+    @apply bg-blue-500 text-white p-3 rounded-md shadow-md transition-transform transform hover:scale-105;
+  }
+  

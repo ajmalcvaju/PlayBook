@@ -1,0 +1,21 @@
+import { Review } from "../entities/Review";
+import { Slot } from "../entities/Turf";
+import { User } from "../entities/User";
+import { UpdateResult } from "mongodb";
+export interface UserRepository{
+  createUser(user: User): Promise<User>;
+  findByEmail(email: string,): Promise<User | null>;
+  findSlots(id: any,date:any): Promise<Slot[] | null>
+  confirmBooking(id:string,userId:string|null,turfId:string):Promise<UpdateResult>
+  getIdByMail(email: string): Promise<string | null>
+  getBookings(id:string):Promise<any[]>
+  addLocation(id:string,locationName:string,latitude:number,longitude:number): Promise<void>
+  getUserDetails(id:string|null):Promise<any|null>
+  cancellBooking(slotId:string,bookingId:string):Promise<any|null>
+  changePassword(id:string|null,password:string):Promise<User|null>
+  updateRatings(review:Review): Promise<Review>
+  getReviews(turfId:string): Promise<[Review[], number, number]>
+  report(turfId:string,userId:string,issue:string): Promise<void>
+  userName(userId: string): Promise<string>
+  googleAuthentication(email: string,name:string,password:string): Promise<User | null>
+}
