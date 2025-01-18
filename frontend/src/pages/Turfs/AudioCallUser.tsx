@@ -1,7 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { io, Socket } from "socket.io-client";
-import { Mic, MicOff } from "lucide-react";
+import { io } from "socket.io-client";
 import { useSelector } from "react-redux";
 
 const socket = io("http://localhost:7000");
@@ -9,7 +8,6 @@ const AudioCallUser = () => {
   const remoteAudioRef = useRef<HTMLAudioElement | null>(null);
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
   const { currentTurf } = useSelector((state) => state.turf);
-  const [muted, setMuted] = useState(false);
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [seconds, setSeconds] = useState(0);
   const location = useLocation();
