@@ -101,7 +101,7 @@ const BookingManagement = () => {
     indexOfLastBooking
   );
   const totalPages = Math.ceil(bookings.length / bookingsPerPage);
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber:number) => setCurrentPage(pageNumber);
   return (
     <>
       {isModalOpen && selectedBooking && (

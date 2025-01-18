@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { Chart } from "chart.js/auto";
 import apiClient from "../../apiClient";
 
@@ -18,16 +17,13 @@ type Booking = {
 };
 
 const AdminDashboard = () => {
-  const navigate = useNavigate();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
   const [filter, setFilter] = useState<string>("custom"); // Track the current filter
-  const email = localStorage.getItem("turfEmail");
   let chartInstance: Chart | null = null;
   let revenueChartInstance: Chart | null = null;
-
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -202,71 +198,70 @@ const AdminDashboard = () => {
   };
   return (
     <div className="overflow-x-auto bg-gray-900 text-white p-6">
-  <div className="bg-gray-800 shadow-lg rounded-lg p-8 mb-10 hover:shadow-xl transition-all duration-300">
-    {/* Date Range Filter Section */}
-    <div className="flex flex-col lg:flex-row items-center justify-between mb-6 space-y-6 lg:space-y-0 lg:space-x-6">
-      <div className="flex flex-col space-y-2 w-full lg:w-1/3">
-        <label className="text-lg font-semibold">Start Date:</label>
-        <input
-          type="date"
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
-          className="bg-gray-700 text-white border border-gray-600 rounded-md p-2"
-        />
+      <div className="bg-gray-800 shadow-lg rounded-lg p-8 mb-10 hover:shadow-xl transition-all duration-300">
+        {/* Date Range Filter Section */}
+        <div className="flex flex-col lg:flex-row items-center justify-between mb-6 space-y-6 lg:space-y-0 lg:space-x-6">
+          <div className="flex flex-col space-y-2 w-full lg:w-1/3">
+            <label className="text-lg font-semibold">Start Date:</label>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="bg-gray-700 text-white border border-gray-600 rounded-md p-2"
+            />
+          </div>
+
+          <div className="flex flex-col space-y-2 w-full lg:w-1/3">
+            <label className="text-lg font-semibold">End Date:</label>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="bg-gray-700 text-white border border-gray-600 rounded-md p-2"
+            />
+          </div>
+
+          <button
+            onClick={handleDateChange}
+            className="bg-teal-500 text-white rounded-md py-2 mt-6 lg:mt-0 px-4 font-semibold hover:bg-teal-600 transition duration-300 w-full lg:w-auto"
+          >
+            Apply Date Range
+          </button>
+        </div>
+
+        {/* Filter Buttons Section */}
+        <div className="flex flex-wrap justify-start space-x-4 mb-6">
+          <button
+            onClick={() => setFilter("today")}
+            className="bg-teal-500 text-white rounded-md py-2 px-4 font-semibold hover:bg-teal-600 transition duration-300 mb-2 lg:mb-0"
+          >
+            Today
+          </button>
+          <button
+            onClick={() => setFilter("1week")}
+            className="bg-teal-500 text-white rounded-md py-2 px-4 font-semibold hover:bg-teal-600 transition duration-300 mb-2 lg:mb-0"
+          >
+            1 Week
+          </button>
+          <button
+            onClick={() => setFilter("1month")}
+            className="bg-teal-500 text-white rounded-md py-2 px-4 font-semibold hover:bg-teal-600 transition duration-300 mb-2 lg:mb-0"
+          >
+            1 Month
+          </button>
+        </div>
+
+        {/* Booking Chart Section */}
+        <div className="mb-6">
+          <canvas id="bookingsChart" width="400" height="150"></canvas>
+        </div>
+
+        {/* Revenue Chart Section */}
+        <div>
+          <canvas id="revenueChart" width="400" height="150"></canvas>
+        </div>
       </div>
-
-      <div className="flex flex-col space-y-2 w-full lg:w-1/3">
-        <label className="text-lg font-semibold">End Date:</label>
-        <input
-          type="date"
-          value={endDate}
-          onChange={(e) => setEndDate(e.target.value)}
-          className="bg-gray-700 text-white border border-gray-600 rounded-md p-2"
-        />
-      </div>
-
-      <button
-        onClick={handleDateChange}
-        className="bg-teal-500 text-white rounded-md py-2 mt-6 lg:mt-0 px-4 font-semibold hover:bg-teal-600 transition duration-300 w-full lg:w-auto"
-      >
-        Apply Date Range
-      </button>
     </div>
-
-    {/* Filter Buttons Section */}
-    <div className="flex flex-wrap justify-start space-x-4 mb-6">
-      <button
-        onClick={() => setFilter("today")}
-        className="bg-teal-500 text-white rounded-md py-2 px-4 font-semibold hover:bg-teal-600 transition duration-300 mb-2 lg:mb-0"
-      >
-        Today
-      </button>
-      <button
-        onClick={() => setFilter("1week")}
-        className="bg-teal-500 text-white rounded-md py-2 px-4 font-semibold hover:bg-teal-600 transition duration-300 mb-2 lg:mb-0"
-      >
-        1 Week
-      </button>
-      <button
-        onClick={() => setFilter("1month")}
-        className="bg-teal-500 text-white rounded-md py-2 px-4 font-semibold hover:bg-teal-600 transition duration-300 mb-2 lg:mb-0"
-      >
-        1 Month
-      </button>
-    </div>
-
-    {/* Booking Chart Section */}
-    <div className="mb-6">
-      <canvas id="bookingsChart" width="400" height="150"></canvas>
-    </div>
-    
-    {/* Revenue Chart Section */}
-    <div>
-      <canvas id="revenueChart" width="400" height="150"></canvas>
-    </div>
-  </div>
-</div>
-
   );
 };
 

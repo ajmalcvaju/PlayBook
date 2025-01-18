@@ -1,19 +1,59 @@
 import { useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import { useSelector } from "react-redux";
+
+declare global {
+  interface Window {
+    currentStream: any; // Replace `any` with the appropriate type for `stream`, if known.
+  }
+}
+interface GalleryItem {
+  [key: string]: any; 
+}
+interface TurfType {
+  [key: string]: any;
+}
+
+
+interface CurrentTurf {
+  _id: string;
+  turfName: string;
+  email: string;
+  mobileNumber: string;
+  password: string;
+  isVerified: number;
+  isApproved: number;
+  gallery: GalleryItem[]; // Array of gallery items
+  __v: number;
+  facilities: string;
+  turfAddress: string;
+  turfOverview: string;
+  latitude: number;
+  locationName: string;
+  longitude: number;
+  turfTypes: TurfType[]; // Array of turf types
+  rating: number;
+  votes: number;
+}
+
+interface TurfState {
+  currentTurf: CurrentTurf | null;
+  loading: boolean;
+  error: boolean;
+}
 
 const socket = io("http://localhost:7000");
 const AudioCallUser = () => {
   const remoteAudioRef = useRef<HTMLAudioElement | null>(null);
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
-  const { currentTurf } = useSelector((state) => state.turf);
+  const { currentTurf } = useSelector((state: { turf: TurfState }) => state.turf);
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [seconds, setSeconds] = useState(0);
   const location = useLocation();
   const { caller } = location.state || {};
   const counterRef = useRef<NodeJS.Timeout | null>(null);
-  const turfId = currentTurf._id;
+  const turfId = currentTurf?._id;
   const roomId = turfId;
 
   useEffect(() => {
@@ -119,12 +159,14 @@ const AudioCallUser = () => {
     await peerConnectionRef.current.setLocalDescription(offer);
     socket.emit("audio-offer", { roomId, caller: turfId, offer });
     setIsConnected(true);
+    
     window.currentStream = stream;
   };
   
   useEffect(() => {
     socket.on("call-disconnected", ({ roomId, userId }) => {
       if (roomId === roomId) {
+        console.log(userId)
         setIsConnected(false);
         navigate("/turf/customer-chat");
       }

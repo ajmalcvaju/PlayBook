@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import { io } from 'socket.io-client';
 import apiClient from "../../apiClient";
 
 type User = {
@@ -13,27 +12,9 @@ type User = {
 
 const ChatUserList = () => {
   const [users, setUsers] = useState<User[]>([]);
-  const [messagedUser,setMessagedUser]=useState('')
   const [currentPage, setCurrentPage] = useState(1);
-  const [shoModel,setShowModel]=useState(false)
   const navigate = useNavigate();
   const usersPerPage = 5;
-  // const socket = io('http://localhost:7000');
-  // useEffect(() => {
-  //      socket.emit("joinTurf", { turfId, userId });
-  //      socket.on("message", (data) => {
-  //       console.log(data)
-  //       //  if (data.recieverId === turfId) {
-  //       //    setMessages((prev) => [
-  //       //      ...prev,
-  //       //      { text: data.message, isUser: false,createdAt:data.time},
-  //       //    ]);
-  //       //  }
-  //      });
-  //      return () => {
-  //        socket.off("message");
-  //      };
-  //    }, [socket]);
 
   useEffect(() => {
     const getUser = async () => {
@@ -65,26 +46,6 @@ const ChatUserList = () => {
   }
   return (
     <div>
-      {shoModel&&<div className="fixed inset-0 flex justify-center items-center bg-gray-800 bg-opacity-50 z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-80">
-        <h2 className="text-xl font-semibold mb-4">New Message</h2>
-        <p className="text-sm">You have a message from a user</p>
-        <div className="mt-4">
-          <button
-            // onClick={onNavigateToMessages}
-            className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-400"
-          >
-            Go to Messages
-          </button>
-          <button
-            // onClick={onClose}
-            className="ml-2 bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-400"
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    </div>}
     <div className="bg-gray-950 min-h-screen flex flex-col items-center py-10">
       <div className="p-6 w-full max-w-3xl bg-gradient-to-b from-gray-900 to-gray-800 rounded-xl shadow-2xl">
         <h1 className="text-4xl font-bold mb-6 text-white text-center tracking-wider">

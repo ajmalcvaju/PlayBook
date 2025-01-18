@@ -1,5 +1,4 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLayoutEffect, useState } from 'react';
 import apiClient from '../../apiClient';
 
 type User = {
@@ -30,8 +29,8 @@ const UserManagement = () => {
         if (response.status === 200) {
           console.log(response.data.users);
           const { users, bookings } = response.data;
-          const usersWithBookings =  users.map((user) => {
-            const booking = bookings.find((b) => b. userId === user._id);
+          const usersWithBookings =  users.map((user:User) => {
+            const booking = bookings.find((b:any) => b. userId === user._id);
             return {
               ...user,
               bookingsCount: booking ? booking.count : 0,
@@ -64,6 +63,7 @@ const UserManagement = () => {
       }
       apiClient.patch('/admin/block-user', body)
         .then((res) => {
+          console.log(res)
           setUsers((prevUsers) =>
             prevUsers.map((user) =>
               user._id === id ? { ...user, isApproved: !user.isApproved } : user

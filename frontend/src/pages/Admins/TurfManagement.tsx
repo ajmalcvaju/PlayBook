@@ -1,5 +1,4 @@
-import React, { useState, useLayoutEffect, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import apiClient from "../../apiClient";
 
 type Turf = {
@@ -22,6 +21,13 @@ interface Review {
   comment: string;
   rating: number;
 }
+interface TurfReview {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  comment: string;
+  rating: number;
+}
 
 const TurfManagement = () => {
 
@@ -30,12 +36,11 @@ const TurfManagement = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedTurf, setSelectedTurf] = useState<Turf | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [selectedReports, setSelectedReports] = useState([]);
   const [review, setReview] = useState<Review[]>([]);
   const [reportCounts, setReportCounts] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [reviewModal, setReviewModal] = useState(false);
-  const [turfReviews, setTurfReviews] = useState<Review[]>([]);
+  const [turfReviews, setTurfReviews] = useState<TurfReview[]>([]);
   const turfsPerPage = 8;
   const [currentPages, setCurrentPages] = useState(1);
   const reviewsPerPage = 8;
@@ -84,22 +89,22 @@ const TurfManagement = () => {
           console.log(response.data);
           const { turfs, bookings, reports } = response.data;
 
-          const turfsWithBookings = turfs.map((turf) => {
-            const booking = bookings.find((b) => b.turfId === turf._id);
+          const turfsWithBookings = turfs.map((turf:Turf) => {
+            const booking = bookings.find((b:any) => b.turfId === turf._id);
             return {
               ...turf,
               bookingsCount: booking ? booking.count : 0,
             };
           });
-          const turfsWithReports = turfsWithBookings.map((turf) => {
+          const turfsWithReports = turfsWithBookings.map((turf:Turf) => {
             const relevantReports = reports.filter(
-              (r) => r.turfId === turf._id
+              (r:any) => r.turfId === turf._id
             );
             return {
               ...turf,
               reports:
                 relevantReports.length > 0
-                  ? relevantReports.map((r) => r.issue)
+                  ? relevantReports.map((r:any) => r.issue)
                   : [],
             };
           });
@@ -133,6 +138,7 @@ const TurfManagement = () => {
       }
       apiClient.patch('/admin/block-turf', body)
         .then((res) => {
+          console.log(res)
           setTurfs((prevTurfs) =>
             prevTurfs.map((turf) =>
               turf._id === id ? { ...turf, isApproved: !turf.isApproved } : turf
@@ -166,14 +172,13 @@ const TurfManagement = () => {
 
   // Change page
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
-  const handleShowReports = (reports) => {
-    const reportCounts = reports.reduce((acc, report) => {
+  const handleShowReports = (reports:any) => {
+    const reportCounts = reports.reduce((acc:any, report:any) => {
       acc[report] = (acc[report] || 0) + 1; // Increment the count for the report
       return acc;
     }, {});
     console.log(reportCounts);
     setReportCounts(reportCounts);
-    setSelectedReports(reports);
     setIsModalOpen(true);
   };
   const onClose = () => {
@@ -321,7 +326,7 @@ const TurfManagement = () => {
                 Object.entries(reportCounts).map(([report, count]) => (
                   <li key={report} className="text-gray-700">
                     <span className="font-medium">{report}:</span>{" "}
-                    <span className="font-semibold">{count}</span>
+                    <span className="font-semibold">{count as React.ReactNode}</span>
                   </li>
                 ))
               )}
