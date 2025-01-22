@@ -10,6 +10,23 @@ import { Swiper, SwiperSlide } from "swiper/react";
 // import 'swiper/swiper-bundle.min.css';
 import "swiper/css";
 
+type Booking = {
+  _id: string;
+  turfId:string;
+  slotId: string;
+  date: string;
+  turfName: string;
+  time: string;
+  price: string;
+  mobileNumber: string;
+  email: string;
+  isBooked: boolean;
+  review: string;
+  __v: number;
+  slotNumber: number;
+  bookingNumber: number;
+  status: string;
+};
 interface Turf {
   _id: string;
   turfName: string;
@@ -40,6 +57,9 @@ const TurfPages: React.FC = () => {
   const [reportSuccess, setReportSuccess] = useState(false);
   const [reportFailure, setReportFailure] = useState(false);
   const [reportModel, setReportModel] = useState<boolean>(false);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [isBooked,setIsBooked]=useState<boolean>(false)
+  const email = localStorage.getItem("userEmail");
 
   const tags = [
     "#StunningVibe",
@@ -90,6 +110,7 @@ const TurfPages: React.FC = () => {
     };
     fetchTurfDetails();
   }, [id]);
+  
   useEffect(() => {
     const fetchTurfReview = async () => {
       try {
@@ -104,7 +125,25 @@ const TurfPages: React.FC = () => {
     };
     fetchTurfReview();
   }, [id, ratingSuccess]);
-
+  useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        const res = await apiClient.get(`/users/get-booking/${email}`);
+        if (res.status !== 200) {
+          throw new Error("Failed to fetch bookings");
+        }
+        setBookings(res.data);
+        const isBookingMatch = (bookings: Booking[], turfId: string | undefined) =>
+          bookings.some(booking => booking.turfId === turfId);
+  
+        setIsBooked(isBookingMatch(res.data, id));
+      } catch (error) {
+        console.error("Error fetching bookings:", error);
+      }
+    };
+    fetchBookings();
+  }, [email, id]); 
+  
   useEffect(() => {
     if (turf?.latitude && turf?.longitude) {
       const latitude = turf.latitude;
@@ -503,12 +542,13 @@ const TurfPages: React.FC = () => {
                 <span className="font-medium">{ratings}/10</span>
                 <div className="text-zinc-400 text-sm">({votes} Votes)</div>
               </div>
+              {isBooked&&(
               <button
                 onClick={rateTurf}
                 className="ml-2 bg-white text-black hover:bg-zinc-200 hover:text-black border-2 border-gray-300 shadow-lg rounded-lg px-3 py-1 transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
               >
                 Rate now
-              </button>
+              </button>)}
             </div>
 
             {/* Turf Details */}

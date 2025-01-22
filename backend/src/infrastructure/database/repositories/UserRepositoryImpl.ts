@@ -47,7 +47,7 @@ export const UserRepositoryImpl: UserRepository = {
   async getBookings(id:string):Promise<any[]>{
     const bookings = await BookingModel.find({ userId: id })
       .populate("slotId", "_id time slotNumber date")
-      .populate("turfId", "turfName mobileNumber email")
+      .populate("turfId", "_id turfName mobileNumber email")
       .sort({ createdAt: -1 })
       .exec();
     const flatBookings = bookings.map((booking) => {
@@ -55,6 +55,7 @@ export const UserRepositoryImpl: UserRepository = {
       const slot = booking.slotId as Slot | any;
       return {
         _id: booking._id,
+        turfId:turf?._id || "",
         price: booking.paid || 0,
         slotId: slot?._id?.toString() || "",
         status: booking.status || "",
