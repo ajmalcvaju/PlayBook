@@ -1,8 +1,6 @@
-import React, { useEffect, useState } from "react";
+import {useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { signInSuccess } from "../Redux/turfSlice";
 import apiClient from "../apiClient";
 
 type turfFormData = {
@@ -17,8 +15,6 @@ type turfFormData = {
 
 const ListTurf = () => {
   let navigate=useNavigate()
-  
-  let token=localStorage.getItem("turfToken")
   
   const {
     register,

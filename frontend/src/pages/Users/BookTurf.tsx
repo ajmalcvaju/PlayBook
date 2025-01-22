@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import { Outlet, useNavigate, useParams } from "react-router-dom";
 import apiClient from "../../apiClient";
@@ -18,9 +18,10 @@ const TicketBookingModal = ({}) => {
   const [slots, setSlots] = useState<Slot[]>([]);
   const [slotId, setSlotId] = useState("");
   const navigate = useNavigate();
-  const [price, setPrice] = useState("");
+  const [price, setPrice] = useState<number>(0);
   const { id } = useParams();
   const dateForm = activeDate.toISOString().split("T")[0];
+  
 
   useEffect(() => {
     const fetchSlots = async () => {
@@ -66,7 +67,9 @@ const TicketBookingModal = ({}) => {
     isBooked: item?.isBooked,
   }));
 
-  const bookNow = (time, price, date, slotId) => {
+  const bookNow = (time:string, price:number, date:string, slotId:string) => {
+    console.log(time, price)
+    console.log(date, slotId)
     navigate("payment-confirmation", { state: { time, price, date, slotId } });
   };
 

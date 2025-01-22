@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { io, Socket } from "socket.io-client";
-import { Mic, MicOff } from 'lucide-react'
+import { io} from "socket.io-client";
+import { MicOff } from 'lucide-react'
 import { useSelector } from "react-redux";
 import apiClient from "../../apiClient";
 
@@ -119,6 +119,7 @@ const VideoCall = () => {
  useEffect(()=>{
      socket.on("call-disconnected", ({ roomId, userId }) => {
        if(roomId===roomId){
+        console.log(userId)
          setIsConnected(false);
          navigate(`/turf-page/${roomId}/chat-with-turf`, {
           state: { videoCallConnection: true }
@@ -129,6 +130,7 @@ const VideoCall = () => {
    useEffect(()=>{
     socket.on("call-decline", ({ roomId, userId }) => {
       if(roomId===roomId){
+        console.log(userId)
         setIsConnected(false);
         navigate(`/turf-page/${roomId}/chat-with-turf`, {
          state: { videoCallDecline: true }

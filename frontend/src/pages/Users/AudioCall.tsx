@@ -1,23 +1,44 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { io, Socket } from "socket.io-client";
-import { Mic, MicOff } from "lucide-react";
+import { io } from "socket.io-client";
 import { useSelector } from "react-redux";
 import apiClient from "../../apiClient";
 
 const socket = io("http://localhost:7000");
 
+interface CurrentUser {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  mobileNumber: string;
+  password: string;
+  isVerified: number;
+  isApproved: number;
+  __v: number;
+  latitude: number;
+  longitude: number;
+  locationName: string;
+  isOnline: boolean;
+  lastSeen: string;
+}
+interface UserState {
+  currentUser: CurrentUser;
+}
+interface RootState {
+  user: UserState;
+}
+
 const AudioCall = () => {
   const remoteAudioRef = useRef<HTMLAudioElement | null>(null);
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
-  const [muted, setMuted] = useState(false);
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [seconds, setSeconds] = useState(0);
   const [turf, setTurf] = useState<any>(null);
   const counterRef = useRef<NodeJS.Timeout | null>(null);
   const { id } = useParams();
   const roomId = id;
-  const { currentUser } = useSelector((state) => state.user);
+  const currentUser = useSelector((state: RootState) => state.user.currentUser);
   const userId = currentUser._id;
   useEffect(() => {
     const fetchTurfDetails = async () => {
@@ -131,38 +152,40 @@ const AudioCall = () => {
     });
     const offer = await peerConnectionRef.current.createOffer();
     await peerConnectionRef.current.setLocalDescription(offer);
-    socket.emit("audio-offerNotification", { roomId,caller:userId});
+    socket.emit("audio-offerNotification", { roomId, caller: userId });
     socket.emit("audio-offer", { roomId, caller: userId, offer });
     window.currentStream = stream;
   };
 
-  useEffect(()=>{
-       socket.on("call-disconnected", ({ roomId, userId }) => {
-         if(roomId===roomId){
-           setIsConnected(false);
-           navigate(`/turf-page/${roomId}/chat-with-turf`, {
-            state: { videoCallConnection: true }
-          });
-         }
-     });
-     },[])
-     useEffect(()=>{
-      socket.on("call-decline", ({ roomId, userId }) => {
-        if(roomId===roomId){
-          setIsConnected(false);
-          navigate(`/turf-page/${roomId}/chat-with-turf`, {
-           state: { videoCallDecline: true }
-         });
-        }
+  useEffect(() => {
+    socket.on("call-disconnected", ({ roomId, userId }) => {
+      console.log(userId);
+      if (roomId === roomId) {
+        setIsConnected(false);
+        navigate(`/turf-page/${roomId}/chat-with-turf`, {
+          state: { videoCallConnection: true },
+        });
+      }
     });
-    },[])
-    const navigate = useNavigate();
-    const cancel = () => {
-      navigate(`/turf-page/${roomId}/chat-with-turf`, {
-        state: { videoCallConnection: true }
-      });
-      socket.emit("leave-room", roomId);
-    };
+  }, []);
+  useEffect(() => {
+    socket.on("call-decline", ({ roomId, userId }) => {
+      console.log(userId);
+      if (roomId === roomId) {
+        setIsConnected(false);
+        navigate(`/turf-page/${roomId}/chat-with-turf`, {
+          state: { videoCallDecline: true },
+        });
+      }
+    });
+  }, []);
+  const navigate = useNavigate();
+  const cancel = () => {
+    navigate(`/turf-page/${roomId}/chat-with-turf`, {
+      state: { videoCallConnection: true },
+    });
+    socket.emit("leave-room", roomId);
+  };
   return (
     <>
       <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
@@ -184,21 +207,21 @@ const AudioCall = () => {
           <div className="flex flex-col items-center space-y-4">
             {/* Placeholder for recipient's avatar */}
             <div className="w-24 h-24 bg-gray-200 rounded-full flex justify-center items-center overflow-hidden shadow-lg">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  className="w-16 h-16 text-gray-700"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 4a4 4 0 100 8 4 4 0 000-8zm0 12c-3.333 0-6 2.667-6 6s2.667 6 6 6 6-2.667 6-6-2.667-6-6-6z"
-                  />
-                </svg>
-              </div>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                className="w-16 h-16 text-gray-700"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4a4 4 0 100 8 4 4 0 000-8zm0 12c-3.333 0-6 2.667-6 6s2.667 6 6 6 6-2.667 6-6-2.667-6-6-6z"
+                />
+              </svg>
+            </div>
             <audio ref={remoteAudioRef} autoPlay />
             <p className="text-lg text-white font-medium">{turf}</p>
             {isConnected ? (

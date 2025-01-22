@@ -1,10 +1,9 @@
 import React, { useEffect, useLayoutEffect, useState } from "react";
-import DatePicker from "react-datepicker";
+
 import "react-datepicker/dist/react-datepicker.css";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import apiClient from "../../apiClient";
-import { Console } from "console";
 
 interface Slot {
   _id: string;
@@ -14,6 +13,13 @@ interface Slot {
   price: string;
 }
 
+interface FormData {
+  [key: string]: any;
+  startDate?: string;
+  endDate?: string;
+}
+
+
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("turfToken");
@@ -22,9 +28,8 @@ const AdminDashboard: React.FC = () => {
       navigate("/turf-login");
     }
   }, [token]);
-  const [slots, setSlots] = useState<Slot[]>([]);
+  const [slots,setSlots]=useState<Slot[]>([])
   const [currentSlots, setCurrentSlots] = useState<Slot[]>([]);
-  const [newSlotDate, setNewSlotDate] = useState<Date | null>(null);
   const [fiteredSlots, setFiteredSlots] = useState<Slot[]>([]);
   const [selectedDate, setSelectedDate] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -48,14 +53,11 @@ const AdminDashboard: React.FC = () => {
   };
   const email = localStorage.getItem("turfEmail");
   useLayoutEffect(() => {
-    const currentDate = newSlotDate?.toISOString().split("T")[0];
-    console.log(currentDate);
-
     const fetchSlots = async () => {
       try {
         const response = await apiClient.get(`/turfs/slots/${email}`);
         const currentSlot = response.data;
-        const slots = currentSlot.slots;
+        const slot=currentSlot.slots;
         console.log(slots);
         setCurrentSlots(slots);
         setFiteredSlots(slots);
@@ -79,6 +81,7 @@ const AdminDashboard: React.FC = () => {
       const response = await apiClient.delete(
         `/turfs/delete-slots/${currentSlot._id}`
       );
+      console.log(response)
       const updatedSlots = fiteredSlots.filter(
         (slot) => slot._id !== currentSlot._id
       );
@@ -93,7 +96,7 @@ const AdminDashboard: React.FC = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm<FormData>();
 
   const onSubmit = async (data: any) => {
     console.log("Form Data:", data);
@@ -124,7 +127,7 @@ const AdminDashboard: React.FC = () => {
     }
   };
   useEffect(() => {}, [fiteredSlots]);
-  const getFilteredSot = (date) => {
+  const getFilteredSot = (date:any) => {
     const filtered = currentSlots.filter((slot) => slot.date === date);
     console.log(filtered);
     setFiteredSlots(filtered);
@@ -239,7 +242,7 @@ const AdminDashboard: React.FC = () => {
                   />
                   {errors[`slot${idx + 1}`] && (
                     <p className="text-red-500 text-sm mt-1">
-                      {errors[`slot${idx + 1}`].message}
+                      {errors[`slot${idx + 1}`]?.message as string}
                     </p>
                   )}
                 </div>
@@ -273,7 +276,7 @@ const AdminDashboard: React.FC = () => {
                   />
                   {errors[`slot${idx + 5}`] && (
                     <p className="text-red-500 text-sm mt-1">
-                      {errors[`slot${idx + 5}`].message}
+                      {errors[`slot${idx + 5}`]?.message as string}
                     </p>
                   )}
                 </div>
@@ -307,7 +310,7 @@ const AdminDashboard: React.FC = () => {
                   />
                   {errors[`slot${idx + 9}`] && (
                     <p className="text-red-500 text-sm mt-1">
-                      {errors[`slot${idx + 9}`].message}
+                      {errors[`slot${idx + 9}`]?.message as string}
                     </p>
                   )}
                 </div>

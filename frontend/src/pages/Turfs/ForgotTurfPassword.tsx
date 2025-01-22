@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import apiClient from "../../apiClient";
 import { signInSuccess } from "../../Redux/turfSlice";
-import { set } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import {logout} from "../../Redux/userSlice"
@@ -56,7 +55,7 @@ const ForgotTurfPassword = () => {
     setErrorMessage(null);
     try {
       const email = localStorage.getItem("turfEmail");
-      data.email = email;
+      data.email = email ?? undefined;
       const response = await apiClient.post("/turfs/verify-otp-forgotpassword", data, {
         headers: { "Content-Type": "application/json" },
       });
@@ -78,7 +77,7 @@ const ForgotTurfPassword = () => {
     setErrorMessage(null);
     try {
         const email = localStorage.getItem("turfEmail");
-        data.email = email;
+        data.email = email ?? undefined;
       const response = await apiClient.post("/turfs/change-forgotpassword", data, {
         headers: { "Content-Type": "application/json" },
       });

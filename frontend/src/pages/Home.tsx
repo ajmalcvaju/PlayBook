@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import apiClient from "../apiClient";
 import { Star } from "lucide-react";
-import { useSelector } from "react-redux";
 
 interface Turf {
   _id: string;
@@ -30,7 +29,7 @@ const Home: React.FC = () => {
   const GOOGLE_MAPS_API_KEY = import.meta.env
     .VITE_GOOGLE_MAPS_API_KEY as string;
   const email = localStorage.getItem("userEmail");
-  const token = localStorage.getItem("userToken");
+
 
   const [turfs, setTurfs] = useState<Turf[]>([]);
   const [sortOrder, setSortOrder] = useState("default");
@@ -50,7 +49,7 @@ const Home: React.FC = () => {
     "Click on the map to set a location"
   );
   const [currentPage, setCurrentPage] = useState(1);
-  const { currentUser } = useSelector((state) => state.user);
+  
   const turfsPerPage = 6;
 
   useEffect(() => {
@@ -452,7 +451,7 @@ const Home: React.FC = () => {
                   <div className="flex justify-center items-center gap-3 bg-zinc-900 text-white px-4 py-2 rounded-lg">
                     <div className="flex items-center gap-2">
                       <Star className="w-5 h-5 fill-pink-500 stroke-pink-500" />
-                      <span className="font-medium">{turf.rating ?? 0}/10</span>
+                      <span className="font-medium">{(turf.rating ?? 0).toFixed(2)}/10</span>
                       <div className="text-zinc-400 text-sm">
                         ({turf.votes ?? 0} Votes)
                       </div>

@@ -17,7 +17,6 @@ type loginData = {
 const Login = () => {
   let navigate = useNavigate();
   const dispatch = useDispatch();
-  let token = localStorage.getItem("userToken");
   const {
     register,
     handleSubmit,

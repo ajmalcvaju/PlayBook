@@ -1,10 +1,33 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
 import { io } from "socket.io-client";
 import EmojiPicker from "emoji-picker-react";
 import apiClient from "../../apiClient";
 import axios from "axios";
+
+interface CurrentUser {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  mobileNumber: string;
+  password: string;
+  isVerified: number;
+  isApproved: number;
+  __v: number;
+  latitude: number;
+  longitude: number;
+  locationName: string;
+  isOnline: boolean;
+  lastSeen: string;
+}
+interface UserState {
+  currentUser: CurrentUser;
+}
+interface RootState {
+  user: UserState;
+}
 
 const groupMessagesByDate = (messages) => {
   return messages.reduce((grouped, message) => {
@@ -30,7 +53,7 @@ const ChatWithTurf = () => {
   const [visibleSection, setVisibleSection] = useState(null);
   const navigate = useNavigate();
   const { id } = useParams();
-  const { currentUser } = useSelector((state) => state.user);
+  const currentUser = useSelector((state: RootState) => state.user.currentUser);
   const userId = currentUser._id;
   const turfId = id;
   const location = useLocation(); // Get the location object

@@ -1,39 +1,37 @@
-import axios from "axios";
-import '@fortawesome/fontawesome-free/css/all.min.css';
+import "@fortawesome/fontawesome-free/css/all.min.css";
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import apiClient from "../../apiClient";
-
 
 type Booking = {
   _id: string;
-  slotId:string;
+  slotId: string;
   date: string;
   turfName: string;
   time: string;
   price: string;
-  mobileNumber:string;
-  email:string;
+  mobileNumber: string;
+  email: string;
   isBooked: boolean;
   turfId: string;
   review: string;
   __v: number;
-  slotNumber:number;
-  bookingNumber:number
-  status:string;
+  slotNumber: number;
+  bookingNumber: number;
+  status: string;
 };
 
 const BookingList = () => {
-    let navigate=useNavigate()
-    const [cancellationConfirmation,SetCancellationConfirmation]=useState(false)
-    const [slotId,setSlotId]=useState<string>('')
-    const [isModalOpen, setIsModalOpen] = React.useState(false);
-   const [selectedBooking, setSelectedBooking] = React.useState<null|Booking>(null);
-   const [showTicket,setShowTicket]=React.useState<null|boolean>(false); 
-   const [bookingId,setBookingId]=useState<string>('')
-   const [currentPage, setCurrentPage] = useState(1);
+  const [cancellationConfirmation, SetCancellationConfirmation] =
+    useState(false);
+  const [slotId, setSlotId] = useState<string>("");
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [selectedBooking, setSelectedBooking] = React.useState<null | Booking>(
+    null
+  );
+  const [showTicket, setShowTicket] = React.useState<null | boolean>(false);
+  const [bookingId, setBookingId] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState(1);
   const bookingsPerPage = 6;
-  let token=localStorage.getItem("userToken")
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const email = localStorage.getItem("userEmail");
@@ -41,67 +39,82 @@ const BookingList = () => {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        setLoading(true)
-        const res = await apiClient.get(`/users/get-booking/${ email}`);
+        setLoading(true);
+        const res = await apiClient.get(`/users/get-booking/${email}`);
         if (res.status !== 200) {
           throw new Error("Failed to fetch bookings");
         }
         console.log(res.data);
         setBookings(res.data);
       } catch (error) {
-        setLoading(false)
+        setLoading(false);
         console.error("Error fetching bookings:", error);
       } finally {
         setLoading(false);
       }
     };
-    
 
     fetchBookings();
   }, [email]);
-  const cancellBooking=(id:string,bookingId:string)=>{
-      setSlotId(id)
-      console.log(id)
-      setBookingId(bookingId)
-      SetCancellationConfirmation(true)
-  }
-  const onConfirmCancellation=async ()=>{
+  const cancellBooking = (id: string, bookingId: string) => {
+    setSlotId(id);
+    console.log(id);
+    setBookingId(bookingId);
+    SetCancellationConfirmation(true);
+  };
+  const onConfirmCancellation = async () => {
     try {
-      const res = await apiClient.patch(`/users/cancel-booking`, {slotId,bookingId});
+      const res = await apiClient.patch(`/users/cancel-booking`, {
+        slotId,
+        bookingId,
+      });
       if (res.data.success) {
         setBookings((prevBookings) =>
           prevBookings.map((booking) =>
             booking._id === bookingId
-              ? { ...booking, status: 'cancelled', price: (0.6 * Number(booking.price)).toString() }
+              ? {
+                  ...booking,
+                  status: "cancelled",
+                  price: (0.6 * Number(booking.price)).toString(),
+                }
               : booking
           )
         );
-        
-        console.log("hi",bookings)
+
+        console.log("hi", bookings);
         SetCancellationConfirmation(false);
       }
     } catch (error) {
       console.error("Error cancelling booking:", error);
     }
- }
-  const onClose=()=>{
-    SetCancellationConfirmation(false)
-  }
+  };
+  const onClose = () => {
+    SetCancellationConfirmation(false);
+  };
   if (loading) {
-    return(<div className="flex flex-col items-center justify-center bg-gradient-to-br from-gray-800 via-gray-900 to-black text-gray-300 min-h-screen">
+    return (
+      <div className="flex flex-col items-center justify-center bg-gradient-to-br from-gray-800 via-gray-900 to-black text-gray-300 min-h-screen">
         <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500 border-opacity-75 mb-4"></div>
-        <h1 className="text-xl font-semibold tracking-wider">Loading Bookings...</h1>
-        <p className="text-gray-400 text-sm mt-2">Please wait a moment while we fetch your data.</p>
-      </div>)
+        <h1 className="text-xl font-semibold tracking-wider">
+          Loading Bookings...
+        </h1>
+        <p className="text-gray-400 text-sm mt-2">
+          Please wait a moment while we fetch your data.
+        </p>
+      </div>
+    );
   }
-  const closeTicket=()=>{
-    setShowTicket(false)
-  }
+  const closeTicket = () => {
+    setShowTicket(false);
+  };
   const indexOfLastBooking = currentPage * bookingsPerPage;
   const indexOfFirstBooking = indexOfLastBooking - bookingsPerPage;
-  const currentBookings = bookings.slice(indexOfFirstBooking, indexOfLastBooking);
+  const currentBookings = bookings.slice(
+    indexOfFirstBooking,
+    indexOfLastBooking
+  );
   const totalPages = Math.ceil(bookings.length / bookingsPerPage);
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber:number) => setCurrentPage(pageNumber);
   return (
     <>
       {cancellationConfirmation && (
@@ -173,139 +186,148 @@ const BookingList = () => {
               </tr>
             </thead>
             <tbody className="min-h-screen">
-            {currentBookings.length > 0 ? (
-            currentBookings.map((booking) => (
-              <tr
-                className="bg-gray-900 border-b border-gray-700 hover:bg-gray-800"
-                key={booking._id}
-              >
-                <td className="px-6 py-4">{booking.slotNumber}</td>
-                <td className="px-6 py-4">{booking.turfName || " "}</td>
-                <td className="px-6 py-4">{booking.email || " "}</td>
-                <td className="px-6 py-4">{booking.mobileNumber || " "}</td>
-                <td className="px-6 py-4">{`${booking.date} ${booking.time}`}</td>
-                <td className="px-6 py-4">{`${booking.price}`}</td>
-                <td className="px-6 py-4">{`${booking.status}`}</td>
-                <td className="px-6 py-4">
-                  <button
-                    onClick={() => {
-                      setSelectedBooking(booking);
-                      setIsModalOpen(true);
-                    }}
-                    className="bg-blue-500 hover:bg-blue-700 text-black font-bold py-2 px-4 rounded-lg"
+              {currentBookings.length > 0 ? (
+                currentBookings.map((booking) => (
+                  <tr
+                    className="bg-gray-900 border-b border-gray-700 hover:bg-gray-800"
+                    key={booking._id}
                   >
-                    Booking Details
-                  </button>
-                </td>
-                <td className="px-6 py-4">
-                  {booking.status === "pending" && (
-                    <button
-                      onClick={() =>
-                        cancellBooking(booking.slotId, booking._id)
-                      }
-                      className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg"
-                    >
-                      Cancel
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))
-          ) : (
-            <tr className="bg-gray-900 border-b border-gray-700 hover:bg-gray-800">
-              <td colSpan={9} className="px-6 py-4 text-center">
-                No bookings available
-              </td>
-            </tr>
-          )}
+                    <td className="px-6 py-4">{booking.slotNumber}</td>
+                    <td className="px-6 py-4">{booking.turfName || " "}</td>
+                    <td className="px-6 py-4">{booking.email || " "}</td>
+                    <td className="px-6 py-4">{booking.mobileNumber || " "}</td>
+                    <td className="px-6 py-4">{`${booking.date} ${booking.time}`}</td>
+                    <td className="px-6 py-4">{`${booking.price}`}</td>
+                    <td className="px-6 py-4">{`${booking.status}`}</td>
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() => {
+                          setSelectedBooking(booking);
+                          setIsModalOpen(true);
+                        }}
+                        className="bg-blue-500 hover:bg-blue-700 text-black font-bold py-2 px-4 rounded-lg"
+                      >
+                        Booking Details
+                      </button>
+                    </td>
+                    <td className="px-6 py-4">
+                      {booking.status === "pending" && (
+                        <button
+                          onClick={() =>
+                            cancellBooking(booking.slotId, booking._id)
+                          }
+                          className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg"
+                        >
+                          Cancel
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr className="bg-gray-900 border-b border-gray-700 hover:bg-gray-800">
+                  <td colSpan={9} className="px-6 py-4 text-center">
+                    No bookings available
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
         <div className="flex justify-center mt-6">
-        <button
-          onClick={() => setCurrentPage(currentPage - 1)}
-          disabled={currentPage === 1}
-          className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md mr-2 disabled:opacity-50"
-        >
-          Prev
-        </button>
-
-        {/* Display page numbers */}
-        {Array.from({ length: totalPages }, (_, index) => (
           <button
-            key={index + 1}
-            onClick={() => paginate(index + 1)}
-            className={`px-4 py-2 mx-1 rounded-md ${currentPage === index + 1 ? 'bg-blue-600 text-white' : 'bg-gray-600 text-white hover:bg-gray-700'}`}
+            onClick={() => setCurrentPage(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md mr-2 disabled:opacity-50"
           >
-            {index + 1}
+            Prev
           </button>
-        ))}
 
-        <button
-          onClick={() => setCurrentPage(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md ml-2 disabled:opacity-50"
-        >
-          Next
-        </button>
-      </div>
+          {/* Display page numbers */}
+          {Array.from({ length: totalPages }, (_, index) => (
+            <button
+              key={index + 1}
+              onClick={() => paginate(index + 1)}
+              className={`px-4 py-2 mx-1 rounded-md ${
+                currentPage === index + 1
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-600 text-white hover:bg-gray-700"
+              }`}
+            >
+              {index + 1}
+            </button>
+          ))}
+
+          <button
+            onClick={() => setCurrentPage(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md ml-2 disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
       </div>
       {isModalOpen && selectedBooking && (
         <div className="fixed inset-0 bg-gradient-to-br bg-black bg-opacity-75 flex items-center justify-center transition-opacity duration-300">
-        <div className="bg-white p-8 rounded-lg shadow-2xl w-full sm:w-1/2 md:w-1/3 lg:w-1/4 relative space-y-6">
-          <h2 className="text-3xl font-extrabold text-gray-800 mb-6 text-center border-b pb-4">
-            Booking Details
-          </h2>
-          <div className="space-y-4 text-gray-700">
-            <p>
-              <strong className="font-bold text-gray-900">Slot Number:</strong>{" "}
-              {selectedBooking.slotNumber}
-            </p>
-            <p>
-              <strong className="font-bold text-gray-900">Turf Name:</strong>{" "}
-              {selectedBooking.turfName || "N/A"}
-            </p>
-            <p>
-              <strong className="font-bold text-gray-900">Email:</strong>{" "}
-              {selectedBooking.email || "N/A"}
-            </p>
-            <p>
-              <strong className="font-bold text-gray-900">Mobile Number:</strong>{" "}
-              {selectedBooking.mobileNumber || "N/A"}
-            </p>
-            <p>
-              <strong className="font-bold text-gray-900">Date and Time:</strong>{" "}
-              {`${selectedBooking.date} ${selectedBooking.time}`}
-            </p>
-            <p>
-              <strong className="font-bold text-gray-900">Price:</strong>{" "}
-              {`${selectedBooking.price}`}
-            </p>
-            <p>
-              <strong className="font-bold text-gray-900">Time:</strong>{" "}
-              {selectedBooking.time}
-            </p>
-          </div>
-          <div className="flex justify-center gap-4 mt-6">
-            <button
-              onClick={() => {
-                setIsModalOpen(false);
-                setShowTicket(true);
-              }}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-md shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
-            >
-              Ticket
-            </button>
-            <button
-              onClick={() => setIsModalOpen(false)}
-              className="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-8 rounded-md shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
-            >
-              Close
-            </button>
+          <div className="bg-white p-8 rounded-lg shadow-2xl w-full sm:w-1/2 md:w-1/3 lg:w-1/4 relative space-y-6">
+            <h2 className="text-3xl font-extrabold text-gray-800 mb-6 text-center border-b pb-4">
+              Booking Details
+            </h2>
+            <div className="space-y-4 text-gray-700">
+              <p>
+                <strong className="font-bold text-gray-900">
+                  Slot Number:
+                </strong>{" "}
+                {selectedBooking.slotNumber}
+              </p>
+              <p>
+                <strong className="font-bold text-gray-900">Turf Name:</strong>{" "}
+                {selectedBooking.turfName || "N/A"}
+              </p>
+              <p>
+                <strong className="font-bold text-gray-900">Email:</strong>{" "}
+                {selectedBooking.email || "N/A"}
+              </p>
+              <p>
+                <strong className="font-bold text-gray-900">
+                  Mobile Number:
+                </strong>{" "}
+                {selectedBooking.mobileNumber || "N/A"}
+              </p>
+              <p>
+                <strong className="font-bold text-gray-900">
+                  Date and Time:
+                </strong>{" "}
+                {`${selectedBooking.date} ${selectedBooking.time}`}
+              </p>
+              <p>
+                <strong className="font-bold text-gray-900">Price:</strong>{" "}
+                {`${selectedBooking.price}`}
+              </p>
+              <p>
+                <strong className="font-bold text-gray-900">Time:</strong>{" "}
+                {selectedBooking.time}
+              </p>
+            </div>
+            <div className="flex justify-center gap-4 mt-6">
+              <button
+                onClick={() => {
+                  setIsModalOpen(false);
+                  setShowTicket(true);
+                }}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-md shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+              >
+                Ticket
+              </button>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-8 rounded-md shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-      
       )}
       {showTicket && (
         <div className="fixed inset-0 bg-gradient-to-br bg-black bg-opacity-75 flex items-center justify-center transition-opacity duration-300">
@@ -357,7 +379,6 @@ const BookingList = () => {
                       <span className="font-medium">Price</span>
                       <span>{selectedBooking?.price}</span>
                     </div>
-                    
                   </div>
                 </div>
               </div>

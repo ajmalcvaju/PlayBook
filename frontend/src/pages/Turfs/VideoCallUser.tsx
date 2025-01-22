@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-import { io, Socket } from "socket.io-client";
-import { Mic, MicOff } from "lucide-react";
+import { io } from "socket.io-client";
+import { MicOff } from "lucide-react";
 
 const socket = io("http://localhost:7000");
 const VideoCallUser = () => {
@@ -33,7 +33,6 @@ const VideoCallUser = () => {
       socket.emit("answer", { roomId, answer });
     });
 
-    // Listen for answer
     socket.on("answer", async (answer: RTCSessionDescriptionInit) => {
       if (peerConnectionRef.current) {
         await peerConnectionRef.current.setRemoteDescription(
@@ -42,7 +41,6 @@ const VideoCallUser = () => {
       }
     });
 
-    // Listen for ICE candidates
     socket.on("ice-candidate", (candidate: RTCIceCandidateInit) => {
       if (peerConnectionRef.current) {
         peerConnectionRef.current.addIceCandidate(
@@ -110,6 +108,7 @@ const VideoCallUser = () => {
   };
   useEffect(()=>{
     socket.on("call-disconnected", ({ roomId, userId }) => {
+      console.log(userId)
       if(roomId===roomId){
         setIsConnected(false);
         navigate("/turf/customer-chat")
