@@ -32,13 +32,29 @@ export const TurfRepositoryImpl: TurfRepository = {
     }
     return updatedTurf.toObject() as UpdatedTurf;
   },
-  async updateSlot(turfId: string, startDate: Date, endDate: Date,prices:{[key: string]: string}): Promise<Slot[]> {
-    console.log(turfId,startDate,endDate,prices)
-    const calculatePrice = (hour: number, day: number): number => {
+  async updateSlot(
+    turfId: string,
+    startDate: Date,
+    endDate: Date,
+    prices: { [key: string]: string },
+    turfSizes: ('5 vs 5' | '7 vs 7' | '11 vs 11')[] // Array of turf sizes
+): Promise<Slot[]> {
+    console.log(turfId, startDate, endDate, prices, turfSizes);
+
+    // Define multipliers for each turf size
+    const turfSizeMultipliers: { [key in '5 vs 5' | '7 vs 7' | '11 vs 11']: number } = {
+        '11 vs 11': 1, // Base price multiplier
+        '7 vs 7': 0.9, // 90% of the base price
+        '5 vs 5': 0.8, // 80% of the base price
+    };
+
+    // Function to calculate price based on hour, day, and turf size
+    const calculatePrice = (hour: number, day: number, turfSize: '5 vs 5' | '7 vs 7' | '11 vs 11'): number => {
         let basePrice: number;
+
         if (hour >= 0 && hour < 6) {
             basePrice = Number(prices.slot1);
-        } else if (hour >= 6 && hour < 11) {
+        } else if (hour >= 6 && hour < 11) { 
             basePrice = Number(prices.slot2);
         } else if (hour >= 11 && hour < 18) {
             basePrice = Number(prices.slot3);
@@ -47,34 +63,35 @@ export const TurfRepositoryImpl: TurfRepository = {
         } else {
             throw new Error('Invalid hour range');
         }
-        if (day === 0){
-          if (hour >= 0 && hour < 6) {
-            basePrice = Number(prices.slot9);
-        } else if (hour >= 6 && hour < 11) {
-            basePrice = Number(prices.slot10);
-        } else if (hour >= 11 && hour < 18) {
-            basePrice = Number(prices.slot11);
-        } else if (hour >= 18 && hour <= 23) {
-            basePrice = Number(prices.slot12);
-        } else {
-            throw new Error('Invalid hour range');
+
+        if (day === 0) {
+            if (hour >= 0 && hour < 6) {
+                basePrice = Number(prices.slot9);
+            } else if (hour >= 6 && hour < 11) {
+                basePrice = Number(prices.slot10);
+            } else if (hour >= 11 && hour < 18) {
+                basePrice = Number(prices.slot11);
+            } else if (hour >= 18 && hour <= 23) {
+                basePrice = Number(prices.slot12);
+            }
         }
+
+        if (day === 6) {
+            if (hour >= 0 && hour < 6) {
+                basePrice = Number(prices.slot5);
+            } else if (hour >= 6 && hour < 11) {
+                basePrice = Number(prices.slot6);
+            } else if (hour >= 11 && hour < 18) {
+                basePrice = Number(prices.slot7);
+            } else if (hour >= 18 && hour <= 23) {
+                basePrice = Number(prices.slot8);
+            }
         }
-        if (day === 6){
-          if (hour >= 0 && hour < 6) {
-            basePrice = Number(prices.slot5);
-        } else if (hour >= 6 && hour < 11) {
-            basePrice = Number(prices.slot6);
-        } else if (hour >= 11 && hour < 18) {
-            basePrice = Number(prices.slot7);
-        } else if (hour >= 18 && hour <= 23) {
-            basePrice = Number(prices.slot8);
-        } else {
-            throw new Error('Invalid hour range');
-        }
-        }; 
-        return basePrice;
+
+        // Apply the multiplier based on the turf size
+        return basePrice * turfSizeMultipliers[turfSize];
     };
+
     try {
         const ruleSet = new RRuleSet();
         ruleSet.rrule(
@@ -92,17 +109,21 @@ export const TurfRepositoryImpl: TurfRepository = {
             const day = date.getDay();
 
             for (let hour = 0; hour < 24; hour++) {
-                const price = calculatePrice(hour, day);
-                const slotData = {
-                    turfId,
-                    date: date.toISOString().split('T')[0],
-                    time: `${hour}:00`,
-                    price,
-                };
-                const slot = new SlotModel(slotData);
-                saveSlotPromises.push(slot.save());
+                for (const turfSize of turfSizes) {
+                    const price = calculatePrice(hour, day, turfSize);
+                    const slotData = {
+                        turfId,
+                        turfSizes:turfSize,
+                        date: date.toISOString().split('T')[0],
+                        time: `${hour}:00`,
+                        price
+                    };
+                    const slot = new SlotModel(slotData);
+                    saveSlotPromises.push(slot.save());
+                }
             }
         }
+
         const savedSlots = await Promise.all(saveSlotPromises);
         allSlots.push(...savedSlots);
         return allSlots;

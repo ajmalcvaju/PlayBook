@@ -11,6 +11,7 @@ interface Slot {
   time: string;
   isBooked: boolean;
   price: string;
+  turfSizes:string;
 }
 
 interface FormData {
@@ -35,6 +36,7 @@ const AdminDashboard: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [showError, setShowError] = useState(false);
+  const [selectedTurfSizes, setSelectedTurfSizes] = useState<string[]>([]);
   const [slotToDelete, setSlotToDelete] = useState(null);
   const [creatingSlot, setCreatingSlot] = useState(false);
 
@@ -57,7 +59,7 @@ const AdminDashboard: React.FC = () => {
       try {
         const response = await apiClient.get(`/turfs/slots/${email}`);
         const currentSlot = response.data;
-        const slot=currentSlot.slots;
+        const slots=currentSlot.slots;
         console.log(slots);
         setCurrentSlots(slots);
         setFiteredSlots(slots);
@@ -92,6 +94,20 @@ const AdminDashboard: React.FC = () => {
       setShowModal(false);
     }
   };
+  useEffect(() => {
+    const fetchTurfDetails = async () => {
+      try {
+        const response = await apiClient.get(`/turfs/get-turfDetails/${email}`);
+        const data = response.data;
+        setSelectedTurfSizes(data.turfSizes);
+      } catch (error) {
+        console.error("Error fetching turf details:", error);
+      }
+    };
+    if (email) {
+      fetchTurfDetails();
+    }
+  }, [email]);
   const {
     register,
     handleSubmit,
@@ -102,9 +118,13 @@ const AdminDashboard: React.FC = () => {
     console.log("Form Data:", data);
     try {
       setCreatingSlot(true);
+      const enrichedData = {
+        ...data,
+        turfSizes: selectedTurfSizes,
+      };
       const response = await apiClient.post(`/turfs/slots`, {
         email: email,
-        data,
+        data:enrichedData,
       });
       if (response.status === 200) {
         setCreatingSlot(false);
@@ -431,6 +451,9 @@ const AdminDashboard: React.FC = () => {
                         Time
                       </th>
                       <th className="px-4 py-2 text-left font-semibold">
+                        Size
+                      </th>
+                      <th className="px-4 py-2 text-left font-semibold">
                         Price
                       </th>
                       <th className="px-4 py-2 text-left font-semibold">
@@ -454,6 +477,9 @@ const AdminDashboard: React.FC = () => {
                         </td>
                         <td className="px-4 py-2 text-gray-700">
                           {currentSlot.time}
+                        </td>
+                        <td className="px-4 py-2 text-gray-700">
+                          {currentSlot.turfSizes}
                         </td>
                         <td className="px-4 py-2 text-gray-700">
                           {currentSlot.price}

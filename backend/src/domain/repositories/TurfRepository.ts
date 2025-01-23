@@ -5,7 +5,7 @@ export interface TurfRepository{
   createTurf(turf:Turf): Promise<Turf>;
   findByEmail(email: string): Promise<Turf | null>;
   updateDetails(email:string,details:Partial<TurfDetails>): Promise<Turf>;
-  updateSlot(turfId: string,startDate:Date,endDate:Date,prices:{[key: string]: string}): Promise<Slot[]>
+  updateSlot(turfId: string,startDate:Date,endDate:Date,prices:{[key: string]: string},turfSizes: ('5 vs 5' | '7 vs 7' | '11 vs 11')[]): Promise<Slot[]>
   getSlots(id:string): Promise<Slot[]|void>;
   currentSlots(turfId: string,date:string): Promise<Slot[]|void>;
   deleteSlot(id:string): Promise<void>

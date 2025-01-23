@@ -40,6 +40,10 @@ const slotSchema = new Schema<SlotDocument>({
   },
   slotNumber: {
     type: Number,
+  },
+  turfSizes: {
+    type: String, 
+    required: true,
   }
 });
 
@@ -52,6 +56,8 @@ slotSchema.plugin((mongooseSequence as any)(mongoose), {
   inc_field: 'slotNumber',
   start_seq: 1001, 
 });
+
+slotSchema.index({ date: 1, time: 1, turfSizes: 1 });
 
 // Create the Slot model using the SlotDocument schema
 export const SlotModel = mongoose.model<SlotDocument>('Slot', slotSchema);

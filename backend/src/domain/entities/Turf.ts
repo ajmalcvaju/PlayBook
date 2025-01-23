@@ -29,5 +29,6 @@ export interface Slot {
   time: string;
   isBooked: boolean;
   price:string;
+  turfSizes: string
   bookingNumber:number
 }

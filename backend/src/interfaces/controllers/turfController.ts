@@ -192,7 +192,8 @@ export const turfController = {
   slotUpdate: async (req: Request, res: Response) => {
     try {
       const email = req.body.email;
-      const { startDate, endDate, ...prices } = req.body.data;
+      console.log(req.body)
+      const { startDate, endDate,turfSizes,...prices} = req.body.data;
       const turfDetails = await getTurfDetailsFromMail(email);
       const id = turfDetails?._id as string;
       const slots = await updateSlot(
@@ -200,7 +201,8 @@ export const turfController = {
         id,
         startDate,
         endDate,
-        prices
+        prices,
+        turfSizes
       );
       res.status(200).json({ slots });
     } catch (error: any) {
