@@ -23,6 +23,7 @@ const TurfSchema = new Schema<TurfDocument>({
   turfOverview: { type: String, required: false },
   facilities: { type: String, required: false },
   turfTypes:{type: [String],required: false},
+  turfSizes:{type: [String],required: false},
   rating:{ type: Number, required: false },
   votes:{ type: Number, required: false },
   gallery: { type: [String], required: false,default:["https://content.jdmagicbox.com/v2/comp/mumbai/p8/022pxx22.xx22.220811180605.h5p8/catalogue/enc-sports-turf-jk-gram-thane-west-mumbai-yhq2pyqds4.jpg"] },

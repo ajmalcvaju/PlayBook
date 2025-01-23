@@ -30,6 +30,7 @@ const TurfDetailsUpdate = () => {
   const [marker, setMarker] = useState<google.maps.Marker | null>(null);
   const [locations, setLocations] = useState<Location[]>([]);
   const [selectedTurfTypes, setSelectedTurfTypes] = useState<string[]>([]);
+  const [selectedTurfSizes, setSelectedTurfSizes] = useState<string[]>([]);
   const [overView, setOverView] = useState<string>("");
   const [facilities, setFacilities] = useState<string>("");
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -234,7 +235,11 @@ const TurfDetailsUpdate = () => {
           formDataToSend.append("turfTypes", selectedTurfTypes[i]);
         }
       }
-      console.log(data);
+      if (selectedTurfSizes) {
+        for (let i = 0; i < selectedTurfSizes.length; i++) {
+          formDataToSend.append("turfSizes", selectedTurfSizes[i]);
+        }
+      }
       const response = await apiClient.patch(
         "/turfs/turfDetailsUpdate",
         formDataToSend
@@ -265,6 +270,15 @@ const TurfDetailsUpdate = () => {
       setSelectedTurfTypes((prev) => prev.filter((type) => type !== value));
     }
   };
+  const handleSizeCheckboxChange = (e) => {
+    const { value, checked } = e.target;
+    if (checked) {
+      setSelectedTurfSizes((prev) => [...prev, value]);
+    } else {
+      setSelectedTurfSizes((prev) => prev.filter((size) => size !== value));
+    }
+  };  
+
   const handleCloseModal = () => {
     setIsLocationErrorModel(false);
   };
@@ -441,6 +455,32 @@ const TurfDetailsUpdate = () => {
                   />
                   <label htmlFor={turf.toLowerCase()} className="text-gray-300">
                     {turf}
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mb-6">
+            <label className="font-semibold text-lg text-gray-300 mb-2">
+              Turf Size
+            </label>
+            <div className="flex flex-wrap gap-6">
+              {["5 vs 5", "7 vs 7", "11 vs 11"].map((size) => (
+                <div key={size} className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id={size.replace(/\s+/g, "").toLowerCase()} // Create a unique ID by removing spaces and making lowercase
+                    name="turfSize"
+                    value={size}
+                    onChange={handleSizeCheckboxChange}
+                    className="mr-2"
+                  />
+                  <label
+                    htmlFor={size.replace(/\s+/g, "").toLowerCase()}
+                    className="text-gray-300"
+                  >
+                    {size}
                   </label>
                 </div>
               ))}

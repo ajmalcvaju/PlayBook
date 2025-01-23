@@ -19,6 +19,7 @@ export interface TurfDetails{
     facilities?:string
     gallery?: string[];
     turfTypes?:string[];
+    turfSizes?:string[];
     rating:number;
     votes:number
 }
