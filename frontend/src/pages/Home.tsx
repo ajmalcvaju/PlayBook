@@ -13,6 +13,7 @@ interface Turf {
   distance: number;
   turfAddress: string;
   turfTypes: string[];
+  turfSizes:string[]
   rating: number;
   votes: number;
 }
@@ -36,6 +37,7 @@ const Home: React.FC = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [turfType, setTurfType] = useState<string>("all");
+  const [turfSize, setTurfSize] = useState<string>("all");
   const [locations, setLocations] = useState<any>({
     locationName: "Calicut",
     latitude: 11.281680639189076,
@@ -235,11 +237,14 @@ const Home: React.FC = () => {
       }
     }
   };
-  const turfsOfTypes = turfs.filter((turf) => {
-    return turfType === "all" ? true : turf.turfTypes?.includes(turfType);
-  });
-
-  const filteredTurfs = turfsOfTypes
+  
+  // Combine both filters
+  const filteredTurfs = turfs
+    .filter((turf) => {
+      const matchesType = turfType === "all" || turf.turfTypes?.includes(turfType);
+      const matchesSize = turfSize === "all" || turf.turfSizes?.includes(turfSize);
+      return matchesType && matchesSize;
+    })
     .filter((turf) => turf.distance <= distanceFilter)
     .sort((a, b) => {
       if (sortOrder === "distance") {
@@ -250,6 +255,7 @@ const Home: React.FC = () => {
         return 0;
       }
     });
+  
   const startIndex = (currentPage - 1) * turfsPerPage;
   const endIndex = startIndex + turfsPerPage;
   const paginatedTurfs = filteredTurfs.slice(startIndex, endIndex);
@@ -394,6 +400,21 @@ const Home: React.FC = () => {
               <option value="Hockey">Hockey</option>
               <option value="Badminton">Badminton</option>
               <option value="Tennis">Tennis</option>
+            </select>
+          </div>
+          <div>
+            <h3 className="font-bold mb-2">Select Turf Size</h3>
+            <select
+              id="turfSize"
+              name="turfSize"
+              onChange={(e) => setTurfSize(e.target.value)}
+              value={turfSize}
+              className="w-full p-2 bg-gray-800 text-white rounded shadow"
+            >
+              <option value="all">All</option>
+              <option value="11 vs 11">11 vs 11</option>
+              <option value="7 vs 7">7 vs 7</option>
+              <option value="5 vs 5">5 vs 5</option>
             </select>
           </div>
         </div>

@@ -105,7 +105,7 @@ const BookingManagement = () => {
   return (
     <>
       {isModalOpen && selectedBooking && (
-        <div className="fixed inset-0 bg-gradient-to-br from-black via-gray-800 to-gray-900 bg-opacity-75 flex items-center justify-center transition-opacity duration-300">
+        <div className="fixed inset-0 bg-gradient-to-br min-h-max from-black via-gray-800 to-gray-900 bg-opacity-75 flex items-center justify-center transition-opacity duration-300">
           <div className="bg-white p-8 rounded-lg shadow-2xl w-full sm:w-1/2 md:w-1/3 lg:w-1/4 relative space-y-6">
             <h2 className="text-3xl font-extrabold text-gray-800 mb-6 text-center border-b pb-4">
               Booking Details

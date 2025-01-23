@@ -277,13 +277,26 @@ const TurfDetailsUpdate = () => {
     } else {
       setSelectedTurfSizes((prev) => prev.filter((size) => size !== value));
     }
-  };  
+  };
 
   const handleCloseModal = () => {
     setIsLocationErrorModel(false);
   };
   return (
     <div className="flex-1 p-6 bg-gray-900">
+      {isLoading && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-95">
+          <div className="flex flex-col items-center justify-center bg-gray-800 p-8 rounded-lg shadow-lg border border-gray-700 text-center animate-fadeIn">
+            <div className="loader mb-6 h-12 w-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            <h2 className="text-xl font-bold text-gray-200 animate-pulse">
+              Your turf details are getting updated
+            </h2>
+            <p className="mt-2 text-gray-400 text-sm animate-fadeInSlow">
+              Please wait while we update your information...
+            </p>
+          </div>
+        </div>
+      )}
       <div>
         {isLocationErrorModel && (
           <div className="modal-overlay z-50">
@@ -294,6 +307,7 @@ const TurfDetailsUpdate = () => {
           </div>
         )}
       </div>
+
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white rounded-lg shadow-lg p-6 relative w-3/4 md:w-1/2 lg:w-3/5">
@@ -486,12 +500,6 @@ const TurfDetailsUpdate = () => {
               ))}
             </div>
           </div>
-
-          {isLoading && (
-            <div className="text-blue-500 text-center">
-              Updating... Please wait
-            </div>
-          )}
           {errorMessage && (
             <div className="text-red-500 text-center">{errorMessage}</div>
           )}

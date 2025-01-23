@@ -10,6 +10,7 @@ type Slot = {
   price: string;
   turfId: string;
   isBooked: boolean;
+  turfSizes: string;
 };
 
 const TicketBookingModal = ({}) => {
@@ -19,9 +20,9 @@ const TicketBookingModal = ({}) => {
   const [slotId, setSlotId] = useState("");
   const navigate = useNavigate();
   const [price, setPrice] = useState<number>(0);
+  const [selectedTurfSize, setSelectedTurfSize] = useState<string>(null);
   const { id } = useParams();
   const dateForm = activeDate.toISOString().split("T")[0];
-  
 
   useEffect(() => {
     const fetchSlots = async () => {
@@ -65,11 +66,22 @@ const TicketBookingModal = ({}) => {
     price: item?.price,
     id: item?._id,
     isBooked: item?.isBooked,
+    turfSizes: item?.turfSizes,
   }));
+  const turfSizes = [...new Set(times.map((item) => item.turfSizes))];
 
-  const bookNow = (time:string, price:number, date:string, slotId:string) => {
-    console.log(time, price)
-    console.log(date, slotId)
+  const filteredTimes = selectedTurfSize
+    ? times.filter((item) => item.turfSizes === selectedTurfSize)
+    : [];
+
+  const bookNow = (
+    time: string,
+    price: number,
+    date: string,
+    slotId: string
+  ) => {
+    console.log(time, price);
+    console.log(date, slotId);
     navigate("payment-confirmation", { state: { time, price, date, slotId } });
   };
 
@@ -126,46 +138,67 @@ const TicketBookingModal = ({}) => {
           </div>
 
           {/* Available Times */}
-          <div className="grid gap-4 w-full mb-4 grid-cols-3 md:grid-cols-4 lg:grid-cols-8">
-            {!times.length && (
-              <div className="flex justify-center items-center col-span-8 h-40">
-                <h1>No slots available on this date</h1>
-              </div>
-            )}
-            {times
-              .sort((a, b) => {
-                const [aHours, aMinutes] = a.time.split(":").map(Number);
-                const [bHours, bMinutes] = b.time.split(":").map(Number);
-                return aHours - bHours || aMinutes - bMinutes;
-              })
-              .map(({ date, time, price, id, isBooked }) => {
-                const currentDate = new Date();
-                const currentDateString = currentDate
-                  .toISOString()
-                  .split("T")[0];
-                const currentTime =
-                  currentDate.getHours() * 60 + currentDate.getMinutes();
-                const [hours, minutes] = time.split(":").map(Number);
-                const slotTime = hours * 60 + minutes;
-                const isDisabled =
-                  date === currentDateString && slotTime < currentTime;
-                return (
-                  <button
-                    key={id}
-                    onClick={() => handleTimeSelect(time, price, id)}
-                    className={`py-2 px-4 rounded-md border ${
-                      isBooked || isDisabled
-                        ? "opacity-60 cursor-not-allowed bg-gray-500 border-gray-400"
-                        : selectedTime === time
-                        ? "bg-red-600 text-white"
-                        : "text-black border-gray-400"
-                    }`}
-                    disabled={isBooked || isDisabled}
-                  >
-                    {time}
-                  </button>
-                );
-              })}
+          <div className="w-full">
+            {/* Turf Size Selector */}
+            <div className="flex justify-center items-center gap-4 mb-4 flex-wrap">
+              {turfSizes.map((turfSize) => (
+                <button
+                  key={turfSize}
+                  onClick={() => setSelectedTurfSize(turfSize)}
+                  className={`py-2 px-6 rounded-lg border-2 transition-all duration-300 ease-in-out transform 
+                  ${
+                    selectedTurfSize === turfSize
+                      ? "bg-gradient-to-r from-indigo-500 to-blue-600 text-white border-indigo-700 shadow-lg scale-105"
+                      : "bg-gray-100 text-gray-800 border-gray-300 hover:bg-gradient-to-r hover:from-teal-500 hover:to-green-500 hover:text-white shadow-sm"
+                  }`}
+                >
+                  {turfSize}
+                </button>
+              ))}
+            </div>
+
+            {/* Slots */}
+            <div className="grid gap-4 w-full mb-4 grid-cols-3 md:grid-cols-4 lg:grid-cols-8">
+              {!filteredTimes.length && (
+                <div className="flex justify-center items-center col-span-8 h-40">
+                  <h1>No slots available for this turf size</h1>
+                </div>
+              )}
+              {filteredTimes
+                .sort((a, b) => {
+                  const [aHours, aMinutes] = a.time.split(":").map(Number);
+                  const [bHours, bMinutes] = b.time.split(":").map(Number);
+                  return aHours - bHours || aMinutes - bMinutes;
+                })
+                .map(({ date, time, price, id, isBooked }) => {
+                  const currentDate = new Date();
+                  const currentDateString = currentDate
+                    .toISOString()
+                    .split("T")[0];
+                  const currentTime =
+                    currentDate.getHours() * 60 + currentDate.getMinutes();
+                  const [hours, minutes] = time.split(":").map(Number);
+                  const slotTime = hours * 60 + minutes;
+                  const isDisabled =
+                    date === currentDateString && slotTime < currentTime;
+                  return (
+                    <button
+                      key={id}
+                      onClick={() => handleTimeSelect(time, price, id)}
+                      className={`py-2 px-4 rounded-md border ${
+                        isBooked || isDisabled
+                          ? "opacity-60 cursor-not-allowed bg-gray-500 border-gray-400"
+                          : selectedTime === time
+                          ? "bg-red-600 text-white"
+                          : "text-black border-gray-400"
+                      }`}
+                      disabled={isBooked || isDisabled}
+                    >
+                      {time}
+                    </button>
+                  );
+                })}
+            </div>
           </div>
 
           <div className="flex justify-between w-full mt-4">
