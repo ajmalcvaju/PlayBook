@@ -11,6 +11,7 @@ import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from ".
 import { report } from "process";
 import { getReviews } from "../../application/usecases/admin/getReviews";
 import { deleteReview } from "../../application/usecases/admin/deleteReview";
+import { payBalance } from "../../application/usecases/admin/payBalance";
 
 
 export const adminController={
@@ -129,6 +130,15 @@ export const adminController={
             const {id}=req.params
             await deleteReview(AdminRepositoryImpl,id)
             res.status(200).json({message:"review deleted successfully"})
+        } catch (error:any) {
+            res.status(400).json({message:error.message})
+        }
+    },
+    payBalance:async(req:Request,res:Response)=>{ 
+        try {
+            const { turfId, balance }=req.body
+            const turf=await payBalance(AdminRepositoryImpl,turfId,balance)
+            res.status(200).json({turf,message:"Turf's balance updated successfully"})
         } catch (error:any) {
             res.status(400).json({message:error.message})
         }

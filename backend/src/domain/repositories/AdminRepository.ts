@@ -9,4 +9,5 @@ export interface AdminRepository{
   blockTurf(id:string,block:boolean):Promise<Turf[]>
   getReviews():Promise<any[]|null>
   deleteReview(id:string):Promise<void>
+  payBalance(turfId:string,balance:number):Promise<Turf|null>
 } 

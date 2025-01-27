@@ -25,7 +25,7 @@ type Turf = {
   bookingsCount: number;
   isBlocked: boolean;
   reports: string[];
-  paid:number
+  paid: number;
 };
 
 const AdminDashboard = () => {
@@ -35,11 +35,12 @@ const AdminDashboard = () => {
   const [endDate, setEndDate] = useState<string>("");
   const [filter, setFilter] = useState<string>("custom");
   const [turfName, setTurfName] = useState<string>("all");
-  const [uniqueTurfs, setUniqueTurfs] = useState<string[]>([]); 
+  const [uniqueTurfs, setUniqueTurfs] = useState<string[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const [totalPaid, setTotalPaid] = useState<number>(0);
   const [balance, setBalance] = useState<number>(0);
-  const [turfs,setTurfs]=useState<Turf[]>([])
+  const [turfs, setTurfs] = useState<Turf[]>([]);
+  const [turf, setTurf] = useState<Turf>([]);
   let chartInstance: Chart | null = null;
   let revenueChartInstance: Chart | null = null;
 
@@ -63,7 +64,6 @@ const AdminDashboard = () => {
     };
     fetchBookings();
   }, []);
-  
 
   useEffect(() => {
     const filterBookings = () => {
@@ -230,22 +230,23 @@ const AdminDashboard = () => {
       const isTurfMatch = turfName ? booking.turfName === turfName : "all";
       return isTurfMatch;
     });
-  
+
     const priceSum = filteredBookings.reduce(
       (sum, booking) => sum + booking.price,
       0
     );
     setTotalPrice(priceSum);
-  
+
     // Set total paid for the selected turf
     if (turfName && turfName !== "all") {
-      const selectedTurf = turfs.find((turf) => turf.name === turfName);
+      const selectedTurf = turfs.find((turf) => turf.turfName === turfName);
+      setTurf(selectedTurf as Turf);
       if (selectedTurf) {
-        setTotalPaid(selectedTurf.paid);
+        setTotalPaid(turf.paid);
       }
     }
   };
-  
+
   useEffect(() => {
     const fetchTurfs = async () => {
       try {
@@ -263,15 +264,74 @@ const AdminDashboard = () => {
     };
     fetchTurfs();
   }, []);
-  
+
   useEffect(() => {
     if (filter === "custom" && turfName !== "all") {
       handleFilter();
     }
-  }, [turfName, filter]);
+  }, [turfName, filter,turf]);
   useEffect(() => {
     setBalance((totalPrice ?? 0) - (totalPaid ?? 0));
   }, [totalPrice, totalPaid]);
+
+  const openRazorpay = async () => {
+    if (!window.Razorpay) {
+      console.error("Razorpay SDK not loaded");
+      alert("Payment gateway is not available. Please try again later.");
+      // setIsBookingFailed(true);
+      return;
+    }
+    const options = {
+      key: import.meta.env.VITE_RAZOR_PAY_KEY,
+      amount: balance * 100,
+      currency: "INR",
+      name: "PlayBook",
+      description: "Turf Balance Payment",
+      image: "https://i.imgur.com/1eyM5kC.png",
+      handler: async (response) => {
+        console.log("Payment successful:", response);
+        try {
+          const res = await apiClient.post("/admin/pay-balance", {turfId: turf._id, balance});
+          console.log("Balance paid:", res.data.turf);
+          const paidTurf:Turf=res.data.turf
+          setTotalPaid(paidTurf.paid)
+          // const notificationData = {
+          //   turfId: turf._id,
+          //   balance,
+          // };
+          // socket.emit("send-notification", notificationData);
+          // setIsBookingSuccess(true);
+        } catch (error) {
+          console.error("Error confirming booking:", error);
+          // setIsBookingFailed(true);
+          throw new Error(
+            `HTTP error! Status: ${error.response?.status || error.message}`
+          );
+        }
+      },
+      notes: {
+        address: "Razorpay Corporate Office",
+      },
+      theme: {
+        color: "#3399cc",
+      },
+    };
+
+    const rzp = new window.Razorpay(options);
+    rzp.on("payment.failed", async (response) => {
+      try {
+        const res = await apiClient.post("/users/confirm-booking", {
+          slotId,
+          email,
+        });
+        console.log("Booking confirmed:", res.data);
+      } catch (error) {
+        console.error("Error confirming booking:", error);
+        setIsBookingFailed(true);
+      }
+    });
+    rzp.open();
+  };
 
   return (
     <div className="overflow-x-auto bg-gray-900 text-white p-6">
@@ -357,20 +417,22 @@ const AdminDashboard = () => {
                 Total Price: <span className="text-white">{totalPrice}</span>
               </p>
               <p className="text-teal-400 text-2xl">
-              Total Paid: <span className="text-white">{totalPaid ?? "0"}</span>
+                Total Paid:{" "}
+                <span className="text-white">{totalPaid ?? "0"}</span>
               </p>
               <p className="text-teal-400 text-2xl">
-              Balance: <span className="text-white">{balance}</span>
+                Balance: <span className="text-white">{balance}</span>
               </p>
             </div>
 
             {/* Pay Balance Button */}
+            {balance!==0&&(
             <button
-              // onClick={handlePayBalance} // Add your payment handler function
+              onClick={openRazorpay} // Add your payment handler function
               className="bg-green-500 hover:bg-teal-600 text-white px-8 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all duration-300"
             >
               Pay Balance
-            </button>
+            </button>)}
           </div>
         )}
 

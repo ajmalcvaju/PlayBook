@@ -70,5 +70,13 @@ async getReviews():Promise<any[]|null>{
 async deleteReview(id:string):Promise<void>{
   const result = await ReviewModel.deleteOne({ _id: id });
   return
+},
+async payBalance(turfId:string,balance:number):Promise<Turf|null>{
+  const updatedTurf=await TurfModel.findByIdAndUpdate(
+    turfId,
+    { $inc: { paid: balance } },
+    { new: true }
+);
+return updatedTurf;
 }
 }
