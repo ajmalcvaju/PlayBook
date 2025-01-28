@@ -11,6 +11,8 @@ import { TurfModel } from "../models/turfModel";
 import { BookingModel } from "../models/BookingModel";
 import ReportModel from "../models/reportModel";
 import { Report } from "../../../domain/entities/Report";
+import { Team } from "../../../domain/entities/Team";
+import { TeamModel } from "../models/TeamModel";
 
 
 export const UserRepositoryImpl: UserRepository = {
@@ -148,7 +150,11 @@ export const UserRepositoryImpl: UserRepository = {
       } catch (error) {
         console.log(error)
       }
-      
     }
+  },
+  async createTeam(teamName:string,maxMembers:number, privacy:'pubic'|'private'): Promise<Team> {
+    const newTeam = new TeamModel({teamName,maxMembers,privacy});
+    await newTeam.save();
+    return newTeam.toObject() as Team;
   }
 };

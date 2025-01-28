@@ -61,6 +61,12 @@ const Hero = ({ user }: HeroProps) => {
                     Profile
                   </Link>
                   <Link
+                    to="/form-team"
+                    className="hover:text-teal-400 transition duration-300"
+                  >
+                    Form Team
+                  </Link>
+                  <Link
                     to="/booking-list"
                     className="hover:text-teal-400 transition duration-300"
                   >
@@ -138,6 +144,13 @@ const Hero = ({ user }: HeroProps) => {
                       onClick={() => setShowMobileMenu(false)}
                     >
                       Profile
+                    </Link>
+                    <Link
+                      to="/form-team"
+                      className="hover:text-teal-400 transition duration-300"
+                      onClick={() => setShowMobileMenu(false)}
+                    >
+                      Form-Team
                     </Link>
                     <Link
                       to="/booking-list"

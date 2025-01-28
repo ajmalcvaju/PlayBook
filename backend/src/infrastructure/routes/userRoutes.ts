@@ -29,6 +29,7 @@ router.patch("/change-password",authenticateToken,authorizeRoles(["user"]),userC
 router.post("/give-ratings",authenticateToken,authorizeRoles(["user"]),userController.giveRatings)
 router.get("/get-ratings/:id",authenticateToken,authorizeRoles(["user"]),userController.getRatings)
 router.post("/report",authenticateToken,authorizeRoles(["user"]),userController.report)
+router.post("/create-team",authenticateToken,authorizeRoles(["user"]),userController.createTeam)
 
 
 

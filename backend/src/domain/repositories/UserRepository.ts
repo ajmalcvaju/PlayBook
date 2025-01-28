@@ -1,6 +1,7 @@
 import { Review } from "../entities/Review";
 import { Slot } from "../entities/Turf";
 import { User } from "../entities/User";
+import { Team } from "../entities/Team";
 import { UpdateResult } from "mongodb";
 export interface UserRepository{
   createUser(user: User): Promise<User>;
@@ -18,4 +19,5 @@ export interface UserRepository{
   report(turfId:string,userId:string,issue:string): Promise<void>
   userName(userId: string): Promise<string>
   googleAuthentication(email: string,name:string,password:string): Promise<User | null>
+  createTeam(teamName:string,maxMembers:number, privacy:'pubic'|'private'): Promise<Team>
 }

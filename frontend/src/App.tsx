@@ -39,6 +39,7 @@ import ForgotTurfPassword from './pages/Turfs/ForgotTurfPassword'
 import TurfProtectedRoute, { TurfAuthProtectedRoute } from './TurfProtectedRoute'
 import AdminProtectedRoute, { AdminAuthProtectedRoute } from './AdminProtectedRoute'
 import TurfSidePanel from './components/TurfSidePanel'
+import FormTeam from './pages/Users/FormTeam'
 
 
 
@@ -58,6 +59,7 @@ function App() {
         <Route path='/' element={<Layout user='user'><Home/></Layout>}/>
         <Route path='/home' element={<Layout user='user'><Home/></Layout>}/>
         <Route path='/profile' element={<Layout user='user'><Profile/></Layout>}/>
+        <Route path='/form-team' element={<Layout user='user'><FormTeam/></Layout>}/>
         <Route path="/turf-page/:id" element={<Layout user="user"><TurfPages /></Layout>}>
         <Route path="rate-turf" element={<RateTurfs />} />
          <Route path="book-ticket" element={<BookTurf />}>

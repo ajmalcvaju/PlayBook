@@ -24,6 +24,7 @@ import { updateRatings } from "../../application/usecases/user/updateRatings";
 import { getReviews } from "../../application/usecases/user/getReviews";
 import { reportTurf } from "../../application/usecases/user/reportTurf";
 import { googleAuthentication } from "../../application/usecases/user/googleAuthentication";
+import { createTeam } from "../../application/usecases/user/createTeam";
 
 
 
@@ -327,6 +328,15 @@ export const userController = {
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
       res.status(200).json({user,message:"Turf Reported Successfully"});
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  },
+  createTeam:async (req: Request, res: Response) => {
+    try {
+      const { teamName,maxMembers, privacy}=req.body
+      const team=await createTeam(UserRepositoryImpl,teamName,maxMembers, privacy)
+      res.status(200).json({team,message:"Turf Reported Successfully"});
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }
