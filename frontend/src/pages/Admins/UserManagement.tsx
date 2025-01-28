@@ -81,10 +81,9 @@ const UserManagement = () => {
   };
   const filteredUsers = users.filter(
     (user) =>
-      user.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.mobileNumber.includes(searchQuery)
+      user.firstName.toLowerCase().includes(searchQuery.toLowerCase())||
+      user.email.toLowerCase().includes(searchQuery.toLowerCase())
+      // user.mobileNumber.includes(searchQuery)
   );
   const indexOfLastUser = currentPage * turfsPerPage;
   const indexOfFirstUser = indexOfLastUser - turfsPerPage;
@@ -98,7 +97,7 @@ const UserManagement = () => {
         <input
           type="text"
           className="px-4 w-1/3 py-2 rounded-lg border border-gray-700 bg-gray-800 text-gray-300 focus:outline-none focus:ring focus:ring-yellow-500"
-          placeholder="Search by name, email, or phone..."
+          placeholder="Search by name or email..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />

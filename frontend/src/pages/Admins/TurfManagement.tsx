@@ -344,7 +344,7 @@ const TurfManagement = () => {
       )}
       <div className="bg-gray-950 p-4 min-h-screen">
         <div className="mb-4 flex justify-between items-center">
-          <h1 className="text-xl font-bold text-gray-200">User Management</h1>
+          <h1 className="text-xl font-bold text-gray-200">Turf Management</h1>
           <input
             type="text"
             className="px-4 w-1/3 py-2 rounded-lg border border-gray-700 bg-gray-800 text-gray-300 focus:outline-none focus:ring focus:ring-yellow-500"
