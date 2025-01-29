@@ -19,5 +19,7 @@ export interface UserRepository{
   report(turfId:string,userId:string,issue:string): Promise<void>
   userName(userId: string): Promise<string>
   googleAuthentication(email: string,name:string,password:string): Promise<User | null>
-  createTeam(teamName:string,maxMembers:number, privacy:'pubic'|'private'): Promise<Team>
+  createTeam(teamName:string,maxMembers:number, privacy:'pubic'|'private',userId:string): Promise<Team>
+  getTeams(): Promise<Team[]>
+  joinTeam(teamId:string,userId:string):Promise<Team[]>
 }

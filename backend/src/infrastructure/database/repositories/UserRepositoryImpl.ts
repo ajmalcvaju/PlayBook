@@ -152,9 +152,30 @@ export const UserRepositoryImpl: UserRepository = {
       }
     }
   },
-  async createTeam(teamName:string,maxMembers:number, privacy:'pubic'|'private'): Promise<Team> {
-    const newTeam = new TeamModel({teamName,maxMembers,privacy});
-    await newTeam.save();
-    return newTeam.toObject() as Team;
+  async createTeam(teamName:string,maxMembers:number, privacy:'pubic'|'private',userId:string): Promise<Team> {
+    const newTeam = new TeamModel({
+      teamName,
+      maxMembers,
+      privacy,
+      members: [{ userId, isAdmin: true }]
+  });
+  await newTeam.save();
+  return newTeam.toObject() as Team;
+  
+  },
+  async getTeams(): Promise<Team[]>{
+    const teams=TeamModel.find()
+    return teams
+  },
+  async joinTeam(teamId:string,userId:string):Promise<Team[]>{
+    await TeamModel.findByIdAndUpdate(
+      teamId,
+      { 
+          $push: { members: { userId, isAdmin: false } },
+          $set: { updatedAt: new Date() }
+      },
+      { new: true, runValidators: true }
+  );
+  return await TeamModel.find();
   }
 };

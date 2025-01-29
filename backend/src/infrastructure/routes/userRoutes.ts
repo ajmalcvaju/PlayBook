@@ -30,8 +30,8 @@ router.post("/give-ratings",authenticateToken,authorizeRoles(["user"]),userContr
 router.get("/get-ratings/:id",authenticateToken,authorizeRoles(["user"]),userController.getRatings)
 router.post("/report",authenticateToken,authorizeRoles(["user"]),userController.report)
 router.post("/create-team",authenticateToken,authorizeRoles(["user"]),userController.createTeam)
-
-
+router.get("/get-teams",authenticateToken,authorizeRoles(["user"]),userController.getTeams)
+router.patch("/join-team",authenticateToken,authorizeRoles(["user"]),userController.joinTeam)
 
 
 
