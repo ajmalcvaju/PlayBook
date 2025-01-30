@@ -42,7 +42,7 @@ const teamSchema = new Schema<TeamDocuments>({
   members: [
     {
       userId: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true,
       },
@@ -59,9 +59,35 @@ teamSchema.pre('save', function (next) {
   if (this.privacy === "private" && !this.secretCode) {
     this.secretCode = generateSecretCode();
 }
+const hasAdmin = this.members.some(member => member.isAdmin);
+  if (!hasAdmin && this.members.length > 0) {
+    this.members[0].isAdmin = true; 
+  }
   this.updatedAt = new Date();
   next();
 });
+teamSchema.post('find', async function (docs) {
+  for (const team of docs) {
+    ensureAdmin(team);
+  }
+});
+
+teamSchema.post('findOne', async function (team) {
+  if (team) {
+    ensureAdmin(team);
+  }
+});
+
+async function ensureAdmin(team:TeamDocuments) {
+  const hasAdmin = team.members.some(member => member.isAdmin);
+  
+  if (!hasAdmin && team.members.length > 0) {
+    team.members[0].isAdmin = true; 
+    await team.save(); 
+  }
+}
+
+
 
 
 export const TeamModel = mongoose.model<TeamDocuments>('Team', teamSchema);

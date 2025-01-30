@@ -1,7 +1,8 @@
-import React, { useState, FormEvent, useEffect } from "react";
+import { useState, FormEvent, useEffect } from "react";
 import apiClient from "../../apiClient";
 import { useSelector } from "react-redux";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 interface Team {
   _id: string;
   teamName: string;
@@ -21,6 +22,7 @@ const FormTeam = () => {
   const [mode,setMode]=useState<string>('')
   const [filteredTeams, setFilteredTeams] = useState<Team[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const navigate=useNavigate()
   const rowsPerPage = 5;
 
   const createTeam = () => {
@@ -109,7 +111,7 @@ const FormTeam = () => {
       }
     };
     fetchTeams();
-  }, []);
+  }, [successMessage]);
   const table = (mode: "new" | "current") => {
     let userId=currentUser._id
     if (mode === "new") {
@@ -143,6 +145,10 @@ const FormTeam = () => {
       setCurrentPage((prevPage) => prevPage + 1);
     }
   };
+  const handleOpen=(teamId:string)=>{
+    setShowTable(false)
+    navigate(`open-team/${teamId}`)
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-800 to-black text-white flex flex-col items-center justify-center p-6">
@@ -212,11 +218,11 @@ const FormTeam = () => {
                       <td className="border border-gray-300 px-6 py-4 text-center">
                         <button
                           className="bg-gradient-to-r from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 text-white px-4 py-2 rounded-full shadow-md font-medium transform hover:scale-105 transition-all duration-200"
-                          // onClick={() =>
-                          //   mode === "new"
-                          //     ? handleJoin(team._id)
-                          //     : handleOpen(team._id)
-                          // }
+                          onClick={() =>
+                            mode === "new"
+                              ? handleJoin(team._id)
+                              : handleOpen(team._id)
+                          }
                         >
                           {mode === "new" ? "Join" : "Open"}
                         </button>

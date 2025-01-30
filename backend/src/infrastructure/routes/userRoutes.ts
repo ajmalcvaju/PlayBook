@@ -32,6 +32,9 @@ router.post("/report",authenticateToken,authorizeRoles(["user"]),userController.
 router.post("/create-team",authenticateToken,authorizeRoles(["user"]),userController.createTeam)
 router.get("/get-teams",authenticateToken,authorizeRoles(["user"]),userController.getTeams)
 router.patch("/join-team",authenticateToken,authorizeRoles(["user"]),userController.joinTeam)
+router.get("/get-team/:id",authenticateToken,authorizeRoles(["user"]),userController.getTeam)
+router.patch("/left-remove-team",authenticateToken,authorizeRoles(["user"]),userController.leftRemoveTeam)
+
 
 
 

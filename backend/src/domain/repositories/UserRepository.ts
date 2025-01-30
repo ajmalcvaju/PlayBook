@@ -22,4 +22,6 @@ export interface UserRepository{
   createTeam(teamName:string,maxMembers:number, privacy:'pubic'|'private',userId:string): Promise<Team>
   getTeams(): Promise<Team[]>
   joinTeam(teamId:string,userId:string):Promise<Team[]>
+  getTeam(id:string):Promise<Team|null>
+  leftRemoveTeam(teamId:string,userId:string):Promise<Team|null>
 }

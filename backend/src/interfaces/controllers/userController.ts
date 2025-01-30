@@ -27,6 +27,8 @@ import { googleAuthentication } from "../../application/usecases/user/googleAuth
 import { createTeam } from "../../application/usecases/user/createTeam";
 import { getTeams } from "../../application/usecases/user/getTeams";
 import { joinTeam } from "../../application/usecases/user/joinTeam";
+import { getTeam } from "../../application/usecases/user/getTeam";
+import { leftRemoveTeam } from "../../application/usecases/user/leftRemoveTeam";
 
 
 
@@ -357,6 +359,25 @@ export const userController = {
       console.log(req.body)
       const teams=await joinTeam(UserRepositoryImpl,teamId,userId)
       res.status(200).json({teams,message:"Fetched teams Successfully"});
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  },
+  getTeam:async (req: Request, res: Response) => {
+    try {
+      const {id}=req.params
+      const team=await getTeam(UserRepositoryImpl,id)
+      res.status(200).json({team,message:"Fetched team Successfully"});
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  },
+  leftRemoveTeam:async (req: Request, res: Response) => {
+    try {
+      const {teamId,userId}=req.body
+      console.log(req.body)
+      const team=await leftRemoveTeam(UserRepositoryImpl,teamId,userId)
+      res.status(200).json({team,message:"removed/left Successfully"});
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }
