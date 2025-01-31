@@ -261,7 +261,7 @@ export const UserRepositoryImpl: UserRepository = {
   async getSlotsForSell(id: string): Promise<any[]> {
     const bookings = await BookingModel.find()
       .populate("slotId", "_id time slotNumber date")
-      .populate("turfId", "_id turfName mobileNumber email")
+      .populate("turfId", "_id turfName mobileNumber email locationName latitude longitude")
       .populate("userId","_id firstName lastName mobileNumber")
       .sort({ createdAt: -1 })
       .exec();
@@ -281,10 +281,14 @@ export const UserRepositoryImpl: UserRepository = {
         turfName: turf?.turfName || "",
         mobileNumber: turf?.mobileNumber || "",
         email: turf?.email || "",
+        latitude:turf?.latitude||0,
+        longitude:turf?.longitude||0,
+        location:turf?.locationName||"",
         userName: `${user?.firstName || ""} ${user?.lastName || ""}`.trim(),
         userMobileNumber: user?.mobileNumber || "",
       };
     });
+    console.log(flatBookings)
     return flatBookings;
   },
   async sellSlot(teamId:string,userId:string,vacancy:number,slotId:string): Promise<Team | null>{
@@ -295,7 +299,7 @@ export const UserRepositoryImpl: UserRepository = {
           slots: {
             slotId: new mongoose.Types.ObjectId(slotId),
             vacancy,
-            members: [{ userId: new mongoose.Types.ObjectId(userId) }]
+            members: [{ userId: new mongoose.Types.ObjectId(userId),isAdmin:true }]
           }
         }
       },

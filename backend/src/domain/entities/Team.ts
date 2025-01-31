@@ -10,7 +10,7 @@ interface Member {
 interface Slot {
   slotId: Types.ObjectId;
   vacancy: number;
-  members: { userId: Types.ObjectId }[]; 
+  members: { userId: Types.ObjectId,isAdmin:boolean }[]; 
 }
 
 export interface Team {

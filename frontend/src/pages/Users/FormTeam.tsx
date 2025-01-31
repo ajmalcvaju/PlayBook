@@ -8,7 +8,8 @@ interface Team {
   teamName: string;
   maxMembers: number;
   privacy: "public" | "private";
-  members:[{userId:string,isAdmin:boolean}]
+  secretCode?: string;
+  members: [{ userId: string; isAdmin: boolean }];
 }
 
 const FormTeam = () => {
@@ -19,32 +20,35 @@ const FormTeam = () => {
   const [showPopup, setShowPopup] = useState<boolean>(false);
   const [showTable, setShowTable] = useState<boolean>(false);
   const [teams, setTeams] = useState<Team[]>([]);
-  const [mode,setMode]=useState<string>('')
+  const [mode, setMode] = useState<string>("");
   const [filteredTeams, setFilteredTeams] = useState<Team[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const navigate=useNavigate()
+  const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
+  const [enteredCode, setEnteredCode] = useState<string>("");
+  const [error, setError] = useState<string>("");
+  const navigate = useNavigate();
   const rowsPerPage = 5;
 
   const createTeam = () => {
     setCreateTeamForm(true);
   };
-  const handleJoin = async(teamId: string) => {
+  const handleJoin = async (teamId: string) => {
     console.log(`You joined the team: ${teamId} ${currentUser._id}`);
     try {
-      const data={teamId,userId:currentUser._id}
+      const data = { teamId, userId: currentUser._id };
       const response = await apiClient.patch("/users/join-team", data, {
         headers: { "Content-Type": "application/json" },
       });
       if (response.status === 200) {
-        setShowPopup(true)
-        setSuccessMessage("You Joined successfully in The Team")
+        setShowPopup(true);
+        setSuccessMessage("You Joined successfully in The Team");
       } else {
-        setShowPopup(true)
-        setErrorMessage("Unable to join Now....Try Again")
+        setShowPopup(true);
+        setErrorMessage("Unable to join Now....Try Again");
       }
     } catch (error) {
-      setShowPopup(true)
-      setErrorMessage("Unable to join Now....Try Again") 
+      setShowPopup(true);
+      setErrorMessage("Unable to join Now....Try Again");
     }
   };
   const {
@@ -61,7 +65,7 @@ const FormTeam = () => {
 
   const onSubmit: SubmitHandler<Team> = async (data) => {
     console.log(data);
-    const updatedData={...data,userId:currentUser._id}
+    const updatedData = { ...data, userId: currentUser._id };
     try {
       const response = await apiClient.post("/users/create-team", updatedData, {
         headers: { "Content-Type": "application/json" },
@@ -111,23 +115,23 @@ const FormTeam = () => {
       }
     };
     fetchTeams();
-  }, [successMessage]);
+  }, [successMessage,showTable]);
   const table = (mode: "new" | "current") => {
-    let userId=currentUser._id
+    let userId = currentUser._id;
     if (mode === "new") {
-        const currentTeams = teams.filter(team => 
-            !team.members.some(member => member.userId === userId)
-        );
-        setFilteredTeams(currentTeams)
-    }else{
-      const currentTeams = teams.filter(team => 
-        team.members.some(member => member.userId === userId)
-    );
-    setFilteredTeams(currentTeams)
+      const currentTeams = teams.filter(
+        (team) => !team.members.some((member) => member.userId === userId)
+      );
+      setFilteredTeams(currentTeams);
+    } else {
+      const currentTeams = teams.filter((team) =>
+        team.members.some((member) => member.userId === userId)
+      );
+      setFilteredTeams(currentTeams);
     }
-    setMode(mode)
+    setMode(mode);
     setShowTable(true);
-};
+  };
   const totalPages = Math.ceil(filteredTeams.length / rowsPerPage);
 
   const startIndex = (currentPage - 1) * rowsPerPage;
@@ -145,13 +149,73 @@ const FormTeam = () => {
       setCurrentPage((prevPage) => prevPage + 1);
     }
   };
-  const handleOpen=(teamId:string)=>{
-    setShowTable(false)
-    navigate(`open-team/${teamId}`)
-  }
+  const handleOpen = (teamId: string) => {
+    setShowTable(false);
+    navigate(`open-team/${teamId}`);
+  };
+  const handleJoinClick = (team: Team) => {
+    if (team.privacy === "private") {
+      setSelectedTeam(team);
+      setShowTable(false);
+    } else {
+      handleJoin(team._id);
+      setShowTable(false);
+    }
+  };
+  const handleCodeSubmit = () => {
+    if (enteredCode === selectedTeam?.secretCode) {
+      handleJoin(selectedTeam._id);
+      setSelectedTeam(null);
+      setEnteredCode("");
+      setError("");
+    } else {
+      setError("❌ Your secret code is incorrect!");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-800 to-black text-white flex flex-col items-center justify-center p-6">
+      {selectedTeam && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl w-80 text-gray-800 border border-gray-300">
+            <h2 className="text-lg font-bold text-center text-blue-600 mb-4">
+              Enter Secret Code
+            </h2>
+
+            <input
+              type="text"
+              placeholder="Enter Secret Code"
+              value={enteredCode}
+              onChange={(e) => setEnteredCode(e.target.value)}
+              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+
+            {error && (
+              <p className="text-red-500 text-sm mt-2 text-center">{error}</p>
+            )}
+
+            <div className="mt-4 flex justify-between">
+              <button
+                className="bg-green-500 hover:bg-green-600 text-white font-bold px-4 py-2 rounded-md transition-all"
+                onClick={handleCodeSubmit}
+              >
+                Submit
+              </button>
+              <button
+                className="bg-red-500 hover:bg-red-600 text-white font-bold px-4 py-2 rounded-md transition-all"
+                onClick={() => {
+                  setSelectedTeam(null);
+                  setEnteredCode("");
+                  setError("");
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showTable && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 space-y-4">
@@ -220,7 +284,7 @@ const FormTeam = () => {
                           className="bg-gradient-to-r from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 text-white px-4 py-2 rounded-full shadow-md font-medium transform hover:scale-105 transition-all duration-200"
                           onClick={() =>
                             mode === "new"
-                              ? handleJoin(team._id)
+                              ? handleJoinClick(team)
                               : handleOpen(team._id)
                           }
                         >

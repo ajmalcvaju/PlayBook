@@ -72,6 +72,10 @@ const teamSchema = new Schema<TeamDocuments>({
             ref: 'User',
             required: true,
           },
+          isAdmin: {
+            type: Boolean,
+            default: false,
+          }
         },
       ],      
     },

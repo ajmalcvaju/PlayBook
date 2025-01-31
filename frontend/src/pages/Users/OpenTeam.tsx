@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import apiClient from "../../apiClient";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { Dialog } from "@headlessui/react";
 
 type User = {
   _id: string;
@@ -11,6 +12,7 @@ type User = {
 };
 interface Member {
   userId: string;
+  isAdmin: boolean;
 }
 interface Slot {
   slotId: string;
@@ -45,6 +47,10 @@ type Booking = {
   status: string;
   userName: string;
   userMobileNumber: string;
+  latitude: number;
+  longitude: number;
+  location: string;
+  distance: number;
 };
 
 const OpenTeam = () => {
@@ -71,6 +77,10 @@ const OpenTeam = () => {
   const [showSlotModal, setShowSlotModal] = useState<boolean>(false);
   const [selectedSlot, setSelectedSlot] = useState<Booking | null>(null);
   const [vacantMembers, setVacantMembers] = useState<number>(1);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [selectedViewBooking, setSelectedViewBooking] =
+    useState<null | Booking>(null);
+  const itemsPerPage = 5;
 
   const navigate = useNavigate();
 
@@ -84,7 +94,7 @@ const OpenTeam = () => {
           console.log(response.data.team);
           setTeam(response.data.team);
           const isAdmin = team?.members.some(
-            (member) => member.userId._id === userId && member.isAdmin
+            (member) => member.userId._id === userId
           ) as boolean;
           setIsAdmin(isAdmin);
         } else {
@@ -96,6 +106,31 @@ const OpenTeam = () => {
     };
     fetchTeam();
   }, []);
+  const calculateDistance = (
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number
+  ) => {
+    console.log(lat1, lat2, lon1, lon2);
+    const toRadians = (degrees: number) => (degrees * Math.PI) / 180;
+
+    const R = 6371;
+    const dLat = toRadians(lat2 - lat1);
+    const dLon = toRadians(lon2 - lon1);
+
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRadians(lat1)) *
+        Math.cos(toRadians(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c;
+    let formattedDistance = Math.round(distance * 100) / 100;
+    return formattedDistance;
+  };
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -105,7 +140,17 @@ const OpenTeam = () => {
           throw new Error("Failed to fetch bookings");
         }
         const bookings = res.data;
-        const filteredBookings = bookings.filter(
+        const bookingsWithDistance = bookings.map((booking: Booking) => ({
+          ...booking,
+          distance: calculateDistance(
+            currentUser.latitude,
+            currentUser.longitude,
+            booking.latitude,
+            booking.longitude
+          ),
+        }));
+
+        const filteredBookings = bookingsWithDistance.filter(
           (booking: Booking) => booking.status === "pending"
         );
         setBookings(filteredBookings);
@@ -115,7 +160,7 @@ const OpenTeam = () => {
     };
 
     fetchBookings();
-  }, [email]);
+  }, [email,team]);
 
   const handleRemoveMember = async (userId: string, mode: string) => {
     try {
@@ -130,6 +175,8 @@ const OpenTeam = () => {
         setTeam(response.data.team);
         if (!team || mode === "left") {
           navigate("/form-team");
+        }else{
+          
         }
       } else {
         console.log("error");
@@ -199,15 +246,11 @@ const OpenTeam = () => {
     setNotSoldBookings(notSold);
   }, [bookings, team]);
   const handleJoinBooking = async (booking: Booking) => {
-    const data={teamId,slotId:booking._id,userId}
+    const data = { teamId, slotId: booking._id, userId };
     try {
-      const response = await apiClient.patch(
-        "/users/join-slot",
-        data,
-        {
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      const response = await apiClient.patch("/users/join-slot", data, {
+        headers: { "Content-Type": "application/json" },
+      });
       if (response.status === 200) {
         setTeam(response.data.team);
         // if (!team || mode === "left") {
@@ -221,7 +264,7 @@ const OpenTeam = () => {
     }
     setJoinSlotModal(false);
   };
-  const openModal = (booking:Booking) => {
+  const openModal = (booking: Booking) => {
     setSelectedBooking(booking);
     setJoinSlotModal(true);
   };
@@ -235,6 +278,51 @@ const OpenTeam = () => {
       handleJoinBooking(selectedBooking);
     }
     closeModal();
+  };
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentBookings = notSoldBookings.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
+  const currentAvailableBookings = availableBookings.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
+  const handleNextPage = () => {
+    if (currentPage < Math.ceil(availableBookings.length / itemsPerPage)) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const currentBoughtBookings = boughtBookings.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
+
+  const handleNextBoughtPage = () => {
+    if (indexOfLastItem < boughtBookings.length) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePrevBoughtPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+  const handleViewDetails = (booking: Booking) => {
+    setSelectedViewBooking(booking);
+  };
+
+  const closeViewModal = () => {
+    setSelectedViewBooking(null);
   };
   return (
     <>
@@ -269,6 +357,55 @@ const OpenTeam = () => {
               </div>
             </div>
           </div>
+        )}
+        {selectedViewBooking && (
+          <Dialog
+            open={!!selectedViewBooking}
+            onClose={closeModal}
+            className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-30 backdrop-blur-sm"
+          >
+            <div className="bg-white p-6 rounded-xl shadow-xl w-96 text-gray-800 border border-gray-300">
+              <h2 className="text-2xl font-bold text-blue-600 mb-4 text-center">
+                Booking Details
+              </h2>
+
+              <div className="space-y-3">
+                <p>
+                  <span className="font-semibold text-gray-600">
+                    📌 Slot ID:
+                  </span>{" "}
+                  {selectedViewBooking.slotNumber}
+                </p>
+                <p>
+                  <span className="font-semibold text-gray-600">
+                    🏟️ Turf Name:
+                  </span>{" "}
+                  {selectedViewBooking.turfName}
+                </p>
+                <p>
+                  <span className="font-semibold text-gray-600">📅 Date:</span>{" "}
+                  {selectedViewBooking.date}
+                </p>
+                <p>
+                  <span className="font-semibold text-gray-600">⏰ Time:</span>{" "}
+                  {selectedViewBooking.time}
+                </p>
+                <p>
+                  <span className="font-semibold text-gray-600">
+                    📞 Mobile Number:
+                  </span>{" "}
+                  {selectedViewBooking.userMobileNumber}
+                </p>
+              </div>
+
+              <button
+                className="mt-6 w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 rounded-lg shadow-md transition-all transform hover:scale-105"
+                onClick={closeViewModal}
+              >
+                Close ❌
+              </button>
+            </div>
+          </Dialog>
         )}
         {showSlotModal && selectedSlot && (
           <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-80 backdrop-blur-sm z-20">
@@ -376,7 +513,7 @@ const OpenTeam = () => {
             </div>
           </div>
         )}
-        <div className="bg-gray-800/80 backdrop-blur-lg w-full max-w-4xl rounded-xl shadow-2xl p-6 border border-gray-700">
+        <div className="bg-gray-800/80 backdrop-blur-lg w-3/4 max-w-full rounded-xl shadow-2xl p-6 border border-gray-700">
           <h1 className="text-4xl font-bold text-center mb-6 text-white drop-shadow-md">
             {team?.teamName}
           </h1>
@@ -390,7 +527,7 @@ const OpenTeam = () => {
           )}
           {/* Tabs */}
           <div className="flex justify-around border-b border-gray-600 pb-2 mb-4">
-            {["Members", "Slots", "Messages"].map((tab) => (
+            {["Members", "Slots"].map((tab) => (
               <button
                 key={tab}
                 className={`px-6 py-2 text-lg font-semibold transition-all duration-300 ${
@@ -441,7 +578,7 @@ const OpenTeam = () => {
                           )}
 
                           {/* Show Remove Button if Current User is Admin */}
-                          {!member.isAdmin && (
+                          {isAdmin&&!member.isAdmin&& (
                             <button
                               onClick={() => {
                                 setShowModalRemove(true);
@@ -526,9 +663,9 @@ const OpenTeam = () => {
                       </p>
 
                       {/* Card Layout for Available Bookings */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 px-4">
-                        {availableBookings.length > 0 ? (
-                          availableBookings.map((booking) => (
+                      <div className="grid grid-cols-1 gap-6 px-4">
+                        {currentAvailableBookings.length > 0 ? (
+                          currentAvailableBookings.map((booking) => (
                             <div
                               key={booking._id}
                               className="bg-gray-800 border border-gray-700 rounded-lg shadow-md p-6 hover:shadow-lg transition-all"
@@ -536,6 +673,12 @@ const OpenTeam = () => {
                               <h4 className="text-xl font-semibold text-green-400">
                                 {booking.turfName}
                               </h4>
+                              <p className="text-gray-300 mt-2">
+                                <span className="font-semibold">
+                                  Mobile Number:
+                                </span>{" "}
+                                {booking.userMobileNumber}
+                              </p>
                               <p className="text-gray-300 mt-2">
                                 <span className="font-semibold">Location:</span>{" "}
                                 {booking.location}
@@ -554,7 +697,7 @@ const OpenTeam = () => {
                               </p>
 
                               <button
-                                className="mt-4 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 rounded-md transition-all"
+                                className="mt-4 bg-green-500 hover:bg-green-600 text-white font-bold py-2 rounded-md transition-all w-1/2"
                                 onClick={() => openModal(booking)}
                               >
                                 Join
@@ -567,11 +710,39 @@ const OpenTeam = () => {
                           </p>
                         )}
                       </div>
+
+                      {/* Pagination Controls */}
+                      <div className="flex justify-center mt-6 space-x-2">
+                        <button
+                          className={`px-4 py-2 rounded-md ${
+                            currentPage === 1
+                              ? "bg-gray-600 cursor-not-allowed"
+                              : "bg-blue-500 hover:bg-blue-600 text-white"
+                          }`}
+                          disabled={currentPage === 1}
+                          onClick={handlePrevPage}
+                        >
+                          Previous
+                        </button>
+                        <span className="text-gray-300 px-4 py-2">
+                          Page {currentPage}
+                        </span>
+                        <button
+                          className={`px-4 py-2 rounded-md ${
+                            indexOfLastItem >= availableBookings.length
+                              ? "bg-gray-600 cursor-not-allowed"
+                              : "bg-blue-500 hover:bg-blue-600 text-white"
+                          }`}
+                          disabled={indexOfLastItem >= availableBookings.length}
+                          onClick={handleNextPage}
+                        >
+                          Next
+                        </button>
+                      </div>
                     </div>
                   )}
-
                   {activeSlotTab === "Sell" && (
-                    <div className="text-center">
+                    <div className="text-center px-4">
                       <h3 className="font-bold text-3xl mb-4 text-blue-400">
                         Sell Your Slots
                       </h3>
@@ -580,52 +751,65 @@ const OpenTeam = () => {
                         maximize your benefits.
                       </p>
 
-                      {/* Slots List */}
-                      <div className="overflow-x-auto">
-                        <table className="min-w-full bg-gray-800 border border-gray-700 rounded-lg shadow-md">
-                          <thead>
-                            <tr>
-                              <th className="px-4 py-2 text-center text-lg font-semibold text-green-400">
-                                Turf Name
-                              </th>
-                              <th className="px-4 py-2 text-center text-lg font-semibold text-green-400">
-                                Date
-                              </th>
-                              <th className="px-4 py-2 text-center text-lg font-semibold text-green-400">
-                                Time
-                              </th>
-                              <th className="px-4 py-2 text-center text-lg font-semibold text-green-400">
-                                Action
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {notSoldBookings.map((booking) => (
-                              <tr
-                                key={booking._id}
-                                className="border-b border-gray-700"
-                              >
-                                <td className="px-4 py-2 text-gray-300">
-                                  {booking.turfName}
-                                </td>
-                                <td className="px-4 py-2 text-gray-300">
-                                  {booking.date}
-                                </td>
-                                <td className="px-4 py-2 text-gray-300">
-                                  {booking.time}
-                                </td>
-                                <td className="px-4 py-2">
-                                  <button
-                                    className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-md transition-all"
-                                    onClick={() => handleSellSlot(booking)}
-                                  >
-                                    Sell Slot
-                                  </button>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                      {currentBookings.length > 0 ? (
+                        currentBookings.map((booking) => (
+                          <div
+                            key={booking._id}
+                            className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-6 mb-6 transition-all transform hover:scale-105 hover:shadow-xl w-full max-w-2xl mx-auto"
+                          >
+                            <h4 className="text-2xl font-semibold text-green-400">
+                              {booking.turfName}
+                            </h4>
+                            <p className="text-gray-300 mt-2">
+                              <span className="font-semibold">Date:</span>{" "}
+                              {booking.date}
+                            </p>
+                            <p className="text-gray-300 mt-1">
+                              <span className="font-semibold">Time:</span>{" "}
+                              {booking.time}
+                            </p>
+
+                            <button
+                              className="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 rounded-md transition-all w-1/2"
+                              onClick={() => handleSellSlot(booking)}
+                            >
+                              Sell Slot
+                            </button>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-gray-400 text-center">
+                          No available slots to sell at the moment.
+                        </p>
+                      )}
+
+                      {/* Pagination Controls */}
+                      <div className="flex justify-center mt-6 space-x-2">
+                        <button
+                          className={`px-4 py-2 rounded-md ${
+                            currentPage === 1
+                              ? "bg-gray-600 cursor-not-allowed"
+                              : "bg-blue-500 hover:bg-blue-600 text-white"
+                          }`}
+                          disabled={currentPage === 1}
+                          onClick={() => setCurrentPage(currentPage - 1)}
+                        >
+                          Previous
+                        </button>
+                        <span className="text-gray-300 px-4 py-2">
+                          Page {currentPage}
+                        </span>
+                        <button
+                          className={`px-4 py-2 rounded-md ${
+                            indexOfLastItem >= notSoldBookings.length
+                              ? "bg-gray-600 cursor-not-allowed"
+                              : "bg-blue-500 hover:bg-blue-600 text-white"
+                          }`}
+                          disabled={indexOfLastItem >= notSoldBookings.length}
+                          onClick={() => setCurrentPage(currentPage + 1)}
+                        >
+                          Next
+                        </button>
                       </div>
                     </div>
                   )}
@@ -659,8 +843,8 @@ const OpenTeam = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {boughtBookings.length > 0 ? (
-                              bookings.map((slot) => (
+                            {currentBoughtBookings.length > 0 ? (
+                              currentBoughtBookings.map((slot) => (
                                 <tr
                                   key={slot._id}
                                   className="border-b border-gray-700"
@@ -676,10 +860,10 @@ const OpenTeam = () => {
                                   </td>
                                   <td className="px-4 py-2">
                                     <button
-                                      className="px-6 py-2 bg-red-500 hover:bg-red-600 text-white font-bold rounded-md transition-all"
-                                      // onClick={() => handleCancelBooking(slot)}
+                                      className="px-6 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                                      onClick={() => handleViewDetails(slot)}
                                     >
-                                      Cancel
+                                      View
                                     </button>
                                   </td>
                                 </tr>
@@ -697,19 +881,49 @@ const OpenTeam = () => {
                           </tbody>
                         </table>
                       </div>
+
+                      {/* Pagination Controls */}
+                      {boughtBookings.length > itemsPerPage && (
+                        <div className="flex justify-center items-center mt-6 space-x-4">
+                          <button
+                            className="px-4 py-2 rounded-md text-white font-medium transition-all duration-200 
+              disabled:bg-gray-600 disabled:cursor-not-allowed 
+              bg-blue-500 hover:bg-blue-600"
+                            disabled={currentPage === 1}
+                            onClick={handlePrevBoughtPage}
+                          >
+                            Previous
+                          </button>
+
+                          <span className="text-gray-300 text-lg font-medium">
+                            Page {currentPage} of{" "}
+                            {Math.ceil(boughtBookings.length / itemsPerPage)}
+                          </span>
+
+                          <button
+                            className="px-4 py-2 rounded-md text-white font-medium transition-all duration-200 
+              disabled:bg-gray-600 disabled:cursor-not-allowed 
+              bg-blue-500 hover:bg-blue-600"
+                            disabled={indexOfLastItem >= boughtBookings.length}
+                            onClick={handleNextBoughtPage}
+                          >
+                            Next
+                          </button>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
               </div>
             )}
-            {activeTab === "Messages" && (
+            {/* {activeTab === "Messages" && (
               <div>
                 <h3 className="font-bold text-2xl mb-2 text-purple-300">
                   Messages
                 </h3>
                 <p>Chat feature coming soon...</p>
               </div>
-            )}
+            )} */}
           </motion.div>
         </div>
       </div>
