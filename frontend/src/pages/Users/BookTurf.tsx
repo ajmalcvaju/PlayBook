@@ -22,6 +22,9 @@ const TicketBookingModal = ({}) => {
   const [price, setPrice] = useState<number>(0);
   const [selectedTurfSize, setSelectedTurfSize] = useState<string>(null);
   const { id } = useParams();
+  const [selectedSlots, setSelectedSlots] = useState<
+    { date:string,time: string; price: number; id: string }[]
+  >([]);
   const dateForm = activeDate.toISOString().split("T")[0];
 
   useEffect(() => {
@@ -54,11 +57,17 @@ const TicketBookingModal = ({}) => {
     setActiveDate(date);
   };
 
-  const handleTimeSelect = (time: any, price: any, id: any) => {
-    setSlotId(id);
-    setSelectedTime(time);
-    setPrice(price);
+  const handleTimeSelect = (date:string,time: string, price: number, id: string) => {
+    setSelectedSlots((prevSlots) => {
+      const isSelected = prevSlots.some((slot) => slot.id === id);
+      return isSelected
+        ? prevSlots.filter((slot) => slot.id !== id)
+        : [...prevSlots, {date,time, price, id }];
+    });
   };
+
+  const isSlotSelected = (id: string) =>
+    selectedSlots.some((slot) => slot.id === id);
 
   const times = slots.map((item) => ({
     date: item?.date,
@@ -74,16 +83,10 @@ const TicketBookingModal = ({}) => {
     ? times.filter((item) => item.turfSizes === selectedTurfSize)
     : [];
 
-  const bookNow = (
-    time: string,
-    price: number,
-    date: string,
-    slotId: string
-  ) => {
-    console.log(time, price);
-    console.log(date, slotId);
-    navigate("payment-confirmation", { state: { time, price, date, slotId } });
-  };
+    const bookNow = () => {
+      if (selectedSlots.length === 0) return; 
+      navigate("payment-confirmation", { state: { selectedSlots } });
+    };
 
   const close = () => {
     navigate(`/turf-page/${id}`);
@@ -181,14 +184,17 @@ const TicketBookingModal = ({}) => {
                   const slotTime = hours * 60 + minutes;
                   const isDisabled =
                     date === currentDateString && slotTime < currentTime;
+
                   return (
                     <button
                       key={id}
-                      onClick={() => handleTimeSelect(time, price, id)}
+                      onClick={() =>
+                        handleTimeSelect(date, time, Number(price), id)
+                      }
                       className={`py-2 px-4 rounded-md border ${
                         isBooked || isDisabled
                           ? "opacity-60 cursor-not-allowed bg-gray-500 border-gray-400"
-                          : selectedTime === time
+                          : isSlotSelected(id)
                           ? "bg-red-600 text-white"
                           : "text-black border-gray-400"
                       }`}
@@ -209,10 +215,17 @@ const TicketBookingModal = ({}) => {
               Close
             </button>
             <button
-              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-              onClick={() => bookNow(selectedTime, price, activeDate, slotId)}
+              className={`px-4 py-2 rounded-md transition-all duration-300 ${
+                selectedSlots.length === 0
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-blue-600 text-white hover:bg-blue-700"
+              }`}
+              onClick={bookNow}
+              disabled={selectedSlots.length === 0}
             >
-              Book Now
+              {selectedSlots.length === 0
+                ? "Select a Slot"
+                : `Book Now (${selectedSlots.length} Slots)`}
             </button>
           </div>
         </div>

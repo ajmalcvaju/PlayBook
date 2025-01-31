@@ -27,14 +27,14 @@ interface RootState {
 const PaymentConfirmation = () => {
   const socket = io("http://localhost:7000");
   const location = useLocation();
-  const { time, date, price,slotId } = location.state || {};
+  const { selectedSlots = [] } = location.state ?? {};
   const navigate = useNavigate();
   const [isBookingSuccess, setIsBookingSuccess] = useState(false);
   const [isBookingFailed,setIsBookingFailed]=useState(false)
   const { currentUser } = useSelector((state: RootState) => state.user);
   const email=currentUser.email
   useEffect(()=>{
-    console.log(email,slotId)
+    console.log(selectedSlots)
   })
   
  const {id}=useParams()
