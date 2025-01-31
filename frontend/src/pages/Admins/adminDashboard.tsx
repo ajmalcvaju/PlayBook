@@ -80,7 +80,7 @@ const AdminDashboard = () => {
 
         switch (filter) {
           case "today":
-            start = today;
+            start = today; 
             break;
           case "1week":
             start = new Date();
