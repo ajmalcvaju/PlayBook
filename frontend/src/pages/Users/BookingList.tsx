@@ -33,7 +33,9 @@ const BookingList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const bookingsPerPage = 6;
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [refundPercentage, setRefundPercentage] = useState<number>(0);
+  const [timeDifference, setTimeDifference] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(true);
   const email = localStorage.getItem("userEmail");
 
   useEffect(() => {
@@ -56,9 +58,33 @@ const BookingList = () => {
 
     fetchBookings();
   }, [email]);
-  const cancellBooking = (id: string, bookingId: string) => {
+  const cancellBooking = (
+    id: string,
+    bookingId: string,
+    bookingDate: string,
+    bookingTime: string
+  ) => {
     setSlotId(id);
-    console.log(id);
+    const now: Date = new Date();
+    const bookingDateTime: Date = new Date(`${bookingDate}T${bookingTime}`);
+
+    const timeDiff =
+      (bookingDateTime.getTime() - now.getTime()) / (1000 * 60 * 60); // Convert ms to hours
+    let refund = 0;
+    if (timeDiff > 24) {
+      setTimeDifference(24);
+      refund = 100;
+    } else if (timeDiff > 12) {
+      setTimeDifference(12);
+      refund = 60;
+    } else if (timeDiff > 6) {
+      setTimeDifference(6);
+      refund = 30;
+    } else {
+      setTimeDifference(5);
+      refund = 0;
+    }
+    setRefundPercentage(refund);
     setBookingId(bookingId);
     SetCancellationConfirmation(true);
   };
@@ -67,6 +93,7 @@ const BookingList = () => {
       const res = await apiClient.patch(`/users/cancel-booking`, {
         slotId,
         bookingId,
+        refundPercentage
       });
       if (res.data.success) {
         setBookings((prevBookings) =>
@@ -75,7 +102,7 @@ const BookingList = () => {
               ? {
                   ...booking,
                   status: "cancelled",
-                  price: (0.6 * Number(booking.price)).toString(),
+                  price: (refundPercentage/100 * Number(booking.price)).toString(),
                 }
               : booking
           )
@@ -114,26 +141,56 @@ const BookingList = () => {
     indexOfLastBooking
   );
   const totalPages = Math.ceil(bookings.length / bookingsPerPage);
-  const paginate = (pageNumber:number) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
   return (
     <>
       {cancellationConfirmation && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50">
           <div className="bg-gray-800 p-8 rounded-lg text-white w-96 shadow-lg">
-            <div className="text-2xl font-semibold mb-6 text-center text-white">
+            {/* Title */}
+            <div className="text-2xl font-semibold mb-6 text-center">
               Cancellation Confirmation
             </div>
+
+            {/* Message */}
             <div className="text-lg mb-6 text-gray-300">
-              <p className="mb-4">
-                Are you sure you want to cancel? Please note that according to
-                our policy, you will receive only 60% of the amount.
-              </p>
+              {refundPercentage === 100 ? (
+                <p className="mb-4">
+                  You will receive a{" "}
+                  <span className="text-green-400 font-semibold">
+                    full refund
+                  </span>{" "}
+                  as per our policy.
+                </p>
+              ) : refundPercentage === 0 ? (
+                <p className="mb-4">
+                  This booking is{" "}
+                  <span className="text-red-400 font-semibold">
+                    non-refundable
+                  </span>{" "}
+                  as per our policy.
+                </p>
+              ) : (
+                <p className="mb-4">
+                  You will receive{" "}
+                  <span className="text-yellow-400 font-semibold">
+                    {refundPercentage}%
+                  </span>{" "}
+                  of the amount because you are canceling just{" "}
+                  <span className="text-yellow-400">
+                    {timeDifference.toFixed(2)} hours
+                  </span>{" "}
+                  before the booking.
+                </p>
+              )}
+
               <p>
                 If you have any concerns regarding the weather or any other
                 questions, please feel free to reach out to us through chat.
               </p>
             </div>
 
+            {/* Buttons */}
             <div className="flex justify-between mt-6">
               <button
                 className="bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 focus:outline-none"
@@ -214,7 +271,12 @@ const BookingList = () => {
                       {booking.status === "pending" && (
                         <button
                           onClick={() =>
-                            cancellBooking(booking.slotId, booking._id)
+                            cancellBooking(
+                              booking.slotId,
+                              booking._id,
+                              booking.date,
+                              booking.time
+                            )
                           }
                           className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg"
                         >

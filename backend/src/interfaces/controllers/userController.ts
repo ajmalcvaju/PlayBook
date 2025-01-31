@@ -260,7 +260,8 @@ export const userController = {
     try {
       const slotId= req.body.slotId as string;
       const bookingId=req.body.bookingId as string
-      await cancelBooking(UserRepositoryImpl,slotId,bookingId);
+      const refund=req.body.refundPercentage
+      await cancelBooking(UserRepositoryImpl,slotId,bookingId,refund);
       res.status(200).json({ success: true });
     } catch (error: any) {
       res.status(400).json({ message: error.message });

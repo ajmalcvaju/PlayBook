@@ -12,7 +12,7 @@ export interface UserRepository{
   getBookings(id:string):Promise<any[]>
   addLocation(id:string,locationName:string,latitude:number,longitude:number): Promise<void>
   getUserDetails(id:string|null):Promise<any|null>
-  cancellBooking(slotId:string,bookingId:string):Promise<any|null>
+  cancellBooking(slotId:string,bookingId:string,refund:number):Promise<any|null>
   changePassword(id:string|null,password:string):Promise<User|null>
   updateRatings(review:Review): Promise<Review>
   getReviews(turfId:string): Promise<[Review[], number, number]>

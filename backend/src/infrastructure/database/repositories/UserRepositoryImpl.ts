@@ -99,11 +99,11 @@ export const UserRepositoryImpl: UserRepository = {
     const user: User | null = await UserModel.findOne({ _id: id });
     return user ? user : null;
   },
-  async cancellBooking(slotId: string, bookingId: string): Promise<any | null> {
+  async cancellBooking(slotId: string, bookingId: string,refund:number): Promise<any | null> {
     const slotObjectId = new mongoose.Types.ObjectId(slotId);
     const bookingObjectId = new mongoose.Types.ObjectId(bookingId);
     const booking = await BookingModel.findById(bookingObjectId).exec();
-    const adjustedPaid = booking ? booking.paid * 0.6 : 0;
+    const adjustedPaid = booking ? booking.paid * (refund/ 100) : 0;
     await SlotModel.updateOne(
       { _id: slotObjectId },
       { $set: { isBooked: false }, $unset: { userId: "" } }
