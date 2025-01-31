@@ -24,4 +24,7 @@ export interface UserRepository{
   joinTeam(teamId:string,userId:string):Promise<Team[]>
   getTeam(id:string):Promise<Team|null>
   leftRemoveTeam(teamId:string,userId:string):Promise<Team|null>
+  sellSlot(teamId:string,userId:string,vacancy:number,slotId:string): Promise<Team | null>
+  getSlotsForSell(id: string): Promise<any[]> 
+  joinSlot(teamId:string,slotId:string,userId:string): Promise<Team | null>
 }

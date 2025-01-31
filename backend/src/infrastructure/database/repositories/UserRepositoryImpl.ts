@@ -13,6 +13,7 @@ import ReportModel from "../models/reportModel";
 import { Report } from "../../../domain/entities/Report";
 import { Team } from "../../../domain/entities/Team";
 import { TeamModel } from "../models/TeamModel";
+import { Types } from 'mongoose';
 
 
 export const UserRepositoryImpl: UserRepository = {
@@ -256,5 +257,61 @@ export const UserRepositoryImpl: UserRepository = {
       team = await TeamModel.findByIdAndDelete(teamId);
     }
     return team;
+  },
+  async getSlotsForSell(id: string): Promise<any[]> {
+    const bookings = await BookingModel.find()
+      .populate("slotId", "_id time slotNumber date")
+      .populate("turfId", "_id turfName mobileNumber email")
+      .populate("userId","_id firstName lastName mobileNumber")
+      .sort({ createdAt: -1 })
+      .exec();
+    const flatBookings = bookings.map((booking) => {
+      const turf = booking.turfId as Turf | any;
+      const slot = booking.slotId as Slot | any;
+      const user= booking.userId as User | any;
+      return {
+        _id: booking._id,
+        turfId: turf?._id || "",
+        price: booking.paid || 0,
+        slotId: slot?._id?.toString() || "",
+        status: booking.status || "",
+        time: slot?.time || "",
+        date: slot?.date || "",
+        slotNumber: slot?.slotNumber || 0,
+        turfName: turf?.turfName || "",
+        mobileNumber: turf?.mobileNumber || "",
+        email: turf?.email || "",
+        userName: `${user?.firstName || ""} ${user?.lastName || ""}`.trim(),
+        userMobileNumber: user?.mobileNumber || "",
+      };
+    });
+    return flatBookings;
+  },
+  async sellSlot(teamId:string,userId:string,vacancy:number,slotId:string): Promise<Team | null>{
+    const updatedTeam = await TeamModel.findOneAndUpdate(
+      { _id: teamId },
+      {
+        $push: {
+          slots: {
+            slotId: new mongoose.Types.ObjectId(slotId),
+            vacancy,
+            members: [{ userId: new mongoose.Types.ObjectId(userId) }]
+          }
+        }
+      },
+      { new: true, runValidators: true }
+    );
+    return updatedTeam
+  },
+  async joinSlot(teamId:string,slotId:string,userId:string): Promise<Team | null>{
+    const updatedTeam = await TeamModel.findOneAndUpdate(
+      { _id: teamId, "slots.slotId": slotId },
+      {
+        $push: { "slots.$.members": { userId: new mongoose.Types.ObjectId(userId) } },
+        $inc: { "slots.$.vacancy": -1 }
+      },
+      { new: true, runValidators: true }
+    );
+    return updatedTeam;    
   }
 };

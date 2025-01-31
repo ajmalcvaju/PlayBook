@@ -51,7 +51,31 @@ const teamSchema = new Schema<TeamDocuments>({
         default: false,
       },
     },
-  ]
+  ],
+  slots: [
+    {
+      slotId: {
+        type: mongoose.Schema.Types.ObjectId,  // Accepts both ObjectId and string
+        ref: 'Slot',
+        required: true,
+      },
+      vacancy: {
+        type: Number,
+        required: true,
+        min: 1,
+        max: 21,
+      },
+      members: [
+        {
+          userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true,
+          },
+        },
+      ],      
+    },
+  ],
 });
 
 
@@ -64,6 +88,14 @@ const hasAdmin = this.members.some(member => member.isAdmin);
     this.members[0].isAdmin = true; 
   }
   this.updatedAt = new Date();
+  next();
+});
+teamSchema.pre('save', function (next) {
+  for (const slot of this.slots) {
+    if (slot.members.length < slot.vacancy) {
+      return next(new Error('The number of members exceeds the vacancy in one of the slots.'));
+    }
+  }
   next();
 });
 teamSchema.post('find', async function (docs) {

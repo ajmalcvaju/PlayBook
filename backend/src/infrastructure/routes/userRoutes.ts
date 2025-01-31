@@ -33,7 +33,10 @@ router.post("/create-team",authenticateToken,authorizeRoles(["user"]),userContro
 router.get("/get-teams",authenticateToken,authorizeRoles(["user"]),userController.getTeams)
 router.patch("/join-team",authenticateToken,authorizeRoles(["user"]),userController.joinTeam)
 router.get("/get-team/:id",authenticateToken,authorizeRoles(["user"]),userController.getTeam)
+router.get("/get-slot-sell/:email",authenticateToken,authorizeRoles(["user"]),userController.getSlotForSell)
 router.patch("/left-remove-team",authenticateToken,authorizeRoles(["user"]),userController.leftRemoveTeam)
+router.patch("/sell-slot",authenticateToken,authorizeRoles(["user"]),userController.sellSlot)
+router.patch("/join-slot",authenticateToken,authorizeRoles(["user"]),userController.joinSlot)
 
 
 

@@ -29,6 +29,9 @@ import { getTeams } from "../../application/usecases/user/getTeams";
 import { joinTeam } from "../../application/usecases/user/joinTeam";
 import { getTeam } from "../../application/usecases/user/getTeam";
 import { leftRemoveTeam } from "../../application/usecases/user/leftRemoveTeam";
+import { sellSlot } from "../../application/usecases/user/sellSlot";
+import { getSlotsForSell } from "../../application/usecases/user/getSlotsForSell";
+import { joinSlot } from "../../application/usecases/user/joinSlot";
 
 
 
@@ -372,12 +375,41 @@ export const userController = {
       res.status(400).json({ message: error.message });
     }
   },
+  getSlotForSell: async (req: Request, res: Response) => {
+    try {
+      const { email } = req.params;
+      const userId = await getIdFrommail(UserRepositoryImpl, email) as string;
+      const bookings = await getSlotsForSell(UserRepositoryImpl, userId);
+      res.status(200).json(bookings);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  },
   leftRemoveTeam:async (req: Request, res: Response) => {
     try {
       const {teamId,userId}=req.body
       console.log(req.body)
       const team=await leftRemoveTeam(UserRepositoryImpl,teamId,userId)
       res.status(200).json({team,message:"removed/left Successfully"});
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  },
+  sellSlot:async (req: Request, res: Response) => {
+    try {
+      console.log(req.body)
+      const {teamId,userId,vacancy,slotId}=req.body
+      const team=await sellSlot(UserRepositoryImpl,teamId,userId,vacancy,slotId)
+      res.status(200).json({team,message:"Your Slot sold Successfully"});
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  },
+  joinSlot:async (req: Request, res: Response) => {
+    try {
+      const {teamId,slotId,userId}=req.body
+      const team=await joinSlot(UserRepositoryImpl,teamId,slotId,userId)
+      res.status(200).json({team,message:"Your Joined sold Successfully"});
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }
