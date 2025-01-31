@@ -35,23 +35,26 @@ export const UserRepositoryImpl: UserRepository = {
     return groupedSlots ? groupedSlots : null;
   },
   async confirmBooking(
-    id: string,
+    ids: string[],  // IDs of the slots
     userId: string | null,
     turfId: string
   ): Promise<UpdateResult> {
-    const result = await SlotModel.updateOne(
-      { _id: id },
+    const result = await SlotModel.updateMany(
+      { _id: { $in: ids } },
       { isBooked: true, userId }
     );
-    const slot = await SlotModel.findOne({ _id: id });
-    const price = slot ? slot.price : 0;
-    const newBooking = new BookingModel({
-      slotId: id,
-      turfId: turfId,
-      userId: userId,
-      paid: price,
+    const slotPromises = ids.map(async (id) => {
+      const slot = await SlotModel.findOne({ _id: id });
+      const price = slot ? slot.price : 0;
+      const newBooking = new BookingModel({
+        slotId: id,
+        turfId: turfId,
+        userId: userId,
+        paid: price,
+      });
+      await newBooking.save();
     });
-    const savedBooking = await newBooking.save();
+    await Promise.all(slotPromises);
     return result;
   },
   async getIdByMail(email: string): Promise<string | null> {

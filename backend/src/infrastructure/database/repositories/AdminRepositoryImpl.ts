@@ -72,11 +72,17 @@ async deleteReview(id:string):Promise<void>{
   return
 },
 async payBalance(turfId:string,balance:number):Promise<Turf|null>{
-  const updatedTurf=await TurfModel.findByIdAndUpdate(
+  const currentDate = new Date();
+  const updatedTurf = await TurfModel.findByIdAndUpdate(
     turfId,
-    { $inc: { paid: balance } },
+    {
+      $inc: { paid: balance },
+      $push: {
+        history: { amount: balance, date: currentDate },
+      },
+    },
     { new: true }
-);
-return updatedTurf;
+  );
+  return updatedTurf;
 }
 }

@@ -26,6 +26,7 @@ type Turf = {
   isBlocked: boolean;
   reports: string[];
   paid: number;
+  history: { amount: number; date: Date }[];
 };
 
 const AdminDashboard = () => {
@@ -38,11 +39,15 @@ const AdminDashboard = () => {
   const [uniqueTurfs, setUniqueTurfs] = useState<string[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const [totalPaid, setTotalPaid] = useState<number>(0);
+  const [history, setHistory] = useState<{ amount: number; date: Date }[]>([]);
   const [balance, setBalance] = useState<number>(0);
   const [turfs, setTurfs] = useState<Turf[]>([]);
   const [turf, setTurf] = useState<Turf>([]);
   let chartInstance: Chart | null = null;
   let revenueChartInstance: Chart | null = null;
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   // Fetch bookings
   useEffect(() => {
@@ -67,6 +72,7 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     const filterBookings = () => {
+      console.log("hi")
       let filtered = bookings;
       if (filter !== "custom") {
         const today = new Date();
@@ -243,6 +249,8 @@ const AdminDashboard = () => {
       setTurf(selectedTurf as Turf);
       if (selectedTurf) {
         setTotalPaid(turf.paid);
+        console.log(turf.history);
+        setHistory(turf.history);
       }
     }
   };
@@ -269,7 +277,7 @@ const AdminDashboard = () => {
     if (filter === "custom" && turfName !== "all") {
       handleFilter();
     }
-  }, [turfName, filter,turf]);
+  }, [turfName, filter, turf]);
   useEffect(() => {
     setBalance((totalPrice ?? 0) - (totalPaid ?? 0));
   }, [totalPrice, totalPaid]);
@@ -291,10 +299,13 @@ const AdminDashboard = () => {
       handler: async (response) => {
         console.log("Payment successful:", response);
         try {
-          const res = await apiClient.post("/admin/pay-balance", {turfId: turf._id, balance});
+          const res = await apiClient.post("/admin/pay-balance", {
+            turfId: turf._id,
+            balance,
+          });
           console.log("Balance paid:", res.data.turf);
-          const paidTurf:Turf=res.data.turf
-          setTotalPaid(paidTurf.paid)
+          const paidTurf: Turf = res.data.turf;
+          setTotalPaid(paidTurf.paid);
           // const notificationData = {
           //   turfId: turf._id,
           //   balance,
@@ -332,9 +343,100 @@ const AdminDashboard = () => {
     });
     rzp.open();
   };
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentHistory = history?.slice(indexOfFirstItem, indexOfLastItem);
+
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   return (
     <div className="overflow-x-auto bg-gray-900 text-white p-6">
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-8 rounded-lg w-3/4 lg:w-1/2 max-w-4xl shadow-lg transform transition-all duration-300 ease-in-out scale-95 hover:scale-100">
+            <h2 className="text-3xl font-semibold text-teal-600 mb-6">
+              Payment History
+            </h2>
+
+            {/* Table for History */}
+            <table className="min-w-full table-auto mb-6 shadow-lg rounded-lg overflow-hidden">
+              <thead>
+                <tr className="bg-teal-600 text-white">
+                  <th className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">
+                    Amount
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">
+                    Date
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">
+                    Time
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {currentHistory.map((entry, index) => (
+                  <tr
+                    key={index}
+                    className="border-t border-gray-200 hover:bg-teal-50 transition-all duration-300"
+                  >
+                    <td className="px-6 py-4 text-lg font-semibold text-teal-600">
+                      {entry.amount.toFixed(2)}{" "}
+                      {/* Formatting for better display */}
+                    </td>
+                    <td className="px-6 py-4 text-lg text-gray-800">
+                      {new Date(entry.date).toLocaleDateString("en-US", {
+                        weekday: "short",
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}{" "}
+                      {/* Formatted Date */}
+                    </td>
+                    <td className="px-6 py-4 text-lg text-gray-800">
+                      {new Date(entry.date).toLocaleTimeString("en-US", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit",
+                      })}{" "}
+                      {/* Formatted Time */}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* Pagination Controls */}
+            <div className="flex justify-center space-x-3 mt-4">
+              {Array.from(
+                { length: Math.ceil(history.length / itemsPerPage) },
+                (_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => paginate(index + 1)}
+                    className={`px-4 py-2 rounded-full transition-all duration-300 ease-in-out ${
+                      currentPage === index + 1
+                        ? "bg-teal-600 text-white shadow-md"
+                        : "bg-teal-100 text-teal-500 hover:bg-teal-500 hover:text-white"
+                    }`}
+                  >
+                    {index + 1}
+                  </button>
+                )
+              )}
+            </div>
+
+            <button
+              onClick={closeModal}
+              className="mt-6 w-full py-3 bg-red-500 text-white font-semibold rounded-md transition-all duration-300 ease-in-out hover:bg-red-600"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
       <div className="bg-gray-800 shadow-lg rounded-lg p-8 mb-10 hover:shadow-xl transition-all duration-300">
         {/* Date Range and Turf Name Filter Section */}
         <div className="flex flex-wrap lg:flex-nowrap items-center justify-between mb-6 space-y-6 lg:space-y-0 lg:space-x-6">
@@ -423,16 +525,23 @@ const AdminDashboard = () => {
               <p className="text-teal-400 text-2xl">
                 Balance: <span className="text-white">{balance}</span>
               </p>
+              <button
+                onClick={openModal}
+                className="text-xl bg-gradient-to-r from-teal-400 to-teal-600 text-white p-3 rounded-md shadow-md hover:scale-105 transform transition-all duration-300 ease-in-out hover:from-teal-500 hover:to-teal-700 hover:shadow-xl focus:outline-none"
+              >
+                Payment History
+              </button>
             </div>
 
             {/* Pay Balance Button */}
-            {balance!==0&&(
-            <button
-              onClick={openRazorpay} // Add your payment handler function
-              className="bg-green-500 hover:bg-teal-600 text-white px-8 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all duration-300"
-            >
-              Pay Balance
-            </button>)}
+            {balance !== 0 && (
+              <button
+                onClick={openRazorpay} // Add your payment handler function
+                className="bg-green-500 hover:bg-teal-600 text-white px-8 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all duration-300"
+              >
+                Pay Balance
+              </button>
+            )}
           </div>
         )}
 

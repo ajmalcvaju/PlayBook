@@ -23,6 +23,23 @@ interface RootState {
     currentUser: CurrentUser;
   };
 }
+type Slot = {
+  date: string;
+  time: string;
+  price: number;
+  id: string;
+};
+
+type GroupedSlots = {
+  [date: string]: {
+    slots: Slot[];
+    ids: string[];
+    totalPrice: number;
+  };
+};
+
+type GroupedSlotsState = GroupedSlots;
+type TotalPriceState = number;
 
 const PaymentConfirmation = () => {
   const socket = io("http://localhost:7000");
@@ -30,60 +47,68 @@ const PaymentConfirmation = () => {
   const { selectedSlots = [] } = location.state ?? {};
   const navigate = useNavigate();
   const [isBookingSuccess, setIsBookingSuccess] = useState(false);
-  const [isBookingFailed,setIsBookingFailed]=useState(false)
+  const [isBookingFailed, setIsBookingFailed] = useState(false);
   const { currentUser } = useSelector((state: RootState) => state.user);
-  const email=currentUser.email
+  const [groupedSlots, setGroupedSlots] = useState<GroupedSlotsState>({});
+  const [totalPrice, setTotalPrice] = useState<TotalPriceState>(0);
+  const email = currentUser.email;
+  useEffect(() => {
+    const ids = selectedSlots.map((slot) => slot.id);
+    const total = selectedSlots.reduce((sum, { price }) => sum + price, 0);
+    setGroupedSlots(ids)
+    setTotalPrice(total)
+  }, [selectedSlots]);
   useEffect(()=>{
-    console.log(selectedSlots)
-  })
-  
- const {id}=useParams()
- const closeModal = () => {
-  navigate(`/turf-page/${id}/book-ticket`);
-};
+    console.log(groupedSlots)
+  },[])
+
+  const { id } = useParams();
+  const closeModal = () => {
+    navigate(`/turf-page/${id}/book-ticket`);
+  };
   const openRazorpay = async () => {
     if (!window.Razorpay) {
       console.error("Razorpay SDK not loaded");
       alert("Payment gateway is not available. Please try again later.");
-      setIsBookingFailed(true)
+      setIsBookingFailed(true);
       return;
     }
 
     const options = {
       key: import.meta.env.VITE_RAZOR_PAY_KEY,
-      amount: price * 100, // Amount in paise
+      amount: totalPrice * 100, // Amount in paise
       currency: "INR",
       name: "PlayBook",
       description: "Test Transaction",
       image: "https://i.imgur.com/1eyM5kC.png",
-      handler: async(response) => {
+      handler: async (response) => {
         console.log("Payment successful:", response);
         try {
           const res = await apiClient.post("/users/confirm-booking", {
-            slotId,
-            turfId:id,
+            slotId:groupedSlots,
+            turfId: id,
             email,
           });
           console.log("Booking confirmed:", res.data);
           const notificationData = {
-            turfId:id,
-            time,
-            date,
+            turfId: id,
             firstName: currentUser?.firstName,
           };
-        
+
           socket.emit("send-notification", notificationData);
           setIsBookingSuccess(true);
         } catch (error) {
           console.error("Error confirming booking:", error);
           setIsBookingFailed(true);
-          throw new Error(`HTTP error! Status: ${error.response?.status || error.message}`);
+          throw new Error(
+            `HTTP error! Status: ${error.response?.status || error.message}`
+          );
         }
       },
       prefill: {
-        name: currentUser?.firstName ,
-        email: currentUser?.email ,
-        contact: currentUser?.mobileNumber ,
+        name: currentUser?.firstName,
+        email: currentUser?.email,
+        contact: currentUser?.mobileNumber,
       },
       notes: {
         address: "Razorpay Corporate Office",
@@ -94,7 +119,7 @@ const PaymentConfirmation = () => {
     };
 
     const rzp = new window.Razorpay(options);
-    rzp.on("payment.failed", async(response) => {
+    rzp.on("payment.failed", async (response) => {
       try {
         const res = await apiClient.post("/users/confirm-booking", {
           slotId,
@@ -119,8 +144,8 @@ const PaymentConfirmation = () => {
         ></div>
 
         {/* Modal */}
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="bg-gray-900 p-8 rounded-lg shadow-2xl relative transform transition-transform duration-300 scale-100 hover:scale-105">
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-70">
+          <div className="bg-gray-900 p-8 rounded-lg shadow-2xl relative transform transition-transform duration-300 scale-100 hover:scale-105 w-[400px]">
             <button
               className="absolute top-3 right-3 text-gray-400 hover:text-gray-200 text-xl"
               onClick={closeModal}
@@ -130,24 +155,43 @@ const PaymentConfirmation = () => {
             <h1 className="text-2xl font-extrabold text-gray-100 mb-6 tracking-wide text-center drop-shadow-lg">
               Payment Confirmation
             </h1>
-            <p className="mb-4 text-lg text-gray-300">
-              <strong className="font-semibold text-blue-400">
-                Selected Time:
+
+            <div className="mb-4">
+              <p className="text-lg text-gray-300 font-semibold mb-2">
+                <span className="text-blue-400">Booked Slots:</span>
+              </p>
+
+              <ul className="text-gray-300 space-y-2">
+                {Object.entries(
+                  selectedSlots.reduce((acc, { date, time, price, id }) => {
+                    if (!acc[date]) acc[date] = [];
+                    acc[date].push({ time, price, id });
+                    return acc;
+                  }, {})
+                ).map(([date, slots]) => (
+                  <li key={date} className="border-b border-gray-600 pb-2">
+                    📅 <strong>Date:</strong>{" "}
+                    {new Date(date).toLocaleDateString()}
+                    <div className="mt-2 flex flex-wrap gap-4">
+                      {slots.map(({ time, price, id }) => (
+                        <div key={id} className="flex items-center gap-2">
+                          ⏰ <span>{time}</span> 💰 ₹{price}
+                        </div>
+                      ))}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <p className="mt-4 text-lg text-gray-300">
+              <strong className="font-semibold text-green-400">
+                Total Price:
               </strong>{" "}
-              {time}
-            </p>
-            <p className="mb-4 text-lg text-gray-300">
-              <strong className="font-semibold text-blue-400">
-                Selected Date:
-              </strong>{" "}
-              {new Date(date).toLocaleDateString()}
-            </p>
-            <p className="mb-6 text-lg text-gray-300">
-              <strong className="font-semibold text-blue-400">Price:</strong> ₹
-              {price}
+              ₹{selectedSlots.reduce((sum, slot) => sum + slot.price, 0)}
             </p>
 
-            <div className="flex justify-between w-full gap-4">
+            <div className="flex justify-between w-full gap-4 mt-6">
               <button
                 className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-all duration-200 transform hover:scale-105"
                 onClick={closeModal}

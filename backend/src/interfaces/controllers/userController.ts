@@ -196,9 +196,7 @@ export const userController = {
   },
   confirmBooking: async (req: Request, res: Response) => {
     try {
-      console.log(req.body)
       const { slotId, email,turfId,status } = req.body;
-      console.log(req.body);
       const userId = await getIdFrommail(UserRepositoryImpl, email);
       const book = await confirmBooking(UserRepositoryImpl, slotId,userId,turfId);
       console.log(book);

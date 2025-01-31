@@ -112,21 +112,14 @@ export const NotificationProvider = ({ children }) => {
             </h2>
             <p className="mt-4 text-center text-gray-700">
               <span className="font-semibold">{bookingData.firstName}</span> has
-              booked your turf on{" "}
-              <span className="font-semibold">
-                {`${String(new Date(bookingData.date).getDate()).padStart(
-                  2,
-                  "0"
-                )}-${String(new Date(bookingData.date).getMonth() + 1).padStart(
-                  2,
-                  "0"
-                )}-${new Date(bookingData.date).getFullYear()}`}
-              </span>{" "}
-              at <span className="font-semibold">{bookingData.time}</span>.
+              booked your turf
             </p>
             <div className="flex justify-center mt-6">
               <button
-                onClick={() => navigate("/turf/booking-management")}
+                onClick={() =>{ 
+                  setShowBookingNotification(false)
+                  navigate("/turf/booking-management")
+                }}
                 className="px-4 py-2 bg-gradient-to-r from-green-500 to-teal-600 text-white font-bold rounded hover:opacity-90 transition duration-200"
               >
                 Check Bookings
