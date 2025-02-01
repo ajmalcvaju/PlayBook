@@ -4,16 +4,48 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import { MicOff } from "lucide-react";
 
+interface GalleryItem {
+  [key: string]: any; 
+}
+interface TurfType {
+  [key: string]: any;
+}
+interface CurrentTurf {
+  _id: string;
+  turfName: string;
+  email: string;
+  mobileNumber: string;
+  password: string;
+  isVerified: number;
+  isApproved: number;
+  gallery: GalleryItem[]; // Array of gallery items
+  __v: number;
+  facilities: string;
+  turfAddress: string;
+  turfOverview: string;
+  latitude: number;
+  locationName: string;
+  longitude: number;
+  turfTypes: TurfType[]; // Array of turf types
+  rating: number;
+  votes: number;
+}
+interface TurfState {
+  currentTurf: CurrentTurf | null;
+  loading: boolean;
+  error: boolean;
+}
+
 const socket = io("http://localhost:7000");
 const VideoCallUser = () => {
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
-  const { currentTurf } = useSelector((state) => state.turf);
+  const { currentTurf } = useSelector((state: { turf: TurfState }) => state.turf);
   const [muted, setMuted] = useState(false);
   const location = useLocation();
   const { caller } = location.state || {};
-  const turfId = currentTurf._id;
+  const turfId = currentTurf?._id;
   const roomId = turfId;
   const [isConnected, setIsConnected] = useState<boolean>(false);
   useEffect(() => {
