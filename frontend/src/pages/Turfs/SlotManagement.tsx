@@ -53,9 +53,7 @@ const AdminDashboard: React.FC = () => {
   const handleNextPage = () => {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
-  useEffect(()=>{
-   console.log(setSlots)
-  }[])
+  
   const email = localStorage.getItem("turfEmail");
   useLayoutEffect(() => {
     const fetchSlots = async () => {
@@ -63,7 +61,7 @@ const AdminDashboard: React.FC = () => {
         const response = await apiClient.get(`/turfs/slots/${email}`);
         const currentSlot = response.data;
         const slots=currentSlot.slots;
-        console.log(slots);
+        setSlots(slots);
         setCurrentSlots(slots);
         setFiteredSlots(slots);
       } catch (error) {
@@ -72,6 +70,7 @@ const AdminDashboard: React.FC = () => {
     };
     fetchSlots();
   }, []);
+  
 
   const handleCloseError = () => setShowError(false);
   const handleDeleteSlotWithConfirmation = (slot: any) => {
