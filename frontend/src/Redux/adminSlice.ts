@@ -10,7 +10,7 @@ const adminSlice = createSlice({
     name:'admin',
     initialState,
     reducers:{
-        signInSuccess :(state,action)=>{
+        signInSuccess :(state)=>{
             state.admin = true;
             state.loading = false;
             state.error = false;

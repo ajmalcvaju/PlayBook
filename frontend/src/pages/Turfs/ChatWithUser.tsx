@@ -7,12 +7,18 @@ import apiClient from "../../apiClient";
 import axios from "axios";
 
 interface GalleryItem {
-  [key: string]: any; 
+  [key: string]: any;
 }
 interface TurfType {
   [key: string]: any;
 }
-
+interface Message {
+  _id: string;
+  text: string;
+  type: "text" | "image" | "audio" | "video";
+  createdAt: string;
+  isUser: boolean;
+}
 
 interface CurrentTurf {
   _id: string;
@@ -41,8 +47,8 @@ interface TurfState {
   error: boolean;
 }
 
-const groupMessagesByDate = (messages:any) => {
-  return messages.reduce((grouped:any, message:any) => {
+const groupMessagesByDate = (messages: any) => {
+  return messages.reduce((grouped: any, message: any) => {
     const date = new Date(message?.createdAt).toLocaleDateString(); // Get the date only
     if (!grouped[date]) {
       grouped[date] = [];
@@ -89,7 +95,9 @@ const ChatWithUser = () => {
   const messagesEndRef = useRef<HTMLDivElement | null>(null); // Type the ref correctly
   const navigate = useNavigate();
 
-  const { currentTurf } = useSelector((state: { turf: TurfState }) => state.turf);
+  const { currentTurf } = useSelector(
+    (state: { turf: TurfState }) => state.turf
+  );
   const turfId = currentTurf?._id || recieverId;
   const socket = io("http://localhost:7000");
   useEffect(() => {
@@ -119,7 +127,7 @@ const ChatWithUser = () => {
     return () => {
       socket.emit("user-offline", turfId);
     };
-  }, [turfId,messages]);
+  }, [turfId, messages]);
 
   const loadPreviousMessages = async () => {
     try {
@@ -184,7 +192,7 @@ const ChatWithUser = () => {
       loadPreviousMessages();
     }
   };
-  const handleEmojiClick = (emojiObject:any) => {
+  const handleEmojiClick = (emojiObject: any) => {
     console.log(currentMessage);
     setCurrentMessage((prev) => prev + emojiObject.emoji);
     console.log(currentMessage);
@@ -192,8 +200,9 @@ const ChatWithUser = () => {
   const cancel = () => {
     navigate("/turf/customer-chat");
   };
-  const groupedMessages = groupMessagesByDate(messages);
-  
+  const groupedMessages: Record<string, Message[]> =
+    groupMessagesByDate(messages);
+
   const audioCall = () => {
     setCallModel(false);
     navigate("audio-call");
@@ -212,7 +221,7 @@ const ChatWithUser = () => {
     setImageData(null);
     setIsOpen(!isOpen);
   };
-  const sendMediaToBackend = async (mediaType:any, mediaData:any) => {
+  const sendMediaToBackend = async (mediaType: any, mediaData: any) => {
     try {
       let mediaUrl;
       setUploading(true);
@@ -296,9 +305,9 @@ const ChatWithUser = () => {
       setCurrentMessage("");
     } catch (err: unknown) {
       if (err instanceof Error) {
-        console.error('Error accessing camera:', err.message);
+        console.error("Error accessing camera:", err.message);
       } else {
-        console.error('Unknown error:', err);
+        console.error("Unknown error:", err);
       }
     } finally {
       setUploading(false);
@@ -306,7 +315,7 @@ const ChatWithUser = () => {
   };
   const stopCamera = () => {
     if (stream) {
-      const streams: MediaStream =stream
+      const streams: MediaStream = stream;
       const tracks = streams.getTracks(); // This should now work
       tracks.forEach((track) => track.stop());
     }
@@ -324,10 +333,10 @@ const ChatWithUser = () => {
       console.error("Error accessing camera:", err);
     }
   };
-  const toggleVisibility = (section:any) => {
+  const toggleVisibility = (section: any) => {
     setVisibleSection(visibleSection === section ? null : section);
   };
-  const handleMediaUpload = (event:any, mediaType:any) => {
+  const handleMediaUpload = (event: any, mediaType: any) => {
     const file = event.target.files[0];
     sendMediaToBackend(mediaType, file);
   };
@@ -346,23 +355,23 @@ const ChatWithUser = () => {
   const takeSnapshot = () => {
     setImageData(null);
     const video = videoRef.current;
-    
+
     if (!video) {
-      console.error('Video element is not available');
+      console.error("Video element is not available");
       return;
     }
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
 
     if (!context) {
-      console.error('Failed to get canvas context');
+      console.error("Failed to get canvas context");
       return;
     }
-    canvas.width = video.videoWidth || 640; 
+    canvas.width = video.videoWidth || 640;
     canvas.height = video.videoHeight || 480;
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
     const dataUrl = canvas.toDataURL("image/png");
-    setImageData(dataUrl); 
+    setImageData(dataUrl);
   };
   const toggleVideo = () => {
     if (isCameraOpen) {
@@ -395,7 +404,7 @@ const ChatWithUser = () => {
 
       mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
-          videoChunks.current.push(event.data)
+          videoChunks.current.push(event.data);
         }
       };
 
@@ -480,7 +489,7 @@ const ChatWithUser = () => {
     stopTimer();
   };
 
-  const handleContextMenu = (e:any, messageId:any) => {
+  const handleContextMenu = (e: any, messageId: any) => {
     e.preventDefault(); // Prevent the default context menu
     setSelectedMessageId(messageId);
     setShowContextMenu(true);
@@ -492,7 +501,7 @@ const ChatWithUser = () => {
     setShowContextMenu(false);
   };
 
-  const deleteMessage = (id:any) => {
+  const deleteMessage = (id: any) => {
     console.log(id);
     socket.emit("delete-message", id);
   };
@@ -503,7 +512,7 @@ const ChatWithUser = () => {
   };
   useEffect(() => {
     socket.on("message-deleted", (deletedMessageId) => {
-      console.log(deletedMessageId)
+      console.log(deletedMessageId);
       loadPreviousMessages();
     });
     return () => {
@@ -511,7 +520,7 @@ const ChatWithUser = () => {
     };
   }, []);
   useEffect(() => {
-    if (messagesEndRef.current&&!showContextMenu) {
+    if (messagesEndRef.current && !showContextMenu) {
       messagesEndRef.current.scrollIntoView({ behavior: "auto" }); // Initial scroll
     }
   }, [groupedMessages]);
@@ -594,15 +603,15 @@ const ChatWithUser = () => {
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-gray-50 to-gray-200">
             <div>
               {Object.entries(groupedMessages).map(
-                ([date, messages], index) => (
+                ([date, messages]: [string, Message[]], index: number) => (
                   <div key={index}>
                     {/* Show the date */}
                     <div className="text-center text-gray-500 text-sm my-2">
                       {date}
                     </div>
 
-                    {/* Render messages for this date */}
-                    {messages.map((message:any, index:any) => (
+                    {/* Render messages */}
+                    {messages.map((message: Message, index: number) => (
                       <div
                         key={index}
                         className={`flex ${
@@ -625,7 +634,7 @@ const ChatWithUser = () => {
                             <div>{message.text}</div>
                           ) : message.type === "image" ? (
                             <img
-                              src={message.text} // Assume the image data is a URL or base64
+                              src={message.text}
                               alt="Sent"
                               className="rounded-lg shadow-md max-h-48"
                             />
@@ -653,7 +662,7 @@ const ChatWithUser = () => {
 
                           {/* Timestamp */}
                           <div className="text-xs text-gray-500 mt-1">
-                            {new Date(message?.createdAt).toLocaleTimeString(
+                            {new Date(message.createdAt).toLocaleTimeString(
                               [],
                               {
                                 hour: "2-digit",

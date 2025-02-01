@@ -14,7 +14,6 @@ type loginData={
 const TurfLogin = () => {
   let navigate=useNavigate()
   const dispatch = useDispatch()
-  let token=localStorage.getItem("turfToken")
   
     const { register, handleSubmit, formState: {errors} } = useForm<loginData>();
     const [isLoading,setIsLoading]=useState(false)

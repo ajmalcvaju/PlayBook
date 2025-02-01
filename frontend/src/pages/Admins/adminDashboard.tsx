@@ -337,11 +337,12 @@ const AdminDashboard = () => {
     const rzp = new window.Razorpay(options);
     rzp.on("payment.failed", async (response:Response) => {
       try {
-        const response = await apiClient.post("/admin/pay-balance", {
+        console.log(response)
+        const res = await apiClient.post("/admin/pay-balance", {
           turfId: turf?._id,
           balance,
         });
-        console.log("Booking confirmed:", response.data);
+        console.log("Booking confirmed:", res.data);
       } catch (error) {
         console.error("Error confirming booking:", error);
       }

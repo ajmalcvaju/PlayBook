@@ -22,6 +22,16 @@ interface CurrentUser {
   isOnline: boolean;
   lastSeen: string;
 }
+type Message = {
+  _id: string;
+  isUser: boolean;
+  type: "text" | "image" | "audio" | "video"; // Adjust this if you have other types
+  text: string; // For text, image, and media messages
+  createdAt: string; // Or Date depending on how it's stored
+};
+type GroupedMessages = {
+  [date: string]: Message[];
+};
 interface UserState {
   currentUser: CurrentUser;
 }
@@ -29,8 +39,8 @@ interface RootState {
   user: UserState;
 }
 
-const groupMessagesByDate = (messages:any) => {
-  return messages.reduce((grouped:any, message:any) => {
+const groupMessagesByDate = (messages: any) => {
+  return messages.reduce((grouped: any, message: any) => {
     const date = new Date(message?.createdAt).toLocaleDateString(); // Get the date only
     if (!grouped[date]) {
       grouped[date] = [];
@@ -83,7 +93,7 @@ const ChatWithTurf = () => {
     y: 0,
   });
   const [selectedMessageId, setSelectedMessageId] = useState(null);
-  const [online, setOnine] = useState(false);
+  const [online, setOnine] = useState("");
 
   useEffect(() => {
     if (videoCallConnection) {
@@ -116,7 +126,7 @@ const ChatWithTurf = () => {
     return () => {
       socket.emit("user-offline", userId);
     };
-  }, [userId,messages]);
+  }, [userId, messages]);
 
   useEffect(() => {
     if (videoCallDecline) {
@@ -210,13 +220,13 @@ const ChatWithTurf = () => {
   useEffect(() => {
     loadPreviousMessages();
   }, []);
-  const handleEmojiClick = (emojiObject:any) => {
+  const handleEmojiClick = (emojiObject: any) => {
     setCurrentMessage((prev) => prev + emojiObject.emoji);
   };
   const cancel = () => {
     navigate(`/turf-page/${id}`);
   };
-  const groupedMessages = groupMessagesByDate(messages);
+  const groupedMessages: GroupedMessages = groupMessagesByDate(messages);
   const handleCall = () => {
     console.log("hi");
     setCallModel(true);
@@ -232,7 +242,7 @@ const ChatWithTurf = () => {
   };
   useEffect(() => {
     socket.on("cancelNotification", ({ turfId }) => {
-      console.log(turfId)
+      console.log(turfId);
       setMessageCancelModel(true);
     });
 
@@ -241,11 +251,11 @@ const ChatWithTurf = () => {
     };
   }, []);
   useEffect(() => {
-    if (messagesEndRef.current&&!showContextMenu) {
+    if (messagesEndRef.current && !showContextMenu) {
       messagesEndRef.current.scrollIntoView({ behavior: "auto" }); // Initial scroll
     }
   }, [groupedMessages]);
-  const toggleVisibility = (section:any) => {
+  const toggleVisibility = (section: any) => {
     setVisibleSection(visibleSection === section ? null : section);
   };
 
@@ -301,7 +311,8 @@ const ChatWithTurf = () => {
 
   const stopTimer = () => {
     if (timerRef.current) {
-    clearInterval(timerRef.current);}
+      clearInterval(timerRef.current);
+    }
   };
 
   const resetRecording = () => {
@@ -312,7 +323,7 @@ const ChatWithTurf = () => {
   };
 
   // Send audio to backend
-  const sendMediaToBackend = async (mediaType:any, mediaData:any) => {
+  const sendMediaToBackend = async (mediaType: any, mediaData: any) => {
     try {
       let mediaUrl;
       setUploading(true);
@@ -393,7 +404,7 @@ const ChatWithTurf = () => {
       ]);
       loadPreviousMessages();
       setCurrentMessage("");
-    } catch (error:any) {
+    } catch (error: any) {
       console.error(`Error sending ${mediaType} to backend:`, error.message);
     } finally {
       setUploading(false);
@@ -424,7 +435,8 @@ const ChatWithTurf = () => {
         video: true,
       });
       if (videoRef.current) {
-      videoRef.current.srcObject = stream;}
+        videoRef.current.srcObject = stream;
+      }
       setStream(stream);
     } catch (err) {
       console.error("Error accessing camera:", err);
@@ -444,23 +456,22 @@ const ChatWithTurf = () => {
     setImageData(null);
     const video = videoRef.current;
     if (!video) {
-      console.error('Video element is not available');
+      console.error("Video element is not available");
       return;
     }
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
     if (!context) {
-      console.error('Failed to get canvas context');
+      console.error("Failed to get canvas context");
       return;
     }
-    canvas.width = video.videoWidth || 640; 
+    canvas.width = video.videoWidth || 640;
     canvas.height = video.videoHeight || 480;
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
     const dataUrl = canvas.toDataURL("image/png");
-    setImageData(dataUrl); 
+    setImageData(dataUrl);
   };
 
-  
   const handleRetake = () => {
     setImageData(null);
     startCamera();
@@ -512,12 +523,12 @@ const ChatWithTurf = () => {
     setVideoBlob(null);
     startVideoRecording();
   };
-  const handleMediaUpload = (event:any, mediaType:any) => {
+  const handleMediaUpload = (event: any, mediaType: any) => {
     const file = event.target.files[0];
     sendMediaToBackend(mediaType, file);
   };
 
-  const handleContextMenu = (e:any, messageId:any) => {
+  const handleContextMenu = (e: any, messageId: any) => {
     e.preventDefault(); // Prevent the default context menu
     setSelectedMessageId(messageId);
     setShowContextMenu(true);
@@ -529,7 +540,7 @@ const ChatWithTurf = () => {
     setShowContextMenu(false);
   };
 
-  const deleteMessage = (id:any) => {
+  const deleteMessage = (id: any) => {
     socket.emit("delete-message", id);
   };
 
@@ -539,7 +550,7 @@ const ChatWithTurf = () => {
   };
   useEffect(() => {
     socket.on("message-deleted", (deletedMessageId) => {
-      console.log(deletedMessageId)
+      console.log(deletedMessageId);
       loadPreviousMessages();
     });
     return () => {
@@ -677,7 +688,7 @@ const ChatWithTurf = () => {
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-gray-50 to-gray-200">
             <div>
               {Object.entries(groupedMessages).map(
-                ([date, messages], index) => (
+                ([date, messages]: [string, Message[]], index) => (
                   <div key={index}>
                     {/* Show the date */}
                     <div className="text-center text-gray-500 text-sm my-2">
@@ -685,7 +696,7 @@ const ChatWithTurf = () => {
                     </div>
 
                     {/* Render messages for this date */}
-                    {messages.map((message, index) => (
+                    {messages.map((message: Message, index: number) => (
                       <div
                         key={index}
                         className={`flex ${

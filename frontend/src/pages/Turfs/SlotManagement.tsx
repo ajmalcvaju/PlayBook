@@ -53,6 +53,9 @@ const AdminDashboard: React.FC = () => {
   const handleNextPage = () => {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
+  useEffect(()=>{
+   console.log(setSlots)
+  }[])
   const email = localStorage.getItem("turfEmail");
   useLayoutEffect(() => {
     const fetchSlots = async () => {
