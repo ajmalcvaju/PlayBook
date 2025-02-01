@@ -8,7 +8,7 @@ import { Star, Share2 } from "lucide-react";
 import { formatDistanceToNow, parseISO } from "date-fns";
 import { Swiper, SwiperSlide } from "swiper/react";
 // import 'swiper/swiper-bundle.min.css';
-import "swiper/css";
+// import "swiper/css"
 
 type Booking = {
   _id: string;
