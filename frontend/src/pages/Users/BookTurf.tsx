@@ -14,14 +14,11 @@ type Slot = {
 };
 
 const TicketBookingModal = ({}) => {
-  const [selectedTime, setSelectedTime] = useState("");
   const [activeDate, setActiveDate] = useState(new Date());
   const [slots, setSlots] = useState<Slot[]>([]);
-  const [slotId, setSlotId] = useState("");
-  const navigate = useNavigate();
-  const [price, setPrice] = useState<number>(0);
-  const [selectedTurfSize, setSelectedTurfSize] = useState<string>(null);
-  const { id } = useParams();
+  const navigate = useNavigate();;
+  const [selectedTurfSize, setSelectedTurfSize] = useState<string|null>(null);
+  const { id } = useParams<string>();
   const [selectedSlots, setSelectedSlots] = useState<
     { date:string,time: string; price: number; id: string }[]
   >([]);

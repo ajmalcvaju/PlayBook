@@ -29,8 +29,8 @@ interface RootState {
   user: UserState;
 }
 
-const groupMessagesByDate = (messages) => {
-  return messages.reduce((grouped, message) => {
+const groupMessagesByDate = (messages:any) => {
+  return messages.reduce((grouped:any, message:any) => {
     const date = new Date(message?.createdAt).toLocaleDateString(); // Get the date only
     if (!grouped[date]) {
       grouped[date] = [];
@@ -46,7 +46,7 @@ const ChatWithTurf = () => {
     { text: string | any; isUser: boolean }[]
   >([]);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const messagesEndRef = useRef(null);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const [callModel, setCallModel] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [messageCancelModel, setMessageCancelModel] = useState(false);
@@ -63,18 +63,18 @@ const ChatWithTurf = () => {
   const [declinePopup, setDeclinePopup] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
-  const [audioBlob, setAudioBlob] = useState(null);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
-  const timerRef = useRef(null);
-  const mediaRecorderRef = useRef(null);
-  const audioChunks = useRef([]);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunks = useRef<Blob[]>([]);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
-  const [imageData, setImageData] = useState(null);
-  const videoRef = useRef(null);
-  const [stream, setStream] = useState(null);
+  const [imageData, setImageData] = useState<string | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [stream, setStream] = useState<MediaStream | null>(null);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
-  const [videoBlob, setVideoBlob] = useState(null);
-  const videoChunks = useRef([]);
+  const [videoBlob, setVideoBlob] = useState<Blob | null>(null);
+  const videoChunks = useRef<Blob[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploaded, setUploaded] = useState(false);
   const [showContextMenu, setShowContextMenu] = useState(false);
@@ -202,7 +202,7 @@ const ChatWithTurf = () => {
           ]);
         }
       }
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     } catch (error) {
       console.error("Error loading messages:", error);
     }
@@ -210,7 +210,7 @@ const ChatWithTurf = () => {
   useEffect(() => {
     loadPreviousMessages();
   }, []);
-  const handleEmojiClick = (emojiObject) => {
+  const handleEmojiClick = (emojiObject:any) => {
     setCurrentMessage((prev) => prev + emojiObject.emoji);
   };
   const cancel = () => {
@@ -232,6 +232,7 @@ const ChatWithTurf = () => {
   };
   useEffect(() => {
     socket.on("cancelNotification", ({ turfId }) => {
+      console.log(turfId)
       setMessageCancelModel(true);
     });
 
@@ -244,7 +245,7 @@ const ChatWithTurf = () => {
       messagesEndRef.current.scrollIntoView({ behavior: "auto" }); // Initial scroll
     }
   }, [groupedMessages]);
-  const toggleVisibility = (section) => {
+  const toggleVisibility = (section:any) => {
     setVisibleSection(visibleSection === section ? null : section);
   };
 
@@ -299,7 +300,8 @@ const ChatWithTurf = () => {
   };
 
   const stopTimer = () => {
-    clearInterval(timerRef.current);
+    if (timerRef.current) {
+    clearInterval(timerRef.current);}
   };
 
   const resetRecording = () => {
@@ -310,7 +312,7 @@ const ChatWithTurf = () => {
   };
 
   // Send audio to backend
-  const sendMediaToBackend = async (mediaType, mediaData) => {
+  const sendMediaToBackend = async (mediaType:any, mediaData:any) => {
     try {
       let mediaUrl;
       setUploading(true);
@@ -391,7 +393,7 @@ const ChatWithTurf = () => {
       ]);
       loadPreviousMessages();
       setCurrentMessage("");
-    } catch (error) {
+    } catch (error:any) {
       console.error(`Error sending ${mediaType} to backend:`, error.message);
     } finally {
       setUploading(false);
@@ -421,7 +423,8 @@ const ChatWithTurf = () => {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: true,
       });
-      videoRef.current.srcObject = stream;
+      if (videoRef.current) {
+      videoRef.current.srcObject = stream;}
       setStream(stream);
     } catch (err) {
       console.error("Error accessing camera:", err);
@@ -439,28 +442,25 @@ const ChatWithTurf = () => {
   // Take Snapshot
   const takeSnapshot = () => {
     setImageData(null);
+    const video = videoRef.current;
+    if (!video) {
+      console.error('Video element is not available');
+      return;
+    }
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
-
-    const video = videoRef.current;
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-
+    if (!context) {
+      console.error('Failed to get canvas context');
+      return;
+    }
+    canvas.width = video.videoWidth || 640; 
+    canvas.height = video.videoHeight || 480;
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
     const dataUrl = canvas.toDataURL("image/png");
-    setImageData(dataUrl);
+    setImageData(dataUrl); 
   };
 
-  // Helper function to convert dataURL to Blob
-  const dataURLtoBlob = (dataURL) => {
-    const byteString = atob(dataURL.split(",")[1]);
-    const arrayBuffer = new ArrayBuffer(byteString.length);
-    const uint8Array = new Uint8Array(arrayBuffer);
-    for (let i = 0; i < byteString.length; i++) {
-      uint8Array[i] = byteString.charCodeAt(i);
-    }
-    return new Blob([uint8Array], { type: "image/png" });
-  };
+  
   const handleRetake = () => {
     setImageData(null);
     startCamera();
@@ -472,7 +472,9 @@ const ChatWithTurf = () => {
         audio: true,
       });
       setStream(videoStream);
-      videoRef.current.srcObject = videoStream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = videoStream; // Assign stream to video element
+      }
 
       const mediaRecorder = new MediaRecorder(videoStream);
       mediaRecorderRef.current = mediaRecorder;
@@ -510,12 +512,12 @@ const ChatWithTurf = () => {
     setVideoBlob(null);
     startVideoRecording();
   };
-  const handleMediaUpload = (event, mediaType) => {
+  const handleMediaUpload = (event:any, mediaType:any) => {
     const file = event.target.files[0];
     sendMediaToBackend(mediaType, file);
   };
 
-  const handleContextMenu = (e, messageId) => {
+  const handleContextMenu = (e:any, messageId:any) => {
     e.preventDefault(); // Prevent the default context menu
     setSelectedMessageId(messageId);
     setShowContextMenu(true);
@@ -527,7 +529,7 @@ const ChatWithTurf = () => {
     setShowContextMenu(false);
   };
 
-  const deleteMessage = (id) => {
+  const deleteMessage = (id:any) => {
     socket.emit("delete-message", id);
   };
 
@@ -537,6 +539,7 @@ const ChatWithTurf = () => {
   };
   useEffect(() => {
     socket.on("message-deleted", (deletedMessageId) => {
+      console.log(deletedMessageId)
       loadPreviousMessages();
     });
     return () => {
