@@ -49,7 +49,7 @@ const Home: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   
   const turfsPerPage = 6;
-
+ 
   useEffect(() => {
     const script = document.createElement("script");
     script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places`;
