@@ -51,7 +51,7 @@ const Otp = () => {
       const email = localStorage.getItem("userEmail");
       const { data } = await apiClient.post("/users/resend-otp", { email });
       setResendMessage(data.message);
-    } catch (error) {
+    } catch (error:any) {
       setResendMessage(error.response?.data?.message || "Unable to resend OTP. Please try again later.");
     }
   };

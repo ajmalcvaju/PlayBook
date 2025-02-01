@@ -1,11 +1,47 @@
 // NotificationContext.tsx
-import React, { createContext, useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { ReactNode } from "react";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
+type NotificationProviderProps = {
+  children: ReactNode;
+};
+interface TurfType {
+  [key: string]: any;
+}
+interface GalleryItem {
+  [key: string]: any; 
+}
 
+interface CurrentTurf {
+  _id: string;
+  turfName: string;
+  email: string;
+  mobileNumber: string;
+  password: string;
+  isVerified: number;
+  isApproved: number;
+  gallery: GalleryItem[]; // Array of gallery items
+  __v: number;
+  facilities: string;
+  turfAddress: string;
+  turfOverview: string;
+  latitude: number;
+  locationName: string;
+  longitude: number;
+  turfTypes: TurfType[]; // Array of turf types
+  rating: number;
+  votes: number;
+}
+
+interface TurfState {
+  currentTurf: CurrentTurf | null;
+  loading: boolean;
+  error: boolean;
+}
 const socket = io("http://localhost:7000");
-export const NotificationProvider = ({ children }) => {
+export const NotificationProvider: React.FC<NotificationProviderProps> = ({ children }) => {
   const navigate = useNavigate();
   const [joinedRoomId, setJoinedRoomId] = useState<string | null>(null);
   const [caller, setCaller] = useState<string | null>(null);
@@ -13,13 +49,12 @@ export const NotificationProvider = ({ children }) => {
   const [callModel, setCallModel] = useState(false);
   const [calldeclineModel, setCalldeclineModel] = useState(true);
   const [messageModel, setMessageModel] = useState(false);
-  const { currentTurf } = useSelector((state) => state.turf);
+  const { currentTurf } = useSelector((state: { turf: TurfState }) => state.turf);
   const [userId, setUserId] = useState<string | null>(null);
-  const [recieverId, setRecieverId] = useState<string | null>(null);
   const [showBookingNotification, setShowBookingNotification] = useState(false);
-  const [bookingData, setBookingData] = useState({});
+  const [bookingData, setBookingData] = useState<Partial<{ firstName: string }>>({});
   const location = useLocation();
-  const turfId = currentTurf._id;
+  const turfId = currentTurf?._id;
   const roomId = turfId;
   useEffect(() => {
     socket.emit("join-room", roomId);
@@ -34,6 +69,9 @@ export const NotificationProvider = ({ children }) => {
       socket.off("offerNotification");
     };
   }, [callModel]);
+  useEffect(()=>{
+   console.log(joinedRoomId,calldeclineModel,)
+  },[])
 
   useEffect(() => {
     socket.on("receive-notification", (data) => {
@@ -84,7 +122,7 @@ export const NotificationProvider = ({ children }) => {
 
   const replay = () => {
     setMessageModel(false);
-    console.log(userId, recieverId);
+    console.log(userId);
     navigate("/turf/customer-chat/chat", { state: { userId: userId } });
   };
   const cancelMessage = () => {
@@ -111,7 +149,7 @@ export const NotificationProvider = ({ children }) => {
               New Booking Notification!
             </h2>
             <p className="mt-4 text-center text-gray-700">
-              <span className="font-semibold">{bookingData.firstName}</span> has
+              <span className="font-semibold">{bookingData?.firstName}</span> has
               booked your turf
             </p>
             <div className="flex justify-center mt-6">

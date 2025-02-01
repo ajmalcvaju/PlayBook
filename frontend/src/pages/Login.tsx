@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import { GoogleAuthProvider, signInWithPopup, getAuth } from "firebase/auth";
 import { app } from "../firebase";
 import { useForm } from "react-hook-form";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch} from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { signInSuccess } from "../Redux/userSlice";
 import {signout as turfLogout} from "../Redux/turfSlice"
@@ -65,7 +65,7 @@ const Login = () => {
       if (res.status === 200) {
         localStorage.setItem("userToken", res.data.accessToken);
         localStorage.setItem("accessToken", res.data.accessToken);
-        localStorage.setItem("userEmail", result?.user?.email);
+        localStorage.setItem("userEmail", result?.user?.email as string);
         dispatch(turfLogout());
         dispatch(adminLogout())
         dispatch(signInSuccess(res.data.user));

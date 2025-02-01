@@ -39,7 +39,7 @@ const OtpTurf = () => {
       } else {
         setErrorMessage(result.message);
       }
-    } catch (error) {
+    } catch (error:any) {
       setErrorMessage(
         error.response?.data?.message ||
           "Unable to register. Please try again later."
@@ -55,7 +55,7 @@ const OtpTurf = () => {
       const email = localStorage.getItem("turfEmail");
       const response = await apiClient.post("/turfs/resend-otp", { email });
       setResendMessage(response.data.message);
-    } catch (error) {
+    } catch (error:any) {
       setResendMessage(
         error.response?.data?.message ||
           "Unable to resend OTP. Please try again later."

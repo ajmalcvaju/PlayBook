@@ -14,7 +14,6 @@ type RegisterFormData = {
 
 const Register = () => {
   let navigate=useNavigate()
-  let token=localStorage.getItem("userToken")
   
   const { register, watch, handleSubmit, formState: { errors } } = useForm<RegisterFormData>();
 
@@ -32,7 +31,7 @@ const Register = () => {
       } else {
         setErrorMessage(response.data.message);
       }
-    } catch (error) {
+    } catch (error:any) {
       setErrorMessage(error.response?.data?.message || "Unable to register. Please try again later.");
     } finally {
       setIsLoading(false);

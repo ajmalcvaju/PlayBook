@@ -1,6 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect,useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import apiClient from "../apiClient";
 
@@ -12,8 +11,6 @@ type RegisterFormData = {
 };
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string;
 const TurfDetailsUpdate = () => {
-  const navigate = useNavigate();
-  const token = localStorage.getItem("turfToken");
 
   const {
     register,
@@ -28,7 +25,6 @@ const TurfDetailsUpdate = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [marker, setMarker] = useState<google.maps.Marker | null>(null);
-  const [locations, setLocations] = useState<Location[]>([]);
   const [selectedTurfTypes, setSelectedTurfTypes] = useState<string[]>([]);
   const [selectedTurfSizes, setSelectedTurfSizes] = useState<string[]>([]);
   const [overView, setOverView] = useState<string>("");
@@ -38,7 +34,6 @@ const TurfDetailsUpdate = () => {
   const [address, setAddress] = useState<string>("");
   const email = localStorage.getItem("turfEmail");
   const [isLocationErrorModel, setIsLocationErrorModel] = useState(false);
-  const [userPositions, setUserPositions] = useState({});
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setGallery(e.target.files);
@@ -82,29 +77,43 @@ const TurfDetailsUpdate = () => {
     };
   }, []);
 
-  let previousMarker = null;
+  let previousMarker : google.maps.Marker | null= null;
   const initMap = () => {
     const mapInstance = new window.google.maps.Map(
-      document.getElementById("map"),
+      document.getElementById("map") as HTMLElement,
       {
         center: { lat: 21.1458, lng: 79.0882 },
         zoom: 8,
       }
     );
-    const input = document.getElementById("locationSearch");
+    const input = document.getElementById("locationSearch") as HTMLInputElement;
     const autocomplete = new window.google.maps.places.Autocomplete(input);
     autocomplete.setFields(["place_id", "geometry", "name"]);
     autocomplete.addListener("place_changed", () => {
       const place = autocomplete.getPlace();
-      if (place.geometry) {
+      if (place.geometry && place.geometry.location) {  
+        if (previousMarker) {
+          previousMarker.setMap(null);  // Remove previous marker if exists
+        }
         const location = place.geometry.location;
         mapInstance.setCenter(location);
         mapInstance.setZoom(15);
+        const userPosition = {
+          lat: location.lat(),
+          lng: location.lng(),
+        };
+        mapInstance.setCenter(userPosition);
+        const userMarker = new window.google.maps.Marker({
+          position: userPosition,
+          map: mapInstance,
+          title: "Your Current Location",
+        });
+        previousMarker = userMarker;
         addMarker(location);
       } else {
-        // alert('No details available for this location');
         setIsLocationErrorModel(true);
       }
+      
     });
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position) => {
@@ -125,7 +134,7 @@ const TurfDetailsUpdate = () => {
       });
     }
 
-    mapInstance.addListener("click", (event) => {
+    mapInstance.addListener("click", (event:any) => {
       if (previousMarker) {
         previousMarker.setMap(null);
       }
@@ -137,9 +146,9 @@ const TurfDetailsUpdate = () => {
       });
       const newPosition = newMarker.getPosition();
       const userPosition = {
-        lat: newPosition.lat(),
-        lng: newPosition.lng(),
-      };
+        lat: newPosition?.lat() as number,
+        lng: newPosition?.lng() as number,
+      }
       mapInstance.setCenter(userPosition);
       const userMarker = new window.google.maps.Marker({
         position: userPosition,
@@ -153,7 +162,7 @@ const TurfDetailsUpdate = () => {
     setMap(mapInstance);
   };
 
-  const addMarker = (latLng) => {
+  const addMarker = (latLng:any) => {
     if (marker) marker.setMap(null);
     const newMarker = new window.google.maps.Marker({
       position: latLng,
@@ -162,14 +171,14 @@ const TurfDetailsUpdate = () => {
     });
     newMarker.addListener("dragend", () => {
       const newPosition = newMarker.getPosition();
-      getAddressFromCoordinates(newPosition.lat(), newPosition.lng());
+      getAddressFromCoordinates(newPosition?.lat(), newPosition?.lng());
     });
     setMarker(newMarker);
     console.log(marker);
     getAddressFromCoordinates(latLng.lat(), latLng.lng());
   };
 
-  const getAddressFromCoordinates = async (lat, lng) => {
+  const getAddressFromCoordinates = async (lat:any, lng:any) => {
     try {
       const response = await axios.get(
         `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${GOOGLE_MAPS_API_KEY}`
@@ -262,7 +271,7 @@ const TurfDetailsUpdate = () => {
     setIsModalOpen(false);
   };
 
-  const handleCheckboxChange = (e) => {
+  const handleCheckboxChange = (e:any) => {
     const { value, checked } = e.target;
     if (checked) {
       setSelectedTurfTypes((prev) => [...prev, value]);
@@ -270,7 +279,7 @@ const TurfDetailsUpdate = () => {
       setSelectedTurfTypes((prev) => prev.filter((type) => type !== value));
     }
   };
-  const handleSizeCheckboxChange = (e) => {
+  const handleSizeCheckboxChange = (e:any) => {
     const { value, checked } = e.target;
     if (checked) {
       setSelectedTurfSizes((prev) => [...prev, value]);
