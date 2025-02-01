@@ -16,14 +16,10 @@ interface Turf {
   turfSizes:string[]
   rating: number;
   votes: number;
+  latitude:number;
+  longitude:number
 }
 
-interface Location {
-  _id: string;
-  name: string;
-  latitude: number;
-  longitude: number;
-}
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -72,23 +68,25 @@ const Home: React.FC = () => {
       initMap();
     }
   }, [isModalOpen]);
-  let previousMarker = null;
+  let previousMarker : google.maps.Marker | null= null;
   const initMap = () => {
     const mapInstance = new window.google.maps.Map(
-      document.getElementById("map"),
+      document.getElementById("map") as HTMLElement,
       {
         center: { lat: 21.1458, lng: 79.0882 },
         zoom: 8,
       }
     );
-    const input = document.getElementById("locationSearch");
+    const input = document.getElementById("locationSearch") as HTMLInputElement;
     const autocomplete = new window.google.maps.places.Autocomplete(input);
+
+
     autocomplete.setFields(["place_id", "geometry", "name"]);
     autocomplete.addListener("place_changed", () => {
       const place = autocomplete.getPlace();
-      if (place.geometry) {
+      if (place.geometry && place.geometry.location) {  
         if (previousMarker) {
-          previousMarker.setMap(null);
+          previousMarker.setMap(null);  // Remove previous marker if exists
         }
         const location = place.geometry.location;
         mapInstance.setCenter(location);
@@ -112,7 +110,7 @@ const Home: React.FC = () => {
     setMap(mapInstance);
   };
 
-  const addMarker = (latLng) => {
+  const addMarker = (latLng:any) => {
     console.log("hi", latLng);
     if (marker) marker.setMap(null);
     const newMarker = new window.google.maps.Marker({
@@ -122,13 +120,13 @@ const Home: React.FC = () => {
     });
     newMarker.addListener("dragend", () => {
       const newPosition = newMarker.getPosition();
-      getAddressFromCoordinates(newPosition.lat(), newPosition.lng());
+      getAddressFromCoordinates(newPosition?.lat(), newPosition?.lng());
     });
     setMarker(newMarker);
     getAddressFromCoordinates(latLng.lat(), latLng.lng());
   };
 
-  const getAddressFromCoordinates = async (lat, lng) => {
+  const getAddressFromCoordinates = async (lat:any, lng:any) => {
     try {
       const response = await axios.get(
         `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${GOOGLE_MAPS_API_KEY}`
@@ -158,8 +156,8 @@ const Home: React.FC = () => {
       console.error("Error fetching locations:", error);
     }
   };
-  const calculateDistance = (lat1: number, lon1, lat2, lon2) => {
-    const toRadians = (degrees) => (degrees * Math.PI) / 180;
+  const calculateDistance = (lat1: number, lon1:number, lat2:number, lon2:number) => {
+    const toRadians = (degrees:number) => (degrees * Math.PI) / 180;
 
     const R = 6371; // Radius of the Earth in kilometers
     const dLat = toRadians(lat2 - lat1);
@@ -183,7 +181,7 @@ const Home: React.FC = () => {
       try {
         const response = await apiClient.get("/users/getTurf");
         const turfs = response.data.turfs;
-        const turfsWithDistance = turfs.map((turf) => {
+        const turfsWithDistance = turfs.map((turf:Turf) => {
           const distance = calculateDistance(
             locations.latitude,
             locations.longitude,
@@ -227,8 +225,8 @@ const Home: React.FC = () => {
       try {
         await apiClient.post("/users/add-location", {
           locationName,
-          latitude: position.lat(),
-          longitude: position.lng(),
+          latitude: position?.lat(),
+          longitude: position?.lng(),
           email,
         });
         fetchLocations();
@@ -261,7 +259,7 @@ const Home: React.FC = () => {
   const paginatedTurfs = filteredTurfs.slice(startIndex, endIndex);
   const totalPages = Math.ceil(filteredTurfs.length / turfsPerPage);
 
-  const goToPage = (page) => {
+  const goToPage = (page:number) => {
     if (page > 0 && page <= totalPages) {
       setCurrentPage(page);
     }
@@ -364,7 +362,7 @@ const Home: React.FC = () => {
               min="0"
               max="50"
               value={distanceFilter}
-              onChange={(e) => setDistanceFilter(e.target.value)}
+              onChange={(e) => setDistanceFilter(Number(e.target.value))}
               className="w-full"
             />
             <div className="text-sm mt-2">Up to {distanceFilter} km</div>

@@ -893,7 +893,7 @@ const OpenTeam = () => {
                             ) : (
                               <tr>
                                 <td
-                                  colSpan="4"
+                                  colSpan={4}
                                   className="px-4 py-2 text-center text-gray-400"
                                 >
                                   You haven't booked any slots yet.

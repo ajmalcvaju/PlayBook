@@ -1,6 +1,6 @@
 import React from "react";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm} from "react-hook-form";
 import { useSelector } from "react-redux";
 import apiClient from "../../apiClient";
 
@@ -48,7 +48,7 @@ const Profile = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<RegisterFormData>();
-  const updatePassword = handleSubmit(async (data) => {
+  const updatePassword: any = handleSubmit(async (data) => {
     const loginData = {
       id: currentUser._id,
       password: data.password,

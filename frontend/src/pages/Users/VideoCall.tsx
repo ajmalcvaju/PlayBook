@@ -6,6 +6,28 @@ import { useSelector } from "react-redux";
 import apiClient from "../../apiClient";
 
 const socket = io("http://localhost:7000"); 
+interface CurrentUser {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  mobileNumber: string;
+  password: string;
+  isVerified: number;
+  isApproved: number;
+  __v: number;
+  latitude: number;
+  longitude: number;
+  locationName: string;
+  isOnline: boolean;
+  lastSeen: string;
+}
+interface UserState {
+  currentUser: CurrentUser;
+}
+interface RootState {
+  user: UserState;
+}
 const VideoCall = () => {
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
@@ -15,7 +37,7 @@ const VideoCall = () => {
  const [isConnected, setIsConnected] = useState<boolean>(false);
  const {id}=useParams()
  const roomId=id
- const { currentUser } = useSelector((state) => state.user);
+ const currentUser = useSelector((state: RootState) => state.user.currentUser);
   const userId = currentUser._id;
  useEffect(() => {
   socket.on("call-disconnected", ({ roomId, userId }) => {
@@ -88,6 +110,9 @@ const VideoCall = () => {
     };
     return peerConnection;
   };
+  useEffect(()=>{
+   console.log(isConnected)
+  },[])
   const startCall = async (): Promise<void> => {
     const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
     if (localVideoRef.current) {

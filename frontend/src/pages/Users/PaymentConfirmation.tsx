@@ -30,37 +30,31 @@ type Slot = {
   id: string;
 };
 
-type GroupedSlots = {
-  [date: string]: {
-    slots: Slot[];
-    ids: string[];
-    totalPrice: number;
-  };
-};
-
-type GroupedSlotsState = GroupedSlots;
-type TotalPriceState = number;
-
 const PaymentConfirmation = () => {
   const socket = io("http://localhost:7000");
   const location = useLocation();
-  const { selectedSlots = [] } = location.state ?? {};
+  const { selectedSlots = [] }: { selectedSlots: Slot[] } =
+    location.state ?? {};
   const navigate = useNavigate();
   const [isBookingSuccess, setIsBookingSuccess] = useState(false);
   const [isBookingFailed, setIsBookingFailed] = useState(false);
   const { currentUser } = useSelector((state: RootState) => state.user);
-  const [groupedSlots, setGroupedSlots] = useState<GroupedSlotsState>({});
-  const [totalPrice, setTotalPrice] = useState<TotalPriceState>(0);
+  const [groupedSlots, setGroupedSlots] = useState<string[] | []>([]);
+  const [totalPrice, setTotalPrice] = useState<number>(0);
   const email = currentUser.email;
   useEffect(() => {
-    const ids = selectedSlots.map((slot:Slot) => slot.id);
-    const total = selectedSlots.reduce((sum: number, slot: Slot) => sum + slot.price, 0);
-    setGroupedSlots(ids)
-    setTotalPrice(total)
+    const ids = selectedSlots.map((slot: Slot) => slot.id);
+    const total = selectedSlots.reduce(
+      (sum: number, slot: Slot) => sum + slot.price,
+      0
+    );
+    console.log(ids);
+    setGroupedSlots(ids);
+    setTotalPrice(total);
   }, [selectedSlots]);
-  useEffect(()=>{
-    console.log(groupedSlots)
-  },[])
+  useEffect(() => {
+    console.log(groupedSlots);
+  }, []);
 
   const { id } = useParams();
   const closeModal = () => {
@@ -81,11 +75,11 @@ const PaymentConfirmation = () => {
       name: "PlayBook",
       description: "Test Transaction",
       image: "https://i.imgur.com/1eyM5kC.png",
-      handler: async (response:Response) => {
+      handler: async (response: Response) => {
         console.log("Payment successful:", response);
         try {
           const res = await apiClient.post("/users/confirm-booking", {
-            slotId:groupedSlots,
+            slotId: groupedSlots,
             turfId: id,
             email,
           });
@@ -97,7 +91,7 @@ const PaymentConfirmation = () => {
 
           socket.emit("send-notification", notificationData);
           setIsBookingSuccess(true);
-        } catch (error:any) {
+        } catch (error: any) {
           console.error("Error confirming booking:", error);
           setIsBookingFailed(true);
           throw new Error(
@@ -119,8 +113,8 @@ const PaymentConfirmation = () => {
     };
 
     const rzp = new window.Razorpay(options);
-    rzp.on("payment.failed", async (response:Response) => {
-      console.log(response)
+    rzp.on("payment.failed", async (response: Response) => {
+      console.log(response);
       try {
         const response = await apiClient.post("/users/confirm-booking", {
           groupedSlots,
@@ -164,11 +158,23 @@ const PaymentConfirmation = () => {
 
               <ul className="text-gray-300 space-y-2">
                 {Object.entries(
-                  selectedSlots.reduce((acc:any[], { date, time, price, id}:{ date:string, time:string, price:number, id:string }) => {
-                    if (!acc[date]) acc[date] = [];
-                    acc[date].push({ time, price, id });
-                    return acc;
-                  }, {})
+                  selectedSlots.reduce(
+                    (
+                      acc: Record<
+                        string,
+                        { time: string; price: number; id: string }[]
+                      >,
+                      { date, time, price, id }: Slot
+                    ) => {
+                      if (!acc[date]) acc[date] = [];
+                      acc[date].push({ time, price, id });
+                      return acc;
+                    },
+                    {} as Record<
+                      string,
+                      { time: string; price: number; id: string }[]
+                    >
+                  )
                 ).map(([date, slots]) => (
                   <li key={date} className="border-b border-gray-600 pb-2">
                     📅 <strong>Date:</strong>{" "}

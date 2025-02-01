@@ -62,6 +62,65 @@ interface RootState {
   user: UserState;
 }
 
+// Type for the weather condition description
+interface WeatherCondition {
+  description: string;
+}
+
+// Type for the main data object
+interface MainData {
+  temp: number; // Temperature in Celsius
+}
+
+interface ForecastEntry {
+  dt_txt: string; // Date-time string
+  main: MainData; // Main weather data
+  weather: WeatherCondition[]; // Array of weather conditions
+}
+
+interface Forecast {
+  list: ForecastEntry[];
+}
+
+interface WeatherCondition {
+  description: string;
+}
+
+// Type for the main weather data (temperature, humidity, etc.)
+interface MainWeatherData {
+  temp: number; // Temperature in Celsius
+  humidity: number; // Humidity percentage
+}
+
+// Type for the full current weather object
+interface CurrentWeather {
+  main: MainWeatherData; // Main weather data (temperature, humidity)
+  weather: WeatherCondition[]; // Array of weather conditions
+}
+
+// Type for the user who posted the review
+interface User {
+  firstName: string;
+  lastName: string;
+}
+
+// Type for the turf being reviewed
+interface Turf {
+  turfName: string;
+}
+
+interface Review {
+  _id: string;
+  userId: User;
+  turfId: Turf;
+  rating: number; // Rating from 1 to 10
+  tags: string[]; // List of tags associated with the review
+  comment: string; // The review comment
+  createdAt: string; // ISO string for the creation date
+}
+
+
+
 const TurfPages: React.FC = () => {
   const navigate = useNavigate();
   let token = localStorage.getItem("userToken");
@@ -79,7 +138,6 @@ const TurfPages: React.FC = () => {
   const [reportSuccess, setReportSuccess] = useState(false);
   const [reportFailure, setReportFailure] = useState(false);
   const [reportModel, setReportModel] = useState<boolean>(false);
-  const [bookings, setBookings] = useState<Booking[]>([]);
   const [isBooked,setIsBooked]=useState<boolean>(false)
   const email = localStorage.getItem("userEmail");
 
@@ -98,10 +156,10 @@ const TurfPages: React.FC = () => {
   };
   const [turf, setTurf] = useState<Turf | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
-  const [currentWeather, setCurrentWeather] = useState(null);
-  const [forecast, setForecast] = useState(null);
+  const [currentWeather, setCurrentWeather] = useState<CurrentWeather|null>(null);
+  const [forecast, setForecast] = useState<Forecast|null>(null);
   const [ratingModel, setRatingModel] = useState(false);
-  const [reviews, setReviews] = useState([]);
+  const [reviews, setReviews] = useState<Review[]|[]>([]);
   const [ratings, setRatings] = useState<number>(0);
   const [votes, setVotes] = useState<number>(0);
   const [selectedIssue, setSelectedIssue] = useState<string>("");
@@ -154,7 +212,7 @@ const TurfPages: React.FC = () => {
         if (res.status !== 200) {
           throw new Error("Failed to fetch bookings");
         }
-        setBookings(res.data);
+        res.data;
         const isBookingMatch = (bookings: Booking[], turfId: string | undefined) =>
           bookings.some(booking => booking.turfId === turfId);
   
@@ -184,7 +242,10 @@ const TurfPages: React.FC = () => {
         `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&units=metric&appid=${API_KEY}`
       )
         .then((response) => response.json())
-        .then((data) => setForecast(data))
+        .then((data) =>{ 
+          console.log(data)
+          setForecast(data)
+        })
         .catch((error) =>
           console.error("Error fetching weather forecast:", error)
         );
@@ -202,19 +263,29 @@ const TurfPages: React.FC = () => {
     };
 
     const initializeMap = () => {
-      const location = { lat: turf?.latitude, lng: turf?.longitude };
-
-      const map = new google.maps.Map(mapRef.current, {
-        center: location,
-        zoom: 13,
-      });
-
-      new google.maps.Marker({
-        position: location,
-        map: map,
-        title: "Turf Location",
-      });
+      const latitude = turf?.latitude;
+      const longitude = turf?.longitude;
+      if (latitude && longitude) {
+        const location = { lat: latitude, lng: longitude };
+        if (mapRef.current) {
+          const map = new google.maps.Map(mapRef.current, {
+            center: location,
+            zoom: 13,
+          });
+    
+          new google.maps.Marker({
+            position: location,
+            map: map,
+            title: "Turf Location",
+          });
+        } else {
+          console.error("mapRef is not set or is null");
+        }
+      } else {
+        console.error("Invalid latitude or longitude");
+      }
     };
+    
 
     if (!window.google || !google.maps) {
       loadGoogleMaps();
@@ -243,7 +314,7 @@ const TurfPages: React.FC = () => {
   const rateTurf = () => {
     setRatingModel(true);
   };
-  const changeComment = (e) => {
+  const changeComment = (e:any) => {
     const value = e.target.value;
     const tagsPart = `${selectedTags.join(", ")}`;
     if (value.startsWith(tagsPart)) {
@@ -322,6 +393,7 @@ const TurfPages: React.FC = () => {
       }, 3000);
     }
   };
+  
   return (
     <>
       {reportSuccess && (

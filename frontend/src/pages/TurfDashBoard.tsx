@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Chart } from "chart.js/auto";
 import apiClient from "../apiClient";
 
@@ -18,13 +17,11 @@ type Booking = {
 };
 
 const TurfDashBoard: React.FC = () => {
-  const navigate = useNavigate();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
   const [filter, setFilter] = useState<string>("custom"); // Track the current filter
-  const token = localStorage.getItem("turfToken");
   const email = localStorage.getItem("turfEmail");
   let chartInstance: Chart | null = null;
   let revenueChartInstance: Chart | null = null;
