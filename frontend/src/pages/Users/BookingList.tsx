@@ -2,6 +2,8 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 import React, { useEffect, useState } from "react";
 import apiClient from "../../apiClient";
 
+
+
 type Booking = {
   _id: string;
   slotId: string;
