@@ -341,7 +341,7 @@ const AdminDashboard = () => {
           turfId: turf?._id,
           balance,
         });
-        console.log("Booking confirmed:", res.data);
+        console.log("Booking confirmed:", response.data);
       } catch (error) {
         console.error("Error confirming booking:", error);
       }
