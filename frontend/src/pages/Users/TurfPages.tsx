@@ -4,7 +4,7 @@ import { Outlet, useNavigate, useParams } from "react-router-dom";
 import apiClient from "../../apiClient";
 import { X } from "lucide-react";
 import { useSelector } from "react-redux";
-import { Star, ThumbsUp, Share2 } from "lucide-react";
+import { Star, Share2 } from "lucide-react";
 import { formatDistanceToNow, parseISO } from "date-fns";
 import { Swiper, SwiperSlide } from "swiper/react";
 // import 'swiper/swiper-bundle.min.css';
@@ -39,6 +39,28 @@ interface Turf {
   latitude: number;
   longitude: number;
 }
+interface CurrentUser {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  mobileNumber: string;
+  password: string;
+  isVerified: number;
+  isApproved: number;
+  __v: number;
+  latitude: number;
+  longitude: number;
+  locationName: string;
+  isOnline: boolean;
+  lastSeen: string;
+}
+interface UserState {
+  currentUser: CurrentUser;
+}
+interface RootState {
+  user: UserState;
+}
 
 const TurfPages: React.FC = () => {
   const navigate = useNavigate();
@@ -53,7 +75,7 @@ const TurfPages: React.FC = () => {
   const [comment, setComment] = useState<string>("");
   const [ratingSuccess, setRatingSuccess] = useState(false);
   const [ratingFailure, setRatingFailure] = useState(false);
-  const { currentUser } = useSelector((state) => state.user);
+  const currentUser = useSelector((state: RootState) => state.user.currentUser);
   const [reportSuccess, setReportSuccess] = useState(false);
   const [reportFailure, setReportFailure] = useState(false);
   const [reportModel, setReportModel] = useState<boolean>(false);
@@ -91,7 +113,7 @@ const TurfPages: React.FC = () => {
     "Turf does not match the description/photos",
   ];
   const { id } = useParams<{ id: string }>();
-  const mapRef = useRef(null);
+  const mapRef = useRef<HTMLDivElement | null>(null);
   const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
   // const API_KEY = import.meta.env.VITE_API_KEY;
   const API_KEY = "cc4cb52276bae2c8af66db640565551b";

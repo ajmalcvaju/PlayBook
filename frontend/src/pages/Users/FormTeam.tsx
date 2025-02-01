@@ -1,8 +1,31 @@
-import { useState, FormEvent, useEffect } from "react";
+import { useState, useEffect } from "react";
 import apiClient from "../../apiClient";
 import { useSelector } from "react-redux";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+
+interface CurrentUser {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  mobileNumber: string;
+  password: string;
+  isVerified: number;
+  isApproved: number;
+  __v: number;
+  latitude: number;
+  longitude: number;
+  locationName: string;
+  isOnline: boolean;
+  lastSeen: string;
+}
+interface UserState {
+  currentUser: CurrentUser;
+}
+interface RootState {
+  user: UserState;
+}
 interface Team {
   _id: string;
   teamName: string;
@@ -13,7 +36,7 @@ interface Team {
 }
 
 const FormTeam = () => {
-  const { currentUser } = useSelector((state) => state.user);
+  const currentUser = useSelector((state: RootState) => state.user.currentUser);
   const [createTeamForm, setCreateTeamForm] = useState<boolean>(false);
   const [successMessage, setSuccessMessage] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");

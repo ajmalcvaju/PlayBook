@@ -53,8 +53,8 @@ const PaymentConfirmation = () => {
   const [totalPrice, setTotalPrice] = useState<TotalPriceState>(0);
   const email = currentUser.email;
   useEffect(() => {
-    const ids = selectedSlots.map((slot) => slot.id);
-    const total = selectedSlots.reduce((sum, { price }) => sum + price, 0);
+    const ids = selectedSlots.map((slot:Slot) => slot.id);
+    const total = selectedSlots.reduce((sum: number, slot: Slot) => sum + slot.price, 0);
     setGroupedSlots(ids)
     setTotalPrice(total)
   }, [selectedSlots]);
@@ -81,7 +81,7 @@ const PaymentConfirmation = () => {
       name: "PlayBook",
       description: "Test Transaction",
       image: "https://i.imgur.com/1eyM5kC.png",
-      handler: async (response) => {
+      handler: async (response:Response) => {
         console.log("Payment successful:", response);
         try {
           const res = await apiClient.post("/users/confirm-booking", {
@@ -97,7 +97,7 @@ const PaymentConfirmation = () => {
 
           socket.emit("send-notification", notificationData);
           setIsBookingSuccess(true);
-        } catch (error) {
+        } catch (error:any) {
           console.error("Error confirming booking:", error);
           setIsBookingFailed(true);
           throw new Error(
@@ -119,13 +119,14 @@ const PaymentConfirmation = () => {
     };
 
     const rzp = new window.Razorpay(options);
-    rzp.on("payment.failed", async (response) => {
+    rzp.on("payment.failed", async (response:Response) => {
+      console.log(response)
       try {
-        const res = await apiClient.post("/users/confirm-booking", {
-          slotId,
+        const response = await apiClient.post("/users/confirm-booking", {
+          groupedSlots,
           email,
         });
-        console.log("Booking confirmed:", res.data);
+        console.log("Booking confirmed:", response.data);
       } catch (error) {
         console.error("Error confirming booking:", error);
         setIsBookingFailed(true);
@@ -163,7 +164,7 @@ const PaymentConfirmation = () => {
 
               <ul className="text-gray-300 space-y-2">
                 {Object.entries(
-                  selectedSlots.reduce((acc, { date, time, price, id }) => {
+                  selectedSlots.reduce((acc:any[], { date, time, price, id}:{ date:string, time:string, price:number, id:string }) => {
                     if (!acc[date]) acc[date] = [];
                     acc[date].push({ time, price, id });
                     return acc;

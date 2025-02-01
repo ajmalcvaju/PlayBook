@@ -75,7 +75,7 @@ const ForgotPassword = () => {
     setErrorMessage(null);
     try {
         const email = localStorage.getItem("userEmail");
-        data.email = email;
+        data.email = email as string;
       const response = await apiClient.post("/users/change-forgotpassword", data, {
         headers: { "Content-Type": "application/json" },
       });

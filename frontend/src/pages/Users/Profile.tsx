@@ -8,10 +8,32 @@ type RegisterFormData = {
   password: string;
   confirmPassword: string;
 };
+interface CurrentUser {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  mobileNumber: string;
+  password: string;
+  isVerified: number;
+  isApproved: number;
+  __v: number;
+  latitude: number;
+  longitude: number;
+  locationName: string;
+  isOnline: boolean;
+  lastSeen: string;
+}
+interface UserState {
+  currentUser: CurrentUser;
+}
+interface RootState {
+  user: UserState;
+}
 
 const Profile = () => {
   const [passwordModal, setPasswordModal] = useState(false);
-  const { currentUser } = useSelector((state) => state.user);
+  const currentUser = useSelector((state: RootState) => state.user.currentUser);
   const [errorMessage, setErrorMessage] = React.useState(null);
   const [successMessage, setSuccessMessage] = React.useState<string | null>(
     null
@@ -40,7 +62,7 @@ const Profile = () => {
       setPasswordModal(false);
       setSuccessMessage("Password updated successfully!");
       setTimeout(() => setSuccessMessage(null), 4000);
-    } catch (error) {
+    } catch (error:any) {
       const errorMessage =
         error.response?.data?.message || "An error occurred while updating the password.";
       setErrorMessage(errorMessage);

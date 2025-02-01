@@ -52,9 +52,31 @@ type Booking = {
   location: string;
   distance: number;
 };
+interface CurrentUser {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  mobileNumber: string;
+  password: string;
+  isVerified: number;
+  isApproved: number;
+  __v: number;
+  latitude: number;
+  longitude: number;
+  locationName: string;
+  isOnline: boolean;
+  lastSeen: string;
+}
+interface UserState {
+  currentUser: CurrentUser;
+}
+interface RootState {
+  user: UserState;
+}
 
 const OpenTeam = () => {
-  const { currentUser } = useSelector((state) => state.user);
+  const currentUser = useSelector((state: RootState) => state.user.currentUser);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [showModalRemove, setShowModalRemove] = useState<boolean>(false);
   const userId = currentUser._id;
