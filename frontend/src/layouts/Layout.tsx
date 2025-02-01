@@ -1,5 +1,4 @@
 import React from "react";
-import Header from "../components/Header";
 import Hero from "../components/Hero";
 import Footer from "../components/Footer";
 import TurfSidePanel from "../components/TurfSidePanel";
@@ -25,7 +24,7 @@ const Layout = ({ children, user, page }: Props) => {
           {/* Turf Panel */}
           {user === "turf" && page !== "authentication" && (
             <>
-              <TurfSidePanel page={page} />
+              <TurfSidePanel page={page as string} />
               <div className="flex-1">{children}</div>
             </>
           )}
@@ -33,7 +32,7 @@ const Layout = ({ children, user, page }: Props) => {
           {/* Admin Panel */}
           {user === "admin" && page !== "authentication" && (
             <>
-              <AdminSidePanel page={page} />
+              <AdminSidePanel page={page as string} />
               <div className="flex-1">{children}</div>
             </>
           )}

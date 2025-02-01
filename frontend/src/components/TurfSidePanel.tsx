@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch} from "react-redux";
 import { signout as turfLogout } from "../Redux/turfSlice";
 
 const TurfSidePanel = ({ page }: { page: string }) => {

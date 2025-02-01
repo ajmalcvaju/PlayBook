@@ -28,6 +28,12 @@ type Turf = {
   paid: number;
   history: { amount: number; date: Date }[];
 };
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
+
 
 const AdminDashboard = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -42,7 +48,7 @@ const AdminDashboard = () => {
   const [history, setHistory] = useState<{ amount: number; date: Date }[]>([]);
   const [balance, setBalance] = useState<number>(0);
   const [turfs, setTurfs] = useState<Turf[]>([]);
-  const [turf, setTurf] = useState<Turf>([]);
+  const [turf, setTurf] = useState<Turf|null>(null);
   let chartInstance: Chart | null = null;
   let revenueChartInstance: Chart | null = null;
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -62,7 +68,7 @@ const AdminDashboard = () => {
         const turfs = Array.from(
           new Set(data.bookings.map((b: Booking) => b.turfName))
         );
-        setUniqueTurfs(["all", ...turfs]);
+        setUniqueTurfs(["all", ...turfs as string[]]);
       } catch (error) {
         console.error("Error fetching bookings:", error);
       }
@@ -248,9 +254,9 @@ const AdminDashboard = () => {
       const selectedTurf = turfs.find((turf) => turf.turfName === turfName);
       setTurf(selectedTurf as Turf);
       if (selectedTurf) {
-        setTotalPaid(turf.paid);
-        console.log(turf.history);
-        setHistory(turf.history);
+        setTotalPaid(turf?.paid as number);
+        console.log(turf?.history);
+        setHistory(turf?.history as { amount: number; date: Date }[]);
       }
     }
   };
@@ -296,11 +302,11 @@ const AdminDashboard = () => {
       name: "PlayBook",
       description: "Turf Balance Payment",
       image: "https://i.imgur.com/1eyM5kC.png",
-      handler: async (response) => {
+      handler: async (response:Response) => {
         console.log("Payment successful:", response);
         try {
           const res = await apiClient.post("/admin/pay-balance", {
-            turfId: turf._id,
+            turfId: turf?._id,
             balance,
           });
           console.log("Balance paid:", res.data.turf);
@@ -312,7 +318,7 @@ const AdminDashboard = () => {
           // };
           // socket.emit("send-notification", notificationData);
           // setIsBookingSuccess(true);
-        } catch (error) {
+        } catch (error:any) {
           console.error("Error confirming booking:", error);
           // setIsBookingFailed(true);
           throw new Error(
@@ -329,16 +335,15 @@ const AdminDashboard = () => {
     };
 
     const rzp = new window.Razorpay(options);
-    rzp.on("payment.failed", async (response) => {
+    rzp.on("payment.failed", async (response:Response) => {
       try {
-        const res = await apiClient.post("/users/confirm-booking", {
-          slotId,
-          email,
+        const response = await apiClient.post("/admin/pay-balance", {
+          turfId: turf?._id,
+          balance,
         });
         console.log("Booking confirmed:", res.data);
       } catch (error) {
         console.error("Error confirming booking:", error);
-        setIsBookingFailed(true);
       }
     });
     rzp.open();

@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { signout as adminLogout } from "../Redux/adminSlice";
 
 const AdminSidePanel = ({ page }: { page: string }) => {
@@ -9,8 +9,6 @@ const AdminSidePanel = ({ page }: { page: string }) => {
   const handleLogout = () => {
     dispatch(adminLogout());
   };
-  const buttonStyles =
-    "btn hover:bg-blue-300 rounded-lg p-2 transition-colors duration-300 sm:w-48 md:w-56 lg:w-50";
   const pages = [
     { name: "dashboard", label: "Dashboard", link: "/admin/dashboard" },
     {
