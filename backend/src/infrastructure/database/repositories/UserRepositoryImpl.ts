@@ -8,7 +8,7 @@ import mongoose from "mongoose";
 import { ReviewModel } from "../models/reviewModel";
 import { Review } from "../../../domain/entities/Review";
 import { TurfModel } from "../models/turfModel";
-import { BookingModel } from "../models/bookingModel";
+import { BookingModel } from "../models/BookingModel";
 import ReportModel from "../models/reportModel";
 import { Report } from "../../../domain/entities/Report";
 import { Team } from "../../../domain/entities/Team";

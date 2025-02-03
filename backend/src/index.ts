@@ -11,6 +11,7 @@ import cookieParser from "cookie-parser";
 import passport from "passport";
 import socketIo from 'socket.io';
 import { createSocketConnectionForChat } from './infrastructure/socket/socketService';
+import { errorHandler } from './interfaces/middlewares/errorHandler';
 
 const app = express();
 const server = http.createServer(app);
@@ -55,7 +56,7 @@ app.use(cookieParser());
 const paths = path.join(__dirname, 'public');
 app.use(express.static('public'));
 console.log(paths);
-
+// Hey, Cortana. Play. Hey, Cortana. Hey, Cortana. Posting. The. Hey, Cortana. The hosting. Table. Hey, Cortana. Hey, Cortana. app.use(errorHandler);
 
 connectDB();
  
