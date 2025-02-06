@@ -15,11 +15,11 @@ const transporter = nodemailer.createTransport({
   });
   
 
-// Function to send OTP
+// Function to send OTP 
 export const sendOtpEmail = async (to: string, otp: string): Promise<void> => {
   try {
     console.log("Sending OTP...");
-    
+    console.log(otp)
     const mailOptions = {
       from: '"PlayBook" <ajmalcvaju1997@gmail.com>',
       to,

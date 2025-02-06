@@ -10,12 +10,12 @@ import { connectDB } from './infrastructure/database/connect';
 import cookieParser from "cookie-parser";
 import passport from "passport";
 import socketIo from 'socket.io';
-import { createSocketConnectionForChat } from './infrastructure/socket/socketService';
+// import { createSocketConnectionForChat } from './infrastructure/socket/socketService';
 import { errorHandler } from './interfaces/middlewares/errorHandler';
 
 const app = express();
 const server = http.createServer(app);
-const io = createSocketConnectionForChat(server) 
+// const io = createSocketConnectionForChat(server) 
 
 // const corsOptions = {
 //   origin: 'http://localhost:5173',
