@@ -77,8 +77,12 @@ const TicketBookingModal = ({}) => {
   const turfSizes = [...new Set(times.map((item) => item.turfSizes))];
 
   const filteredTimes = selectedTurfSize
-    ? times.filter((item) => item.turfSizes === selectedTurfSize)
+    ? times.filter((item) => 
+        item.turfSizes === selectedTurfSize &&
+        item.date === activeDate.toISOString().split("T")[0]
+      )
     : [];
+
 
     const bookNow = () => {
       if (selectedSlots.length === 0) return; 

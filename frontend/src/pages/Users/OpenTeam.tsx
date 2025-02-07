@@ -539,7 +539,7 @@ const OpenTeam = () => {
           <h1 className="text-4xl font-bold text-center mb-6 text-white drop-shadow-md">
             {team?.teamName}
           </h1>
-          {isAdmin && team?.secretCode && (
+          {team?.secretCode && (
             <p className="text-center text-lg text-yellow-400 font-semibold mt-2">
               Secret Code:{" "}
               <span className="font-mono bg-gray-800 px-2 py-1 rounded">

@@ -2,8 +2,6 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 import React, { useEffect, useState } from "react";
 import apiClient from "../../apiClient";
 
-
-
 type Booking = {
   _id: string;
   slotId: string;
@@ -68,10 +66,11 @@ const BookingList = () => {
   ) => {
     setSlotId(id);
     const now: Date = new Date();
-    const bookingDateTime: Date = new Date(`${bookingDate}T${bookingTime}`);
-
+    const [year, month, day] = bookingDate.split("-").map(Number);
+    const [hour, minute] = bookingTime.split(":").map(Number);
+    const bookingDateTime = new Date(year, month - 1, day, hour, minute);
     const timeDiff =
-      (bookingDateTime.getTime() - now.getTime()) / (1000 * 60 * 60); // Convert ms to hours
+      (bookingDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
     let refund = 0;
     if (timeDiff > 24) {
       setTimeDifference(24);
@@ -90,12 +89,13 @@ const BookingList = () => {
     setBookingId(bookingId);
     SetCancellationConfirmation(true);
   };
+
   const onConfirmCancellation = async () => {
     try {
       const res = await apiClient.patch(`/users/cancel-booking`, {
         slotId,
         bookingId,
-        refundPercentage
+        refundPercentage,
       });
       if (res.data.success) {
         setBookings((prevBookings) =>
@@ -104,7 +104,10 @@ const BookingList = () => {
               ? {
                   ...booking,
                   status: "cancelled",
-                  price: (refundPercentage/100 * Number(booking.price)).toString(),
+                  price: (
+                    (refundPercentage / 100) *
+                    Number(booking.price)
+                  ).toString(),
                 }
               : booking
           )

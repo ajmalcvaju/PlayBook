@@ -35,9 +35,21 @@ import { joinSlot } from "../../application/usecases/user/joinSlot";
 
 import { AuthUseCase } from "../../application/usecases/AuthUseCase";
 import { UserRepositoryImpl } from "../../infrastructure/database/repositories/UserRepositoryImpl";
+import { TurfRelatedUserSideUseCases } from "../../application/usecases/TurfRelatedUserSideUseCases";
+import { TurfRelatedUserSideRepositoryImpl } from "../../infrastructure/database/repositories/UserRepositoryImpl";
+import { BookingRepositoryImpl } from "../../infrastructure/database/repositories/UserRepositoryImpl";
+import { BookingUseCases } from "../../application/usecases/BookingUseCases";
+import { TeamRepositoryImpl } from "../../infrastructure/database/repositories/UserRepositoryImpl";
+import { TeamUseCase } from "../../application/usecases/TeamUseCase";
 
-
+const bookingRepository = new BookingRepositoryImpl();
+const bookingUseCases = new BookingUseCases(bookingRepository);
 const authUseCase = new AuthUseCase(new UserRepositoryImpl());
+const turfUseCases = new TurfRelatedUserSideUseCases(new TurfRelatedUserSideRepositoryImpl());
+const teamRepository = new TeamRepositoryImpl();
+const teamUseCase = new TeamUseCase(teamRepository);
+
+
 export class userController {
   static async register(req: Request, res: Response) {
     try {
@@ -192,156 +204,220 @@ export class userController {
       res.status(400).json({ message: error.message });
     }
   }
+
+  static async getTurf(req: Request, res: Response) {
+    try {
+      const turfs = await turfUseCases.getTurfs();
+      res.status(200).json({ turfs });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  static async getTurfDetails(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const turfDetails = await turfUseCases.getTurfDetails(id);
+      if (!turfDetails) {
+        throw new Error("Turf not found");
+      }
+      res.status(200).json({ turfDetails });
+    } catch (error: any) {
+      res.status(404).json({ message: error.message });
+    }
+  }
+
+  static async addLocation(req: Request, res: Response) {
+    try {
+      const { email, locationName, latitude, longitude } = req.body;
+      const userId = await turfUseCases.getIdByMail(email);
+      if (!userId) {
+        throw new Error("User not found");
+      }
+      await turfUseCases.addLocation(userId, locationName, latitude, longitude);
+      res.status(200).json({ message: "Location added successfully" });
+    } catch (error: any) {
+      res.status(404).json({ message: error.message });
+    }
+  }
+
+  static async getLocation(req: Request, res: Response) {
+    try {
+      const { email } = req.query as { email: string };
+      const userId = await turfUseCases.getIdByMail(email);
+      if (!userId) {
+       throw new Error("User not found");
+      }
+      const user = await turfUseCases.getUserDetails(userId);
+      res.status(200).json({ user });
+    } catch (error: any) {
+      res.status(404).json({ message: error.message });
+    }
+  }
+
+  static async giveRatings(req: Request, res: Response) {
+    try {
+      const review = await turfUseCases.updateRatings(req.body);
+      res.status(200).json({ review, message: "Review updated successfully" });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  static async getRatings(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const [reviews, rating, votes] = await turfUseCases.getReviews(id);
+      res.status(200).json({ Review: reviews, rating, votes });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  static async report(req: Request, res: Response) {
+    try {
+      const { issue, turfId, userId } = req.body;
+      await turfUseCases.report(turfId, userId, issue);
+      res.status(200).json({ message: "Turf reported successfully" });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  static async getSlots(req: Request, res: Response) {
+    try {
+      const { id } = req.query;
+      const slots = await bookingUseCases.getSlots(id as string);
+      res.status(200).json({ slots });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  static async confirmBooking(req: Request, res: Response) {
+    try {
+      const { slotId, email, turfId } = req.body;
+      const userId = await bookingUseCases.getIdByMail(email);
+      await bookingUseCases.confirmBooking(slotId, userId, turfId);
+      res.status(200).json({ message: "Slot Booked successfully" });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  static async getBookings(req: Request, res: Response) {
+    try {
+      const { email } = req.params;
+      const userId = await bookingUseCases.getIdByMail(email);
+      const bookings = await bookingUseCases.getBookings(userId as string);
+      res.status(200).json(bookings);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  static async cancelBooking(req: Request, res: Response) {
+    try {
+      const { slotId, bookingId, refundPercentage } = req.body;
+      await bookingUseCases.cancelBooking(slotId, bookingId, refundPercentage);
+      res.status(200).json({ success: true });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+  
+  static async getTeams(req: Request, res: Response) {
+    try {
+      const teams = await teamUseCase.getTeams();
+      res.status(200).json({ teams, message: "Fetched teams successfully" });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  static async createTeam(req: Request, res: Response) {
+    try {
+      console.log(req.body)
+      const { teamName, maxMembers, privacy, userId } = req.body;
+      const team = await teamUseCase.createTeam(teamName, maxMembers, privacy, userId);
+      res.status(200).json({ team, message: "Created team successfully" });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  static async joinTeam(req: Request, res: Response) {
+    try {
+      const { teamId, userId } = req.body;
+      console.log(req.body);
+      const teams = await teamUseCase.joinTeam(teamId, userId);
+      res.status(200).json({ teams, message: "Joined team successfully" });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  static async getTeam(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const team = await teamUseCase.getTeam(id);
+      res.status(200).json({ team, message: "Fetched team successfully" });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  static async getSlotForSell(req: Request, res: Response) {
+    try {
+      const { email } = req.params;
+      const userId = await teamUseCase.getIdByMail(email);
+      if (!userId) throw new Error("User not found");
+      
+      const bookings = await teamUseCase.getSlotsForSell(userId);
+      res.status(200).json(bookings);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  static async leftRemoveTeam(req: Request, res: Response) {
+    try {
+      const { teamId, userId } = req.body;
+      console.log(req.body);
+      const team = await teamUseCase.leftRemoveTeam(teamId, userId);
+      res.status(200).json({ team, message: "Removed/left successfully" });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  static async sellSlot(req: Request, res: Response) {
+    try {
+      console.log(req.body);
+      const { teamId, userId, vacancy, slotId } = req.body;
+      const team = await teamUseCase.sellSlot(teamId, userId, vacancy, slotId);
+      res.status(200).json({ team, message: "Your slot sold successfully" });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  static async joinSlot(req: Request, res: Response) {
+    try {
+      const { teamId, slotId, userId } = req.body;
+      const team = await teamUseCase.joinSlot(teamId, slotId, userId);
+      res.status(200).json({ team, message: "Joined slot successfully" });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
 }
 
 // export const userController = {
-//   getTurf: async (req: Request, res: Response) => {
+//   getTeams:async (req: Request, res: Response) => {
 //     try {
-//       const turfs = await getTurfs();
-//       res.status(200).json({ turfs });
-//     } catch (error: any) {
-//       res.status(400).json({ message: error.message });
-//     }
-//   },
-//   getTurfDetails: async (req: Request, res: Response) => {
-//     try {
-//       const { id } = req.params;
-//       const turfDetails = await getTurfDetails(id);
-//       if (!turfDetails) {
-//         res.status(404).json({ message: "Turf not found" });
-//       } else {
-//         res.status(200).json({ turfDetails });
-//       }
-//     } catch (error: any) {
-//       res.status(400).json({ message: error.message });
-//     }
-//   },
-//   getSlots: async (req: Request, res: Response) => {
-//     try {
-//       const { id, date } = req.query;
-//       const slots = await getSlots(UserRepositoryImpl, id, date);
-//       console.log(slots);
-//       res.status(200).json({ slots });
-//     } catch (error: any) {
-//       res.status(400).json({ message: error.message });
-//     }
-//   },
-//   confirmBooking: async (req: Request, res: Response) => {
-//     try {
-//       const { slotId, email,turfId,status } = req.body;
-//       const userId = await getIdFrommail(UserRepositoryImpl, email);
-//       const book = await confirmBooking(UserRepositoryImpl, slotId,userId,turfId);
-//       console.log(book);
-//       res.status(200).json({ message: "Slot Booked successfully" });
-//     } catch (error: any) {
-//       res.status(400).json({ message: error.message });
-//     }
-//   },
-//   getBookings: async (req: Request, res: Response) => {
-//     try {
-//       const { email } = req.params;
-//       const userId = await getIdFrommail(UserRepositoryImpl, email);
-//       const bookings = await getBookings(UserRepositoryImpl, userId);
-//       res.status(200).json(bookings);
-//     } catch (error: any) {
-//       res.status(400).json({ message: error.message });
-//     }
-//   },
-//   chat: async (req: Request, res: Response) => {
-//     try {
-//       console.log("you got a message");
-//     } catch (error: any) {
-//       res.status(400).json({ message: error.message });
-//     }
-//   },
-//   addLocation: async (req: Request, res: Response) => {
-//     try {
-//       const { email } = req.body;
-//       const userId = await getIdFrommail(UserRepositoryImpl, email);
-//       console.log(userId);
-//       const { locationName, latitude, longitude } = req.body;
-//       console.log(req.body);
-//       const location = await addingLocation(
-//         UserRepositoryImpl,
-//         userId,
-//         locationName,
-//         latitude,
-//         longitude
-//       );
-//       res.status(200).json({ message: "success" });
-//     } catch (error: any) {
-//       res.status(400).json({ message: error.message });
-//     }
-//   },
-//   getLocation: async (req: Request, res: Response) => {
-//     try {
-//       const { email } = req.query;
-//       console.log(email);
-//       const userId = await getIdFrommail(UserRepositoryImpl, email);
-//       console.log(userId);
-//       const user = await getUserDetails(UserRepositoryImpl, userId);
-//       console.log(user);
-//       res.status(200).json({ user });
-//     } catch (error: any) {
-//       res.status(400).json({ message: error.message });
-//     }
-//   },
-//   cancellBooking: async (req: Request, res: Response) => {
-//     try {
-//       const slotId= req.body.slotId as string;
-//       const bookingId=req.body.bookingId as string
-//       const refund=req.body.refundPercentage
-//       await cancelBooking(UserRepositoryImpl,slotId,bookingId,refund);
-//       res.status(200).json({ success: true });
-//     } catch (error: any) {
-//       res.status(400).json({ message: error.message });
-//     }
-//   },
-//   getMessages: async (req: Request, res: Response) => {
-//     try {
-//       const sender = req.query.sender as string;
-//       const reciever = req.query.reciever as string;
-//       const messages = await getMessages(
-//         MessageRepositoryImpl,
-//         sender,
-//         reciever
-//       );
-//       res.status(200).json({ messages });
-//     } catch (error: any) {
-//       res.status(400).json({ message: error.message });
-//     }
-//   },
-//   changePassword: async (req: Request, res: Response) => {
-//     try {
-//       const { id, password } = req.body;
-//       await changePassword(UserRepositoryImpl, id, password);
-//       res.status(200).json({ messages: "Password updated Successfully" });
-//     } catch (error: any) {
-//       res.status(400).json({ message: error.message });
-//     }
-//   },
-//   giveRatings: async (req: Request, res: Response) => {
-//     try {
-//       const review = await updateRatings(UserRepositoryImpl, req.body);
-//       res.status(200).json({ review, messages: "Review Updated Successfully" });
-//     } catch (error: any) {
-//       res.status(400).json({ message: error.message });
-//     }
-//   },
-//   getRatings: async (req: Request, res: Response) => {
-//     try {
-//       const {id}=req.params
-//       const review=await getReviews(UserRepositoryImpl,id)
-//       res.status(200).json({ Review:review[0],rating:review[1],votes:review[2]});
-//     } catch (error: any) {
-//       res.status(400).json({ message: error.message });
-//     }
-//   },
-//   report:async (req: Request, res: Response) => {
-//     try {
-//       const {issue,turfId,userId}=req.body
-//       await reportTurf(UserRepositoryImpl,turfId,userId,issue)
-//       res.status(200).json({message:"Turf Reported Successfully"});
+//       const teams=await getTeams(UserRepositoryImpl)
+//       res.status(200).json({teams,message:"Fetched teams Successfully"});
 //     } catch (error: any) {
 //       res.status(400).json({ message: error.message });
 //     }
@@ -351,14 +427,6 @@ export class userController {
 //       const { teamName,maxMembers, privacy,userId}=req.body
 //       const team=await createTeam(UserRepositoryImpl,teamName,maxMembers, privacy,userId)
 //       res.status(200).json({team,message:"Created team Successfully"});
-//     } catch (error: any) {
-//       res.status(400).json({ message: error.message });
-//     }
-//   },
-//   getTeams:async (req: Request, res: Response) => {
-//     try {
-//       const teams=await getTeams(UserRepositoryImpl)
-//       res.status(200).json({teams,message:"Fetched teams Successfully"});
 //     } catch (error: any) {
 //       res.status(400).json({ message: error.message });
 //     }
@@ -421,4 +489,60 @@ export class userController {
 //       res.status(400).json({ message: error.message });
 //     }
 //   }
+//   chat: async (req: Request, res: Response) => {
+//     try {
+//       console.log("you got a message");
+//     } catch (error: any) {
+//       res.status(400).json({ message: error.message });
+//     }
+//   },
+//   getMessages: async (req: Request, res: Response) => {
+//     try {
+//       const sender = req.query.sender as string;
+//       const reciever = req.query.reciever as string;
+//       const messages = await getMessages(
+//         MessageRepositoryImpl,
+//         sender,
+//         reciever
+//       );
+//       res.status(200).json({ messages });
+//     } catch (error: any) {
+//       res.status(400).json({ message: error.message });
+//     }
+//   },
+//   changePassword: async (req: Request, res: Response) => {
+//     try {
+//       const { id, password } = req.body;
+//       await changePassword(UserRepositoryImpl, id, password);
+//       res.status(200).json({ messages: "Password updated Successfully" });
+//     } catch (error: any) {
+//       res.status(400).json({ message: error.message });
+//     }
+//   },
+//   giveRatings: async (req: Request, res: Response) => {
+//     try {
+//       const review = await updateRatings(UserRepositoryImpl, req.body);
+//       res.status(200).json({ review, messages: "Review Updated Successfully" });
+//     } catch (error: any) {
+//       res.status(400).json({ message: error.message });
+//     }
+//   },
+//   getRatings: async (req: Request, res: Response) => {
+//     try {
+//       const {id}=req.params
+//       const review=await getReviews(UserRepositoryImpl,id)
+//       res.status(200).json({ Review:review[0],rating:review[1],votes:review[2]});
+//     } catch (error: any) {
+//       res.status(400).json({ message: error.message });
+//     }
+//   },
+//   report:async (req: Request, res: Response) => {
+//     try {
+//       const {issue,turfId,userId}=req.body
+//       await reportTurf(UserRepositoryImpl,turfId,userId,issue)
+//       res.status(200).json({message:"Turf Reported Successfully"});
+//     } catch (error: any) {
+//       res.status(400).json({ message: error.message });
+//     }
+//   },
 // };
