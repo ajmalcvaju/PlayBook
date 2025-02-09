@@ -1,20 +1,24 @@
 import express from "express"
-import { adminController } from "../../interfaces/controllers/adminController"
+import { adminAuthController, AdminController, adminController } from "../../interfaces/controllers/adminController"
+import { AdminBookingController } from "../../interfaces/controllers/adminController"
 import { authenticateToken } from "../../interfaces/middlewares/authenticateToken"
 import { authorizeRoles } from "../../interfaces/middlewares/authorizeRoles"
+
 const router=express.Router()
+const adminBookingController = new AdminBookingController();
 
-router.post("/login",adminController.login)
-router.get("/refresh-token",adminController.refreshToken)
+router.post("/login",adminAuthController.login)
+router.get("/refresh-token",adminAuthController.refreshToken)
 
-router.get("/get-users",authenticateToken,authorizeRoles(["admin"]),adminController.getUser)
-router.get("/get-turfs",authenticateToken,authorizeRoles(["admin"]),adminController.getTurf)
-router.patch("/block-user",authenticateToken,authorizeRoles(["admin"]),adminController.blockUser)
-router.patch("/block-turf",authenticateToken,authorizeRoles(["admin"]),adminController.blockTurf)
+router.get("/get-users",authenticateToken,authorizeRoles(["admin"]),(req, res) => adminController.getUsers(req, res))
+router.get("/get-turfs",authenticateToken,authorizeRoles(["admin"]),(req, res) => adminController.getTurfs(req, res))
+router.patch("/block-user",authenticateToken,authorizeRoles(["admin"]),(req, res) => adminController.blockUser(req, res))
+router.patch("/block-turf",authenticateToken,authorizeRoles(["admin"]),(req, res) => adminController.blockTurf(req, res))
 
-router.get("/get-booking",authenticateToken,authorizeRoles(["admin"]),adminController.getBookings)
-router.post("/pay-balance",authenticateToken,authorizeRoles(["admin"]),adminController.payBalance)
-router.get("/reviews",authenticateToken,authorizeRoles(["admin"]),adminController.getReviews)
-router.delete("/delete-review/:id",authenticateToken,authorizeRoles(["admin"]),adminController.deleteReview)
+router.get("/get-booking",authenticateToken,authorizeRoles(["admin"]),adminBookingController.getBookings.bind(adminBookingController))
+router.post("/pay-balance",authenticateToken,authorizeRoles(["admin"]),adminBookingController.payBalance.bind(adminBookingController))
+router.get("/reviews",authenticateToken,authorizeRoles(["admin"]),adminBookingController.getReviews.bind(adminBookingController))
+router.delete("/delete-review/:id",authenticateToken,authorizeRoles(["admin"]),adminBookingController.deleteReview.bind(adminBookingController))
+
 
 export default router
