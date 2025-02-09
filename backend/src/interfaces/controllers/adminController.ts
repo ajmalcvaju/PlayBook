@@ -1,157 +1,68 @@
-import { Request,Response } from "express";
-import { loginAdmin } from "../../application/usecases/loginAdmin";
-import { UserModel } from "../../infrastructure/database/models/userModel";
-import { getUsers } from "../../application/usecases/admin/getUsers";
-// import { AdminRepositoryImpl } from "../../infrastructure/database/repositories/AdminRepositoryImpl";
-import { getTurfs } from "../../application/usecases/admin/getTurfs";
-import { getBookings } from "../../application/usecases/admin/getBookings";
-import { blockUser } from "../../application/usecases/admin/blockUser";
-import { blockTurf } from "../../application/usecases/admin/blockTurf";
-import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "../../infrastructure/services/token";
-import { report } from "process";
-import { getReviews } from "../../application/usecases/admin/getReviews";
-import { deleteReview } from "../../application/usecases/admin/deleteReview";
-import { payBalance } from "../../application/usecases/admin/payBalance";
-
-
-export const adminAuthController={
-    login:async(req:Request,res:Response)=>{ 
-        try {
-            
-            const {email,password}=req.body
-            const token=await loginAdmin(email,password)
-            const accessToken = generateAccessToken({ id: email, role: "admin" });
-            res.cookie("accessToken", accessToken, {
-              httpOnly: false,
-              secure: process.env.NODE_ENV === "production",
-              sameSite: "lax",
-              maxAge: 5 * 60 * 1000,
-            });
-            const refreshToken = generateRefreshToken({
-              id: email,
-              role: "admin",
-            });
-            res.cookie("refreshToken", refreshToken, {
-              httpOnly: false,
-              secure: false,
-              sameSite: "lax",
-              maxAge: 7 * 24 * 60 * 60 * 1000,
-            });
-            // res.cookie("auth_token", token, {httpOnly: true,maxAge: 86400000});
-            res.status(200).json({message:"you can login now",token})
-        } catch (error:any) {
-            res.status(400).json({message:error.message})
-        }
-    },
-    refreshToken:async(req:Request,res:Response)=>{ 
-        try {
-            const refreshToken = req.cookies.refreshToken;
-            console.log(refreshToken)
-            if (!refreshToken) {
-              res.status(401).json({ message: "No refresh token provided" });
-            }else{
-                const decoded=verifyRefreshToken(refreshToken)
-                const data=decoded?.data as string
-                const role=decoded?.role as string
-                console.log(role)
-                const newAccessToken = generateAccessToken({ id:data, role:role });
-                res.cookie("accessToken", newAccessToken, {
-                    httpOnly: true,
-                    secure: false,
-                    sameSite: "lax",
-                    maxAge: 15 * 60 * 1000,
-                  });
-                res.status(200).json({ accessToken: newAccessToken });
-            }   
-        } catch (error:any) {
-            res.status(400).json({message:error.message})
-        }
-    },
-    // getUser:async(req:Request,res:Response)=>{ 
-    //     try {
-    //         const users = await getUsers(AdminRepositoryImpl)
-    //         const user = Array.isArray(users) && users[0] ? users[0] : [];
-    //         const booking = Array.isArray(users) && users[1] ? users[1] : [];
-    //         res.status(200).json({users:user,bookings:booking})
-    //     } catch (error:any) {
-    //         res.status(400).json({message:error.message})
-    //     }
-    // },
-    // getTurf:async(req:Request,res:Response)=>{ 
-    //     try {
-    //         const turfs = await getTurfs(AdminRepositoryImpl)
-    //         console.log(turfs);
-    //         const turf = Array.isArray(turfs) && turfs[0] ? turfs[0] : [];
-    //         const report = Array.isArray(turfs) && turfs[1] ? turfs[1] : [];
-    //         const booking = Array.isArray(turfs) && turfs[2] ? turfs[2] : [];
-    //         res.status(200).json({turfs:turf,reports:report,bookings:booking})
-    //     } catch (error:any) {
-    //         res.status(400).json({message:error.message})
-    //     }
-    // },
-    // blockUser:async(req:Request,res:Response)=>{ 
-    //     try {
-    //         const {id,block}=req.body
-    //         console.log(req.body)
-    //         const users=await blockUser(AdminRepositoryImpl,id,Boolean(parseInt(block)))
-    //         res.status(200).json(users)
-    //     } catch (error:any) {
-    //         res.status(400).json({message:error.message})
-    //     }
-    // },
-    // blockTurf:async(req:Request,res:Response)=>{ 
-    //     try {
-    //         const {id,block}=req.body
-    //         console.log(req.body)
-    //         const turfs=await blockTurf(AdminRepositoryImpl,id,Boolean(parseInt(block)))
-    //         res.status(200).json(turfs)
-    //     } catch (error:any) {
-    //         res.status(400).json({message:error.message})
-    //     }
-    // } ,
-    // getBookings:async(req:Request,res:Response)=>{ 
-    //     try {
-    //         const bookings = await getBookings(AdminRepositoryImpl)
-    //         res.status(200).json({bookings})
-    //     } catch (error:any) {
-    //         res.status(400).json({message:error.message})
-    //     }
-    // },
-    // getReviews:async(req:Request,res:Response)=>{ 
-    //     try {
-    //         const reviews=await getReviews(AdminRepositoryImpl)
-    //         res.status(200).json(reviews)
-    //     } catch (error:any) {
-    //         res.status(400).json({message:error.message})
-    //     }
-    // },
-    // deleteReview:async(req:Request,res:Response)=>{ 
-    //     try {
-    //         const {id}=req.params
-    //         await deleteReview(AdminRepositoryImpl,id)
-    //         res.status(200).json({message:"review deleted successfully"})
-    //     } catch (error:any) {
-    //         res.status(400).json({message:error.message})
-    //     }
-    // },
-    // payBalance:async(req:Request,res:Response)=>{ 
-    //     try {
-    //         const { turfId, balance }=req.body
-    //         const turf=await payBalance(AdminRepositoryImpl,turfId,balance)
-    //         res.status(200).json({turf,message:"Turf's balance updated successfully"})
-    //     } catch (error:any) {
-    //         res.status(400).json({message:error.message})
-    //     }
-    // }
-}
-
-
-
-import { TurfUserAdmin } from "../../application/usecases/TurfUserAdminUseCases";
+import { Request, Response } from "express";
+import { loginAdmin } from "../../application/usecases/admin/loginAdmin";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken,
+} from "../../infrastructure/services/token";
+import { TurfUserAdmin } from "../../application/usecases/admin/TurfUserAdminUseCases";
 import { TurfUserAdminRepositoryImpl } from "../../infrastructure/database/repositories/AdminRepositoryImpl";
-import { AdminBookingUseCase } from "../../application/usecases/AdminBookingUseCase";
+import { AdminBookingUseCase } from "../../application/usecases/admin/AdminBookingUseCase";
 import { AdminBookingRepositoryImpl } from "../../infrastructure/database/repositories/AdminRepositoryImpl";
 
+export const adminAuthController = {
+  login: async (req: Request, res: Response) => {
+    try {
+      const { email, password } = req.body;
+      const token = await loginAdmin(email, password);
+      const accessToken = generateAccessToken({ id: email, role: "admin" });
+      res.cookie("accessToken", accessToken, {
+        httpOnly: false,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 5 * 60 * 1000,
+      });
+      const refreshToken = generateRefreshToken({
+        id: email,
+        role: "admin",
+      });
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: false,
+        secure: false,
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+      // res.cookie("auth_token", token, {httpOnly: true,maxAge: 86400000});
+      res.status(200).json({ message: "you can login now", token });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  },
+  refreshToken: async (req: Request, res: Response) => {
+    try {
+      const refreshToken = req.cookies.refreshToken;
+      console.log(refreshToken);
+      if (!refreshToken) {
+        res.status(401).json({ message: "No refresh token provided" });
+      } else {
+        const decoded = verifyRefreshToken(refreshToken);
+        const data = decoded?.data as string;
+        const role = decoded?.role as string;
+        console.log(role);
+        const newAccessToken = generateAccessToken({ id: data, role: role });
+        res.cookie("accessToken", newAccessToken, {
+          httpOnly: true,
+          secure: false,
+          sameSite: "lax",
+          maxAge: 15 * 60 * 1000,
+        });
+        res.status(200).json({ accessToken: newAccessToken });
+      }
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  },
+};
 
 export class AdminController {
   private adminUseCase: TurfUserAdmin;
@@ -188,7 +99,10 @@ export class AdminController {
     try {
       const { id, block } = req.body;
       console.log(req.body);
-      const users = await this.adminUseCase.toggleUserBlock(id, Boolean(parseInt(block)));
+      const users = await this.adminUseCase.toggleUserBlock(
+        id,
+        Boolean(parseInt(block))
+      );
       res.status(200).json(users);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -199,7 +113,10 @@ export class AdminController {
     try {
       const { id, block } = req.body;
       console.log(req.body);
-      const turfs = await this.adminUseCase.toggleTurfBlock(id, Boolean(parseInt(block)));
+      const turfs = await this.adminUseCase.toggleTurfBlock(
+        id,
+        Boolean(parseInt(block))
+      );
       res.status(200).json(turfs);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -209,50 +126,54 @@ export class AdminController {
 
 export const adminController = new AdminController();
 
-
 export class AdminBookingController {
-    private readonly adminBookingUseCase: AdminBookingUseCase;
-  
-    constructor() {
-      const adminBookingRepo = new AdminBookingRepositoryImpl();
-      this.adminBookingUseCase = new AdminBookingUseCase(adminBookingRepo);
-    }
-  
-    async getBookings(req: Request, res: Response): Promise<void> {
-      try {
-        const bookings = await this.adminBookingUseCase.fetchBookings();
-        res.status(200).json({ bookings });
-      } catch (error: any) {
-        res.status(400).json({ message: error.message });
-      }
-    }
-  
-    async getReviews(req: Request, res: Response): Promise<void> {
-      try {
-        const reviews = await this.adminBookingUseCase.fetchReviews();
-        res.status(200).json(reviews);
-      } catch (error: any) {
-        res.status(400).json({ message: error.message });
-      }
-    }
-  
-    async deleteReview(req: Request, res: Response): Promise<void> {
-      try {
-        const { id } = req.params;
-        await this.adminBookingUseCase.removeReview(id);
-        res.status(200).json({ message: "Review deleted successfully" });
-      } catch (error: any) {
-        res.status(400).json({ message: error.message });
-      }
-    }
-  
-    async payBalance(req: Request, res: Response): Promise<void> {
-      try {
-        const { turfId, balance } = req.body;
-        const turf = await this.adminBookingUseCase.processPayment(turfId, balance);
-        res.status(200).json({ turf, message: "Turf's balance updated successfully" });
-      } catch (error: any) {
-        res.status(400).json({ message: error.message });
-      }
+  private readonly adminBookingUseCase: AdminBookingUseCase;
+
+  constructor() {
+    const adminBookingRepo = new AdminBookingRepositoryImpl();
+    this.adminBookingUseCase = new AdminBookingUseCase(adminBookingRepo);
+  }
+
+  async getBookings(req: Request, res: Response): Promise<void> {
+    try {
+      const bookings = await this.adminBookingUseCase.fetchBookings();
+      res.status(200).json({ bookings });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
     }
   }
+
+  async getReviews(req: Request, res: Response): Promise<void> {
+    try {
+      const reviews = await this.adminBookingUseCase.fetchReviews();
+      res.status(200).json(reviews);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  async deleteReview(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      await this.adminBookingUseCase.removeReview(id);
+      res.status(200).json({ message: "Review deleted successfully" });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  async payBalance(req: Request, res: Response): Promise<void> {
+    try {
+      const { turfId, balance } = req.body;
+      const turf = await this.adminBookingUseCase.processPayment(
+        turfId,
+        balance
+      );
+      res
+        .status(200)
+        .json({ turf, message: "Turf's balance updated successfully" });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+}

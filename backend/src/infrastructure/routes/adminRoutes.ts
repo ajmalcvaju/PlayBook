@@ -1,5 +1,5 @@
 import express from "express"
-import { adminAuthController, AdminController, adminController } from "../../interfaces/controllers/adminController"
+import { adminAuthController,adminController } from "../../interfaces/controllers/adminController"
 import { AdminBookingController } from "../../interfaces/controllers/adminController"
 import { authenticateToken } from "../../interfaces/middlewares/authenticateToken"
 import { authorizeRoles } from "../../interfaces/middlewares/authorizeRoles"

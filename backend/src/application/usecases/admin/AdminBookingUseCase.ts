@@ -1,4 +1,4 @@
-import { AdminBookingRepository } from "../../domain/repositories/AdminRepository";
+import { AdminBookingRepository } from "../../../domain/repositories/AdminRepository";
 
 export class AdminBookingUseCase {
   constructor(private readonly bookingRepo: AdminBookingRepository) {}

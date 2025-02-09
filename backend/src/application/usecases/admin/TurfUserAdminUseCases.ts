@@ -1,4 +1,4 @@
-import { TurfUserAdminRepository } from "../../domain/repositories/AdminRepository";
+import { TurfUserAdminRepository } from "../../../domain/repositories/AdminRepository";
 
 export class TurfUserAdmin {
   constructor(private readonly adminRepo: TurfUserAdminRepository) {}
