@@ -1,5 +1,5 @@
-import { BookingRepository } from "../../domain/repositories/UserRepository";
-import { Slot } from "../../domain/entities/Turf";
+import { BookingRepository } from "../../../domain/repositories/UserRepository";
+import { Slot } from "../../../domain/entities/Turf";
 import { UpdateResult } from "mongoose";
 
 export class BookingUseCases {

@@ -1,5 +1,5 @@
-import { TeamRepository } from "../../domain/repositories/UserRepository";
-import { Team } from "../../domain/entities/Team";
+import { TeamRepository } from "../../../domain/repositories/UserRepository";
+import { Team } from "../../../domain/entities/Team";
 
 export class TeamUseCase {
   private teamRepository: TeamRepository;
