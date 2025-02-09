@@ -1,10 +1,10 @@
 import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken";
-import { UserRepository } from "../../domain/repositories/UserRepository";
-import { User } from "../../domain/entities/User";
-import { sendOtpEmail } from "../../infrastructure/services/emailService";
-import { UserModel } from "../../infrastructure/database/models/userModel";
-import { TurfModel } from "../../infrastructure/database/models/turfModel";
+import { UserRepository } from "../../../domain/repositories/UserRepository";
+import { User } from "../../../domain/entities/User";
+import { sendOtpEmail } from "../../../infrastructure/services/emailService";
+import { UserModel } from "../../../infrastructure/database/models/userModel";
+import { TurfModel } from "../../../infrastructure/database/models/turfModel";
 
 
 

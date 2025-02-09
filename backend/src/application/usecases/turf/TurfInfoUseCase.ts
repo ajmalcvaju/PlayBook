@@ -1,7 +1,7 @@
 // application/useCases/TurfInfoUseCase.ts
-import { TurfInfoRepository } from "../../domain/repositories/TurfRepository";
-import { Turf, TurfDetails } from "../../domain/entities/Turf";
-import { TurfDocument } from "../../infrastructure/database/models/turfModel";
+import { TurfInfoRepository } from "../../../domain/repositories/TurfRepository";
+import { Turf, TurfDetails } from "../../../domain/entities/Turf";
+import { TurfDocument } from "../../../infrastructure/database/models/turfModel";
 interface UpdatedTurf extends Turf,TurfDetails{}
 
 

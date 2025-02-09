@@ -112,13 +112,13 @@ interface FullTurf extends Turf, TurfDetails {}
   //   await Promise.all(slotPromises);
   //   return result;
   // },
-//   async changePassword(
-//     id: string | null,
-//     password: string
-//   ): Promise<User | null> {
-//     await UserModel.updateOne({ _id: id }, { $set: { password: password } });
-//     return UserModel.findOne({ _id: id });
-//   },
+  // async changePassword(
+  //   id: string | null,
+  //   password: string
+  // ): Promise<User | null> {
+  //   await UserModel.updateOne({ _id: id }, { $set: { password: password } });
+  //   return UserModel.findOne({ _id: id });
+  // },
   // async getBookings(id: string): Promise<any[]> {
   //   const bookings = await BookingModel.find({ userId: id })
   //     .populate("slotId", "_id time slotNumber date")

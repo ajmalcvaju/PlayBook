@@ -1,5 +1,5 @@
 import express from "express"
-import { turfBookingController, turfController, turfInfoController } from "../../interfaces/controllers/turfController"
+import { turfBookingController, turfChatController, turfController, turfInfoController } from "../../interfaces/controllers/turfController"
 import { productImage } from "../../interfaces/middlewares/imageUpload"
 import { authenticateToken } from "../../interfaces/middlewares/authenticateToken"
 import { authorizeRoles } from "../../interfaces/middlewares/authorizeRoles"
@@ -25,8 +25,8 @@ router.patch("/add-location",authenticateToken,authorizeRoles(["turf"]),turfInfo
 router.get("/get-turfDetails/:email",authenticateToken,authorizeRoles(["turf"]),turfInfoController.getTurfDetails)
 router.patch("/turfDetailsUpdate",authenticateToken,authorizeRoles(["turf"]),productImage,turfInfoController.updateTurfDetails)
 
-// router.get("/get-messages",authenticateToken,authorizeRoles(["turf"]),turfController.getMessages)
-// router.get("/get-users-chat",authenticateToken,authorizeRoles(["turf"]),turfController.getUserForChat)
+router.get("/get-messages",authenticateToken,authorizeRoles(["turf"]),turfChatController.getMessages)
+router.get("/get-users-chat",authenticateToken,authorizeRoles(["turf"]),turfChatController.getUserForChat)
 
 
 export default router

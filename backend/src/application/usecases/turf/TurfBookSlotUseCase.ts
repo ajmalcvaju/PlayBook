@@ -1,5 +1,5 @@
-import { TurfBookSlotRepository } from "../../domain/repositories/TurfRepository";
-import { Slot } from "../../domain/entities/Turf";
+import { TurfBookSlotRepository } from "../../../domain/repositories/TurfRepository";
+import { Slot } from "../../../domain/entities/Turf";
 
 export class TurfBookSlotUseCase {
   constructor(private turfBookSlotRepository: TurfBookSlotRepository) {}

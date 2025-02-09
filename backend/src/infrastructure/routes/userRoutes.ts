@@ -1,5 +1,5 @@
 import express from "express"
-import { userController } from "../../interfaces/controllers/userController"
+import { userController, userOtherController} from "../../interfaces/controllers/userController"
 import { authenticateToken } from "../../interfaces/middlewares/authenticateToken";
 import { authorizeRoles } from "../../interfaces/middlewares/authorizeRoles";
 
@@ -14,8 +14,8 @@ router.post("/forgotpassword", userController.forgotPassword);
 router.post("/change-forgotpassword", userController.changeForgottenPassword);
 router.post("/verify-otp-forgotpassword", userController.verifyOtpForgotPassword);
 router.post("/resend-otp",userController.resendOtp)
+router.patch("/change-password",authenticateToken,authorizeRoles(["user"]),userController.changePassword)
 router.post("/googleAuth",userController.googleAuth);
-// router.patch("/change-password",authenticateToken,authorizeRoles(["user"]),userController.changePassword)
 
 router.get("/getTurf",authenticateToken,authorizeRoles(["user"]),userController.getTurf)
 router.get("/get-turf-details/:id",authenticateToken,authorizeRoles(["user"]),userController.getTurfDetails)
@@ -29,8 +29,6 @@ router.get("/get-slots",authenticateToken,authorizeRoles(["user"]),userControlle
 router.post("/confirm-booking",authenticateToken,authorizeRoles(["user"]),userController.confirmBooking)
 router.get("/get-booking/:email",authenticateToken,authorizeRoles(["user"]),userController.getBookings)
 router.patch("/cancel-booking",authenticateToken,authorizeRoles(["user"]),userController.cancelBooking)
-// router.post("/chat",authenticateToken,authorizeRoles(["user"]),userController.chat)
-// router.get("/get-messages",authenticateToken,authorizeRoles(["user"]),userController.getMessages)
 
 
 router.post("/create-team",authenticateToken,authorizeRoles(["user"]),userController.createTeam)
@@ -42,6 +40,8 @@ router.patch("/left-remove-team",authenticateToken,authorizeRoles(["user"]),user
 router.patch("/sell-slot",authenticateToken,authorizeRoles(["user"]),userController.sellSlot)
 router.patch("/join-slot",authenticateToken,authorizeRoles(["user"]),userController.joinSlot)
 
+// router.post("/chat",authenticateToken,authorizeRoles(["user"]),userOtherController.chat)
+router.get("/get-messages",authenticateToken,authorizeRoles(["user"]),userOtherController.getMessages)
 
 
 

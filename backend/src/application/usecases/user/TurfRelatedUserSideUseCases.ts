@@ -1,10 +1,10 @@
-import { TurfRelatedUserSideRepository } from "../../domain/repositories/UserRepository";
-import { Turf } from "../../domain/entities/Turf";
-import { TurfDetails } from "../../domain/entities/Turf";
-import { TurfModel } from "../../infrastructure/database/models/turfModel";
+import { TurfRelatedUserSideRepository } from "../../../domain/repositories/UserRepository";
+import { Turf } from "../../../domain/entities/Turf";
+import { TurfDetails } from "../../../domain/entities/Turf";
+import { TurfModel } from "../../../infrastructure/database/models/turfModel";
 interface FullTurf extends Turf, TurfDetails {}
-import { User } from "../../domain/entities/User";
-import { Review } from "../../domain/entities/Review";
+import { User } from "../../../domain/entities/User";
+import { Review } from "../../../domain/entities/Review";
 
 
 export class TurfRelatedUserSideUseCases {

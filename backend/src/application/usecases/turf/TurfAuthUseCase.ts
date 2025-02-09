@@ -1,10 +1,10 @@
-import { Turf } from "../../domain/entities/Turf";
-import { TurfAuthRepository } from "../../domain/repositories/TurfRepository";
+import { Turf } from "../../../domain/entities/Turf";
+import { TurfAuthRepository } from "../../../domain/repositories/TurfRepository";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { UserModel } from "../../infrastructure/database/models/userModel";
-import { TurfModel } from "../../infrastructure/database/models/turfModel";
-import { sendOtpEmail } from "../../infrastructure/services/emailService";
+import { UserModel } from "../../../infrastructure/database/models/userModel";
+import { TurfModel } from "../../../infrastructure/database/models/turfModel";
+import { sendOtpEmail } from "../../../infrastructure/services/emailService";
 
 export class TurfAuthUseCase {
   constructor(private turfRepository: TurfAuthRepository) {}
