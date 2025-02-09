@@ -31,7 +31,10 @@ interface CustomRequest extends Request {
 }
 
 import { TurfAuthUseCase } from "../../application/usecases/TurfAuthUseCase";
-import { TurfAuthRepositoryImpl } from "../../infrastructure/database/repositories/TurfRepositoryImpl";
+import { TurfAuthRepositoryImpl, TurfInfoRepositoryImpl } from "../../infrastructure/database/repositories/TurfRepositoryImpl";
+import { TurfBookSlotUseCase } from "../../application/usecases/TurfBookSlotUseCase";
+import { TurfBookSlotRepositoryImpl } from "../../infrastructure/database/repositories/TurfRepositoryImpl";
+import { TurfInfoUseCase } from "../../application/usecases/TurfInfoUseCase";
 
 export class TurfController {
   private turfAuthUseCase: TurfAuthUseCase;
@@ -414,3 +417,158 @@ export const turfController = new TurfController();
 //     }
 //   },
 // };
+
+
+export class TurfBookingController {
+  private turfBookSlotUseCase: TurfBookSlotUseCase;
+
+  constructor() {
+    const turfBookSlotRepository = new TurfBookSlotRepositoryImpl();
+    this.turfBookSlotUseCase = new TurfBookSlotUseCase(turfBookSlotRepository);
+  }
+
+  async slotUpdate(req: Request, res: Response) {
+    try {
+      const email = req.body.email;
+      const { startDate, endDate, turfSizes, ...prices } = req.body.data;
+      const turfDetails = await this.turfBookSlotUseCase.getTurfDetails(email);
+      const id = turfDetails?._id as string;
+
+      const slots = await this.turfBookSlotUseCase.updateSlots(
+        id,
+        startDate,
+        endDate,
+        prices,
+        turfSizes
+      );
+
+      res.status(200).json({ slots });
+    } catch (error: any) {
+      console.log(error);
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  async getSlots(req: Request, res: Response) {
+    try {
+      const email = req.params.email;
+      const turfDetails = await this.turfBookSlotUseCase.getTurfDetails(email);
+      const id = turfDetails?._id as string;
+
+      console.log(id);
+      const slots = await this.turfBookSlotUseCase.fetchSlots(id);
+      res.status(200).json({ slots });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  async currentSlots(req: Request, res: Response) {
+    try {
+      const { email, date } = req.params;
+      const turfDetails = await this.turfBookSlotUseCase.getTurfDetails(email);
+      const id = turfDetails?._id as string;
+
+      console.log(id);
+      const slots = await this.turfBookSlotUseCase.fetchCurrentSlots(id, date);
+      console.log(slots);
+      res.status(200).json({ slots });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  async deleteSlot(req: Request, res: Response) {
+    try {
+      const id = req.params.id;
+      await this.turfBookSlotUseCase.removeSlot(id);
+      res.status(200).json({ success: true });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  async getBookings(req: Request, res: Response) {
+    try {
+      const { email } = req.params;
+      const turfDetails = await this.turfBookSlotUseCase.getTurfDetails(email);
+      const id = turfDetails?._id as string;
+
+      const bookings = await this.turfBookSlotUseCase.fetchBookings(id);
+      res.status(200).json(bookings);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  async cancelBooking(req: Request, res: Response) {
+    try {
+      console.log(req.body)
+      const slotId = req.body.slotId as string;
+      const bookingId = req.body.bookingId as string;
+      await this.turfBookSlotUseCase.cancelUserBooking(slotId, bookingId);
+      res.status(200).json({ success: true });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+}
+
+export const turfBookingController = new TurfBookingController();
+
+
+
+
+
+const turfInfoRepository = new TurfInfoRepositoryImpl();
+const turfInfoUseCase = new TurfInfoUseCase(turfInfoRepository);
+
+export class TurfInfoController {
+  async updateTurfDetails(req: Request, res: Response) {
+    try {
+      const customReq = req as CustomRequest;
+      if (!customReq.files) throw new Error("No files uploaded");
+
+      const uploadedImages = await uploadedImage(customReq.files);
+      const { email, ...data } = customReq.body;
+      const updatedData = { ...data, gallery: uploadedImages };
+
+      const updatedTurf = await turfInfoUseCase.updateTurfDetails(email, updatedData);
+
+      res.status(200).json(updatedTurf);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  async addLocation(req: Request, res: Response) {
+    try {
+      const { email, locationName, latitude, longitude } = req.body;
+      const turfDetails = await turfInfoUseCase.fetchTurfDetails(email);
+
+      if (!turfDetails) {
+        throw new Error("Turf not found.");
+      }
+
+      await turfInfoUseCase.addTurfLocation(String(turfDetails._id), locationName, latitude, longitude);
+
+      res.status(200).json({ message: "Location added successfully" });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  async getTurfDetails(req: Request, res: Response) {
+    try {
+      const { email } = req.params;
+      const turfDetails = await turfInfoUseCase.fetchTurfDetails(email);
+
+      res.status(200).json(turfDetails);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+}
+
+export const turfInfoController = new TurfInfoController();
+

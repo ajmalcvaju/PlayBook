@@ -393,7 +393,7 @@ const AdminDashboard: React.FC = () => {
         </form>
 
         {/* Slot List */}
-        <div className="overflow-x-auto rounded-md shadow-sm">
+        {/* <div className="overflow-x-auto rounded-md shadow-sm">
           <ul className="space-y-4">
             {slots.map((slot, index) => (
               <li
@@ -415,7 +415,7 @@ const AdminDashboard: React.FC = () => {
               </li>
             ))}
           </ul>
-        </div>
+        </div> */}
       </div>
 
       <div className="bg-gray-800 shadow-lg rounded-lg p-8 flex flex-col justify-center items-center hover:shadow-xl transition-all duration-300">

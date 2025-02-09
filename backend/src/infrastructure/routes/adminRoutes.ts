@@ -6,6 +6,7 @@ const router=express.Router()
 
 router.post("/login",adminController.login)
 router.get("/refresh-token",adminController.refreshToken)
+
 router.get("/get-users",authenticateToken,authorizeRoles(["admin"]),adminController.getUser)
 router.get("/get-turfs",authenticateToken,authorizeRoles(["admin"]),adminController.getTurf)
 router.get("/get-booking",authenticateToken,authorizeRoles(["admin"]),adminController.getBookings)
