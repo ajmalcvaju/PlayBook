@@ -53,7 +53,7 @@ const AdminDashboard = () => {
   let revenueChartInstance: Chart | null = null;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 4;
 
   // Fetch bookings
   useEffect(() => {
@@ -285,8 +285,8 @@ const AdminDashboard = () => {
     }
   }, [turfName, filter, turf]);
   useEffect(() => {
-    setBalance((totalPrice ?? 0) - (totalPaid ?? 0));
-  }, [totalPrice, totalPaid]);
+    setBalance((totalPrice ? totalPrice * 0.8 : 0) - (totalPaid ?? 0));
+  }, [totalPrice, totalPaid])
 
   const openRazorpay = async () => {
     if (!window.Razorpay) {
@@ -517,12 +517,18 @@ const AdminDashboard = () => {
             All bookings
           </button>
         </div>
-        {turfName !== "all" && (
+        {turfName !== "all" &&filter==="custom"&&(
           <div className="bg-gray-800 p-6 rounded-xl text-lg font-semibold shadow-lg flex flex-col lg:flex-row items-center justify-between space-y-6 lg:space-y-0 lg:space-x-6">
             {/* Total Price and Paid Section */}
             <div className="space-y-2 lg:space-y-0 flex flex-col lg:flex-row lg:items-center lg:space-x-6">
               <p className="text-teal-400 text-2xl">
                 Total Price: <span className="text-white">{totalPrice}</span>
+              </p>
+              <p className="text-teal-400 text-2xl">
+                Commission (20%):{" "}
+                <span className="text-white">
+                  {(totalPrice * 0.2).toFixed(2)}
+                </span>
               </p>
               <p className="text-teal-400 text-2xl">
                 Total Paid:{" "}

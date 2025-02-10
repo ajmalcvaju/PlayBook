@@ -218,6 +218,7 @@ export class TurfBookSlotRepositoryImpl implements TurfBookSlotRepository {
     return bookings.map((booking) => {
       const user = booking.userId as any;
       const slot = booking.slotId as any;
+      
       return {
         _id: booking._id,
         price: booking.paid || 0,
@@ -229,7 +230,7 @@ export class TurfBookSlotRepositoryImpl implements TurfBookSlotRepository {
         firstName: user?.firstName || '',
         lastName: user?.lastName || '',
         mobileNumber: user?.mobileNumber ?? '',
-        email: user?.email || '',
+        email: user?.email || ''
       };
     });
   }
