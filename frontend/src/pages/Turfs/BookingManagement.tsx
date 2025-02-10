@@ -195,7 +195,7 @@ const BookingManagement = () => {
           </div>
         </div>
       )}
-      <div className="bg-gray-950 p-4 min-h-full">
+      <div className="bg-gray-950 p-4 min-h-screen">
         <div className="overflow-x-auto rounded-lg shadow-lg">
           <table className="min-w-full text-left text-sm text-gray-300">
             <thead className="bg-gray-800 text-xs uppercase text-gray-400">

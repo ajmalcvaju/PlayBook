@@ -321,11 +321,11 @@ export class userController {
 
   static async createTeam(req: Request, res: Response) {
     try {
-      console.log(req.body)
       const { teamName, maxMembers, privacy, userId } = req.body;
       const team = await teamUseCase.createTeam(teamName, maxMembers, privacy, userId);
       res.status(200).json({ team, message: "Created team successfully" });
     } catch (error: any) {
+      console.log(error)
       res.status(400).json({ message: error.message });
     }
   }

@@ -53,16 +53,17 @@ export const createSocketConnectionForChat = (server: any) => {
         // const userName = await getUserName(UserRepositoryImpl, senderId);
         const user = await UserModel.findById(senderId);
         const userName = user ? user.firstName : null;
-        io.to(recieverId).emit("message", {
-          message,
-          senderId,
-          recieverId,
-          time,
-        });
+        console.log("ajjajjajajajajjaja",message,senderId,recieverId,time)
         io.to(recieverId).emit("newMessageNotification", {
           userName,
           senderId,
           message,
+          time,
+        });
+        io.to(recieverId).emit("message", {
+          message,
+          senderId,
+          recieverId,
           time,
         });
       }

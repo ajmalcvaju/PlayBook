@@ -10,9 +10,6 @@ import { TurfModel } from "../../infrastructure/database/models/turfModel";
 interface FullTurf extends Turf, TurfDetails {}
 
 
-export interface UserRepository{
-  
-}
 
 export interface UserRepository {
   createUser(user: User): Promise<User>;

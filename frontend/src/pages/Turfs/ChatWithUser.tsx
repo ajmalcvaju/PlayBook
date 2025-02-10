@@ -104,6 +104,7 @@ const ChatWithUser = () => {
     socket.emit("joinTurf", { turfId, userId });
     socket.on("message", (data) => {
       console.log(data);
+      console.log("hi")
       if (data.recieverId === turfId) {
         // setMessages((prev) => [
         //   ...prev,
@@ -169,6 +170,7 @@ const ChatWithUser = () => {
   };
 
   const handleSendMessage = () => {
+    console.log("hello")
     if (currentMessage.trim()) {
       socket.emit("respondToMessage", {
         responseMessage: currentMessage,

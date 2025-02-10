@@ -57,7 +57,7 @@ slotSchema.plugin((mongooseSequence as any)(mongoose), {
   start_seq: 1001, 
 });
 
-slotSchema.index({ date: 1, time: 1, turfSizes: 1 }, { unique: true });
+slotSchema.index({ turfId:1 ,date: 1, time: 1, turfSizes: 1 }, { unique: true });
 
 
 export const SlotModel = mongoose.model<SlotDocument>('Slot', slotSchema);

@@ -53,6 +53,10 @@ const AdminDashboard: React.FC = () => {
   const handleNextPage = () => {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
+
+  useEffect(()=>{
+   console.log(slots)
+  },[])
   
   const email = localStorage.getItem("turfEmail");
   useLayoutEffect(() => {
@@ -133,6 +137,7 @@ const AdminDashboard: React.FC = () => {
         const slotResponse = response.data;
         const currentSlot = slotResponse.slots;
         const newSlots = [...currentSlots, ...currentSlot];
+        setCurrentSlots(newSlots)
         setFiteredSlots(newSlots);
         console.log(newSlots);
         navigate("/turf/slot-management");
