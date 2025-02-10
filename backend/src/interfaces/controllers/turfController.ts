@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 // import { TurfRepositoryImpl } from "../../infrastructure/database/repositories/TurfRepositoryImpl";
 import { uploadedImage } from "../../application/usecases/UploadImage";
 // import { getSlots } from "../../application/usecases/getSlots";
@@ -27,18 +27,18 @@ export class TurfController {
     this.turfAuthUseCase = new TurfAuthUseCase(new TurfAuthRepositoryImpl());
   }
 
-  async list(req: Request, res: Response) {
+  async list(req: Request, res: Response, next: NextFunction) {
     try {
       const turf = await this.turfAuthUseCase.listTurf(req.body);
       console.log(turf.email);
       await this.turfAuthUseCase.generateOtp(turf.email, 0);
       res.status(200).json({ message: "Turf registered. OTP sent to your email." });
     } catch (error: any) {
-      res.status(400).json({ message: error.message });
+      next(error);
     }
   }
 
-  async validateOtp(req: Request, res: Response) {
+  async validateOtp(req: Request, res: Response,next: NextFunction) {
     try {
       const { email, otp } = req.body;
       const token = await this.turfAuthUseCase.validateOtp(email, otp, 0);
@@ -49,20 +49,20 @@ export class TurfController {
       res.cookie("refreshToken", refreshToken, { httpOnly: false, secure: false, sameSite: "lax", maxAge: 7 * 24 * 60 * 60 * 1000 });
       res.status(200).json({ message: "OTP verified successfully.", token, turf });
     } catch (error: any) {
-      res.status(400).json({ message: error.message });
+      next(error);
     }
   }
 
-  async resendOtp(req: Request, res: Response) {
+  async resendOtp(req: Request, res: Response,next: NextFunction) {
     try {
       await this.turfAuthUseCase.generateOtp(req.body.email, 0);
       res.status(200).json({ message: "A new OTP has been sent to your registered email." });
     } catch (error: any) {
-      res.status(400).json({ message: error.message });
+      next(error);
     }
   }
 
-  async login(req: Request, res: Response) {
+  async login(req: Request, res: Response,next: NextFunction) {
     try {
       const { email, password } = req.body;
       const { turf, token } = await this.turfAuthUseCase.loginTurf(email, password);
@@ -72,30 +72,30 @@ export class TurfController {
       res.cookie("refreshToken", refreshToken, { httpOnly: false, secure: false, sameSite: "lax", maxAge: 7 * 24 * 60 * 60 * 1000 });
       res.status(200).json({ message: "Login successful.", token, turf });
     } catch (error: any) {
-      res.status(400).json({ message: error.message });
+      next(error);
     }
   }
 
-  async forgotPassword(req: Request, res: Response) {
+  async forgotPassword(req: Request, res: Response,next: NextFunction) {
     try {
       await this.turfAuthUseCase.generateOtp(req.body.email, 0);
       res.status(200).json({ message: "A new OTP has been sent to your registered email." });
     } catch (error: any) {
-      res.status(400).json({ message: error.message });
+      next(error);
     }
   }
 
-  async verifyOtpForgotPassword(req: Request, res: Response) {
+  async verifyOtpForgotPassword(req: Request, res: Response,next: NextFunction) {
     try {
       const { email, otp } = req.body;
       const token = await this.turfAuthUseCase.validateOtp(email, otp, 0);
       res.status(200).json({ message: "OTP verified successfully.", token });
     } catch (error: any) {
-      res.status(400).json({ message: error.message });
+      next(error);
     }
   }
 
-  async changeForgottenPassword(req: Request, res: Response) {
+  async changeForgottenPassword(req: Request, res: Response,next: NextFunction) {
     try {
       const { email, password } = req.body;
       const turfDetails = await this.turfAuthUseCase.getTurfDetailsFromMail(email);
@@ -107,7 +107,7 @@ export class TurfController {
       res.cookie("refreshToken", refreshToken, { httpOnly: false, secure: false, sameSite: "lax", maxAge: 7 * 24 * 60 * 60 * 1000 });
       res.status(200).json({ message: "Password changed successfully.", accessToken, turf });
     } catch (error: any) {
-      res.status(400).json({ message: error.message });
+      next(error);
     }
   }
 }
@@ -116,7 +116,7 @@ export const turfController = new TurfController();
 
 
 export const turfChatController = {
-  getMessages: async (req: Request, res: Response) => {
+  getMessages: async (req: Request, res: Response,next: NextFunction) => {
     try {
       const sender = req.query.sender as string;
       const reciever = req.query.reciever as string;
@@ -127,15 +127,15 @@ export const turfChatController = {
       );
       res.status(200).json({ messages });
     } catch (error: any) {
-      res.status(400).json({ message: error.message });
+      next(error);
     }
   },
-  getUserForChat: async (req: Request, res: Response) => {
+  getUserForChat: async (req: Request, res: Response,next: NextFunction) => {
     try {
       const users = await getUsers(TurfRepositoryImpl);
       res.status(200).json({ users });
     } catch (error: any) {
-      res.status(400).json({ message: error.message });
+      next(error);
     }
   }
 };
@@ -149,7 +149,7 @@ export class TurfBookingController {
     this.turfBookSlotUseCase = new TurfBookSlotUseCase(turfBookSlotRepository);
   }
 
-  async slotUpdate(req: Request, res: Response) {
+  async slotUpdate(req: Request, res: Response,next: NextFunction) {
     try {
       const email = req.body.email;
       const { startDate, endDate, turfSizes, ...prices } = req.body.data;
@@ -166,12 +166,11 @@ export class TurfBookingController {
 
       res.status(200).json({ slots });
     } catch (error: any) {
-      console.log(error);
-      res.status(400).json({ message: error.message });
+      next(error);
     }
   }
 
-  async getSlots(req: Request, res: Response) {
+  async getSlots(req: Request, res: Response,next: NextFunction) {
     try {
       const email = req.params.email;
       const turfDetails = await this.turfBookSlotUseCase.getTurfDetails(email);
@@ -181,11 +180,11 @@ export class TurfBookingController {
       const slots = await this.turfBookSlotUseCase.fetchSlots(id);
       res.status(200).json({ slots });
     } catch (error: any) {
-      res.status(400).json({ message: error.message });
+      next(error);
     }
   }
 
-  async currentSlots(req: Request, res: Response) {
+  async currentSlots(req: Request, res: Response,next: NextFunction) {
     try {
       const { email, date } = req.params;
       const turfDetails = await this.turfBookSlotUseCase.getTurfDetails(email);
@@ -196,21 +195,21 @@ export class TurfBookingController {
       console.log(slots);
       res.status(200).json({ slots });
     } catch (error: any) {
-      res.status(400).json({ message: error.message });
+      next(error);
     }
   }
 
-  async deleteSlot(req: Request, res: Response) {
+  async deleteSlot(req: Request, res: Response,next: NextFunction) {
     try {
       const id = req.params.id;
       await this.turfBookSlotUseCase.removeSlot(id);
       res.status(200).json({ success: true });
     } catch (error: any) {
-      res.status(400).json({ message: error.message });
+      next(error);
     }
   }
 
-  async getBookings(req: Request, res: Response) {
+  async getBookings(req: Request, res: Response,next: NextFunction) {
     try {
       const { email } = req.params;
       const turfDetails = await this.turfBookSlotUseCase.getTurfDetails(email);
@@ -219,11 +218,11 @@ export class TurfBookingController {
       const bookings = await this.turfBookSlotUseCase.fetchBookings(id);
       res.status(200).json(bookings);
     } catch (error: any) {
-      res.status(400).json({ message: error.message });
+      next(error);
     }
   }
 
-  async cancelBooking(req: Request, res: Response) {
+  async cancelBooking(req: Request, res: Response,next: NextFunction) {
     try {
       console.log(req.body)
       const slotId = req.body.slotId as string;
@@ -231,7 +230,7 @@ export class TurfBookingController {
       await this.turfBookSlotUseCase.cancelUserBooking(slotId, bookingId);
       res.status(200).json({ success: true });
     } catch (error: any) {
-      res.status(400).json({ message: error.message });
+      next(error);
     }
   }
 }

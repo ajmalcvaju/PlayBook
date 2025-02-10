@@ -1,13 +1,16 @@
-// middleware/errorHandler.ts
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from "express";
 
-export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
-  // If it's a known error with statusCode, return the status code and message
-  if (err && err.statusCode) {
-    return res.status(err.statusCode).json({ message: err.message });
-  }
+// Custom Error Handler Middleware
+export function errorMiddleware(
+  err: any,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  console.error(err.stack); // Log error details in the console
 
-  res.status(500).json({
-    message: 'Something went wrong, please try again later.',
+  res.status(err.status || 500).json({
+    message: err.message || "Something went wrong!",
+    success: false,
   });
-};
+}
