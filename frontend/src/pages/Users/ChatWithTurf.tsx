@@ -154,7 +154,7 @@ const ChatWithTurf = () => {
     return () => {
       socket.off("message");
     };
-  }, [socket, turfId, userId]);
+  }, []);
   const handleSendMessage = () => {
     if (currentMessage.trim()) {
       socket.emit("sendMessage", {

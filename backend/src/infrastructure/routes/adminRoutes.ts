@@ -10,10 +10,10 @@ const adminBookingController = new AdminBookingController();
 router.post("/login",adminAuthController.login)
 router.get("/refresh-token",adminAuthController.refreshToken)
 
-router.get("/get-users",authenticateToken,authorizeRoles(["admin"]),(req, res) => adminController.getUsers(req, res))
-router.get("/get-turfs",authenticateToken,authorizeRoles(["admin"]),(req, res) => adminController.getTurfs(req, res))
-router.patch("/block-user",authenticateToken,authorizeRoles(["admin"]),(req, res) => adminController.blockUser(req, res))
-router.patch("/block-turf",authenticateToken,authorizeRoles(["admin"]),(req, res) => adminController.blockTurf(req, res))
+router.get("/get-users",authenticateToken,authorizeRoles(["admin"]),(req, res,next) => adminController.getUsers(req,res,next))
+router.get("/get-turfs",authenticateToken,authorizeRoles(["admin"]),(req, res,next) => adminController.getTurfs(req, res,next))
+router.patch("/block-user",authenticateToken,authorizeRoles(["admin"]),(req, res,next) => adminController.blockUser(req, res,next))
+router.patch("/block-turf",authenticateToken,authorizeRoles(["admin"]),(req, res,next) => adminController.blockTurf(req, res,next))
 
 router.get("/get-booking",authenticateToken,authorizeRoles(["admin"]),adminBookingController.getBookings.bind(adminBookingController))
 router.post("/pay-balance",authenticateToken,authorizeRoles(["admin"]),adminBookingController.payBalance.bind(adminBookingController))

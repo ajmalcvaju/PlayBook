@@ -116,7 +116,7 @@ const ChatWithUser = () => {
     return () => {
       socket.off("message");
     };
-  }, [socket, turfId]);
+  }, []);
 
   useEffect(() => {
     socket.emit("user-online", turfId);

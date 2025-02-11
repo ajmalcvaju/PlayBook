@@ -36,8 +36,7 @@ const teamSchema = new Schema<TeamDocuments>({
     default: Date.now, 
   },
   secretCode: {
-    type: String,
-    unique: true,
+    type: String
 },
   members: [
     {

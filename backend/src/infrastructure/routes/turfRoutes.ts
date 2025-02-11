@@ -14,12 +14,12 @@ router.post("/change-forgotpassword", turfController.changeForgottenPassword.bin
 router.post("/verify-otp-forgotpassword", turfController.verifyOtpForgotPassword.bind(turfController));
 
 
-router.get("/slots/:email",authenticateToken,authorizeRoles(["turf"]),(req, res) => turfBookingController.getSlots(req, res))
-router.post("/slots",authenticateToken,authorizeRoles(["turf"]),(req, res) => turfBookingController.slotUpdate(req, res))
-router.get("/slots/:email/:date",authenticateToken,authorizeRoles(["turf"]),(req, res) => turfBookingController.currentSlots(req, res))
-router.delete("/delete-slots/:id",authenticateToken,authorizeRoles(["turf"]),(req, res) => turfBookingController.deleteSlot(req, res))
-router.get("/get-booking/:email",authenticateToken,authorizeRoles(["turf"]),(req, res) => turfBookingController.getBookings(req, res))
-router.patch("/cancel-booking",authenticateToken,authorizeRoles(["turf"]),(req, res) => turfBookingController.cancelBooking(req, res))
+router.get("/slots/:email",authenticateToken,authorizeRoles(["turf"]),(req, res,next) => turfBookingController.getSlots(req, res,next))
+router.post("/slots",authenticateToken,authorizeRoles(["turf"]),(req, res,next) => turfBookingController.slotUpdate(req, res,next))
+router.get("/slots/:email/:date",authenticateToken,authorizeRoles(["turf"]),(req, res,next) => turfBookingController.currentSlots(req, res,next))
+router.delete("/delete-slots/:id",authenticateToken,authorizeRoles(["turf"]),(req, res,next) => turfBookingController.deleteSlot(req, res,next))
+router.get("/get-booking/:email",authenticateToken,authorizeRoles(["turf"]),(req, res,next) => turfBookingController.getBookings(req, res,next))
+router.patch("/cancel-booking",authenticateToken,authorizeRoles(["turf"]),(req, res,next) => turfBookingController.cancelBooking(req, res,next))
 
 router.patch("/add-location",authenticateToken,authorizeRoles(["turf"]),turfInfoController.addLocation)
 router.get("/get-turfDetails/:email",authenticateToken,authorizeRoles(["turf"]),turfInfoController.getTurfDetails)
