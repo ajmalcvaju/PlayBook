@@ -18,6 +18,7 @@ type Booking = {
   slotNumber: number;
   bookingNumber: number;
   status: string;
+  turfSizes:string
 };
 
 const BookingList = () => {
@@ -368,6 +369,12 @@ const BookingList = () => {
                 {`${selectedBooking.date} ${selectedBooking.time}`}
               </p>
               <p>
+                <strong className="font-bold text-gray-900">
+                  Turf Size:
+                </strong>{" "}
+                {selectedBooking.turfSizes || "N/A"}
+              </p>
+              <p>
                 <strong className="font-bold text-gray-900">Price:</strong>{" "}
                 {`${selectedBooking.price}`}
               </p>
@@ -441,6 +448,10 @@ const BookingList = () => {
                     <div className="grid grid-cols-[4rem,1fr] gap-2">
                       <span className="font-medium">Time</span>
                       <span>{selectedBooking?.time}</span>
+                    </div>
+                    <div className="grid grid-cols-[4rem,1fr] gap-2">
+                      <span className="font-medium">Turf Size</span>
+                      <span>{selectedBooking?.turfSizes}</span>
                     </div>
                     <div className="grid grid-cols-[4rem,1fr] gap-2">
                       <span className="font-medium">Price</span>

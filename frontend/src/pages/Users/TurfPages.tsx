@@ -6,13 +6,16 @@ import { X } from "lucide-react";
 import { useSelector } from "react-redux";
 import { Star, Share2 } from "lucide-react";
 import { formatDistanceToNow, parseISO } from "date-fns";
-import { Swiper, SwiperSlide } from "swiper/react";
+
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
+// import { Swiper, SwiperSlide } from "swiper/react";
 // import 'swiper/swiper-bundle.min.css';
 // import "swiper/css"
 
 type Booking = {
   _id: string;
-  turfId:string;
+  turfId: string;
   slotId: string;
   date: string;
   turfName: string;
@@ -119,8 +122,6 @@ interface Review {
   createdAt: string; // ISO string for the creation date
 }
 
-
-
 const TurfPages: React.FC = () => {
   const navigate = useNavigate();
   let token = localStorage.getItem("userToken");
@@ -130,6 +131,7 @@ const TurfPages: React.FC = () => {
     }
   }, []);
   const [rating, setRating] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [comment, setComment] = useState<string>("");
   const [ratingSuccess, setRatingSuccess] = useState(false);
@@ -138,8 +140,9 @@ const TurfPages: React.FC = () => {
   const [reportSuccess, setReportSuccess] = useState(false);
   const [reportFailure, setReportFailure] = useState(false);
   const [reportModel, setReportModel] = useState<boolean>(false);
-  const [isBooked,setIsBooked]=useState<boolean>(false)
+  const [isBooked, setIsBooked] = useState<boolean>(false);
   const email = localStorage.getItem("userEmail");
+  const slidesPerView = 3;
 
   const tags = [
     "#StunningVibe",
@@ -156,10 +159,12 @@ const TurfPages: React.FC = () => {
   };
   const [turf, setTurf] = useState<Turf | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
-  const [currentWeather, setCurrentWeather] = useState<CurrentWeather|null>(null);
-  const [forecast, setForecast] = useState<Forecast|null>(null);
+  const [currentWeather, setCurrentWeather] = useState<CurrentWeather | null>(
+    null
+  );
+  const [forecast, setForecast] = useState<Forecast | null>(null);
   const [ratingModel, setRatingModel] = useState(false);
-  const [reviews, setReviews] = useState<Review[]|[]>([]);
+  const [reviews, setReviews] = useState<Review[] | []>([]);
   const [ratings, setRatings] = useState<number>(0);
   const [votes, setVotes] = useState<number>(0);
   const [selectedIssue, setSelectedIssue] = useState<string>("");
@@ -190,7 +195,7 @@ const TurfPages: React.FC = () => {
     };
     fetchTurfDetails();
   }, [id]);
-  
+
   useEffect(() => {
     const fetchTurfReview = async () => {
       try {
@@ -213,17 +218,19 @@ const TurfPages: React.FC = () => {
           throw new Error("Failed to fetch bookings");
         }
         res.data;
-        const isBookingMatch = (bookings: Booking[], turfId: string | undefined) =>
-          bookings.some(booking => booking.turfId === turfId);
-  
+        const isBookingMatch = (
+          bookings: Booking[],
+          turfId: string | undefined
+        ) => bookings.some((booking) => booking.turfId === turfId);
+
         setIsBooked(isBookingMatch(res.data, id));
       } catch (error) {
         console.error("Error fetching bookings:", error);
       }
     };
     fetchBookings();
-  }, [email, id]); 
-  
+  }, [email, id]);
+
   useEffect(() => {
     if (turf?.latitude && turf?.longitude) {
       const latitude = turf.latitude;
@@ -242,9 +249,9 @@ const TurfPages: React.FC = () => {
         `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&units=metric&appid=${API_KEY}`
       )
         .then((response) => response.json())
-        .then((data) =>{ 
-          console.log(data)
-          setForecast(data)
+        .then((data) => {
+          console.log(data);
+          setForecast(data);
         })
         .catch((error) =>
           console.error("Error fetching weather forecast:", error)
@@ -272,7 +279,7 @@ const TurfPages: React.FC = () => {
             center: location,
             zoom: 13,
           });
-    
+
           new google.maps.Marker({
             position: location,
             map: map,
@@ -285,7 +292,6 @@ const TurfPages: React.FC = () => {
         console.error("Invalid latitude or longitude");
       }
     };
-    
 
     if (!window.google || !google.maps) {
       loadGoogleMaps();
@@ -314,7 +320,7 @@ const TurfPages: React.FC = () => {
   const rateTurf = () => {
     setRatingModel(true);
   };
-  const changeComment = (e:any) => {
+  const changeComment = (e: any) => {
     const value = e.target.value;
     const tagsPart = `${selectedTags.join(", ")}`;
     if (value.startsWith(tagsPart)) {
@@ -393,7 +399,33 @@ const TurfPages: React.FC = () => {
       }, 3000);
     }
   };
-  
+
+  // Auto-slide every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      nextSlide();
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [currentIndex]);
+
+  // Next slide (shift by 3 reviews)
+  const nextSlide = () => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex + slidesPerView >= reviews.length
+        ? 0
+        : prevIndex + slidesPerView
+    );
+  };
+
+  // Previous slide
+  const prevSlide = () => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex - slidesPerView < 0
+        ? reviews.length - (reviews.length % slidesPerView || slidesPerView)
+        : prevIndex - slidesPerView
+    );
+  };
+
   return (
     <>
       {reportSuccess && (
@@ -633,16 +665,17 @@ const TurfPages: React.FC = () => {
             <div className="flex justify-between items-center gap-3 bg-zinc-900 text-white px-4 py-2 rounded-lg shadow-md sm:w-full lg:w-1/2">
               <div className="flex items-center gap-2">
                 <Star className="w-5 h-5 fill-pink-500 stroke-pink-500" />
-                <span className="font-medium">{ratings}/10</span>
+                <span className="font-medium">{ratings.toFixed(2)}/10</span>
                 <div className="text-zinc-400 text-sm">({votes} Votes)</div>
               </div>
-              {isBooked&&(
-              <button
-                onClick={rateTurf}
-                className="ml-2 bg-white text-black hover:bg-zinc-200 hover:text-black border-2 border-gray-300 shadow-lg rounded-lg px-3 py-1 transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-              >
-                Rate now
-              </button>)}
+              {isBooked && (
+                <button
+                  onClick={rateTurf}
+                  className="ml-2 bg-white text-black hover:bg-zinc-200 hover:text-black border-2 border-gray-300 shadow-lg rounded-lg px-3 py-1 transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                >
+                  Rate now
+                </button>
+              )}
             </div>
 
             {/* Turf Details */}
@@ -772,31 +805,28 @@ const TurfPages: React.FC = () => {
               <h1 className="text-center mb-5 text-3xl border-b-2 border-gray-600 pb-2">
                 Reviews
               </h1>
-              <div className="w-full max-w-7xl mx-auto py-6">
-                {/* Reviews Carousel */}
-                <Swiper
-                  spaceBetween={30}
-                  slidesPerView={1}
-                  breakpoints={{
-                    640: { slidesPerView: 1 }, // 1 review per view on mobile
-                    768: { slidesPerView: 2 }, // 2 reviews per view on tablets
-                    1024: { slidesPerView: 3 }, // 3 reviews per view on desktops
-                  }}
-                  loop={true} // Optional: makes the carousel loop infinitely
-                  pagination={{ clickable: true }} // Optional: adds pagination controls
-                  navigation={{ enabled: true }} // Optional: adds navigation arrows
-                >
-                  {reviews.map((review) => (
-                    <SwiperSlide key={review._id}>
-                      <div className="w-full max-w-xl p-6 bg-white border border-gray-200 rounded-lg shadow-lg">
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="flex flex-col">
+              <div className="relative w-full max-w-6xl mx-auto px-4">
+                {/* Reviews Container */}
+                <div className="overflow-hidden">
+                  <div
+                    className="flex transition-transform duration-500 ease-in-out"
+                    style={{
+                      transform: `translateX(-${
+                        (currentIndex / slidesPerView) * 100
+                      }%)`,
+                    }}
+                  >
+                    {reviews.map((review) => (
+                      <div
+                        key={review._id}
+                        className="w-full sm:w-1/2 lg:w-1/3 p-4 flex-shrink-0"
+                      >
+                        <div className="p-6 bg-white border border-gray-200 rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300">
+                          <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-full bg-gray-200 overflow-hidden">
-                                {/* Placeholder for user avatar */}
-                              </div>
+                              <div className="w-10 h-10 rounded-full bg-gray-300 overflow-hidden"></div>
                               <div>
-                                <div className="text-sm text-gray-900">
+                                <div className="text-sm font-semibold text-gray-900">
                                   {review.userId.firstName}{" "}
                                   {review.userId.lastName}
                                 </div>
@@ -805,38 +835,69 @@ const TurfPages: React.FC = () => {
                                 </div>
                               </div>
                             </div>
+                            <div className="flex items-center gap-1">
+                              <Star className="w-5 h-5 fill-rose-400 stroke-rose-400" />
+                              <span className="text-sm font-semibold text-gray-900">
+                                {review.rating.toFixed(2)}/10
+                              </span>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <Star className="w-5 h-5 fill-rose-400 stroke-rose-400" />
-                            <span className="text-sm text-gray-900">
-                              {review.rating}/10
-                            </span>
-                          </div>
-                        </div>
 
-                        <div className="space-y-3">
-                          <div className="text-blue-600 text-sm">
-                            {review.tags.join(", ")}
-                          </div>
-                          <p className="text-gray-600 text-sm">
-                            {review.comment}
-                          </p>
+                          <div className="space-y-3">
+                            <div className="text-blue-600 text-xs font-medium">
+                              {review.tags.join(", ")}
+                            </div>
+                            <p className="text-gray-600 text-sm leading-relaxed">
+                              {review.comment}
+                            </p>
 
-                          <div className="flex items-center gap-6 pt-2">
-                            <span className="text-gray-400 text-sm">
-                              {formatDistanceToNow(parseISO(review.createdAt), {
-                                addSuffix: true,
-                              })}
-                            </span>
-                            <button className="ml-auto">
-                              <Share2 className="w-4 h-4 text-gray-500" />
-                            </button>
+                            <div className="flex items-center gap-6 pt-2">
+                              <span className="text-gray-400 text-xs">
+                                {formatDistanceToNow(
+                                  parseISO(review.createdAt),
+                                  { addSuffix: true }
+                                )}
+                              </span>
+                              <button className="ml-auto hover:opacity-80 transition-opacity">
+                                <Share2 className="w-4 h-4 text-gray-500" />
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </SwiperSlide>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Navigation Buttons */}
+                <button
+                  className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-all"
+                  onClick={prevSlide}
+                >
+                  <ChevronLeft className="w-6 h-6 text-gray-700" />
+                </button>
+                <button
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-all"
+                  onClick={nextSlide}
+                >
+                  <ChevronRight className="w-6 h-6 text-gray-700" />
+                </button>
+
+                {/* Dots Indicator */}
+                <div className="flex justify-center mt-4 space-x-2">
+                  {Array.from({
+                    length: Math.ceil(reviews.length / slidesPerView),
+                  }).map((_, index) => (
+                    <div
+                      key={index}
+                      className={`h-3 w-3 rounded-full transition-all duration-300 ${
+                        Math.floor(currentIndex / slidesPerView) === index
+                          ? "bg-gray-800 scale-125"
+                          : "bg-gray-300"
+                      }`}
+                    ></div>
                   ))}
-                </Swiper>
+                </div>
               </div>
             </div>
           </div>

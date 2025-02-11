@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import apiClient from "../../apiClient";
 
-type Booking ={
+type Booking = {
   _id: string;
   price: number;
   slotId: string;
@@ -14,6 +14,7 @@ type Booking ={
   lastName: string;
   mobileNumber: string;
   email: string;
+  turfSizes: string;
 };
 
 const BookingManagement = () => {
@@ -32,20 +33,20 @@ const BookingManagement = () => {
   const [loading, setLoading] = useState(true); // State to manage loading
   const email = localStorage.getItem("turfEmail");
   const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const [bookingId,setBookingId]=useState<string>("");
+  const [bookingId, setBookingId] = useState<string>("");
   const [selectedBooking, setSelectedBooking] = React.useState<null | Booking>(
     null
   );
   const [currentPage, setCurrentPage] = useState(1);
   const bookingsPerPage = 6;
-  const cancellBooking = (slotId: string,bookingId:string) => {
+  const cancellBooking = (slotId: string, bookingId: string) => {
     setSlotId(slotId);
     setBookingId(bookingId);
     SetCancellationConfirmation(true);
   };
   useEffect(() => {
     const fetchBookings = async () => {
-      console.log("hello")
+      console.log("hello");
       try {
         const response = await apiClient.get(`/turfs/get-booking/${email}`);
         if (response.status !== 200) {
@@ -53,7 +54,7 @@ const BookingManagement = () => {
         }
         const data = response.data;
         setBookings(data);
-        console.log(data)
+        console.log(data);
       } catch (error) {
         console.error("Error fetching bookings:", error);
       } finally {
@@ -68,32 +69,38 @@ const BookingManagement = () => {
     return (
       <div className="flex flex-col items-center justify-center bg-gradient-to-br from-gray-800 via-gray-900 to-black text-gray-300 min-h-screen">
         <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500 border-opacity-75 mb-4"></div>
-        <h1 className="text-xl font-semibold tracking-wider">Loading Bookings...</h1>
-        <p className="text-gray-400 text-sm mt-2">Please wait a moment while we fetch your data.</p>
+        <h1 className="text-xl font-semibold tracking-wider">
+          Loading Bookings...
+        </h1>
+        <p className="text-gray-400 text-sm mt-2">
+          Please wait a moment while we fetch your data.
+        </p>
       </div>
     );
-    
   }
   const onClose = () => {
     SetCancellationConfirmation(false);
   };
-  const onConfirmCancellation=async ()=>{
+  const onConfirmCancellation = async () => {
     try {
-      const res = await apiClient.patch(`/turfs/cancel-booking`, {slotId,bookingId});
+      const res = await apiClient.patch(`/turfs/cancel-booking`, {
+        slotId,
+        bookingId,
+      });
       if (res.data.success) {
         setBookings((prevBookings) =>
           prevBookings.map((booking) =>
             booking._id === bookingId
-              ? { ...booking, status: 'cancelled',price:0 }
+              ? { ...booking, status: "cancelled", price: 0 }
               : booking
           )
-        ); 
+        );
         SetCancellationConfirmation(false);
       }
     } catch (error) {
       console.error("Error cancelling booking:", error);
     }
- }
+  };
   const indexOfLastBooking = currentPage * bookingsPerPage;
   const indexOfFirstBooking = indexOfLastBooking - bookingsPerPage;
   const currentBookings = bookings.slice(
@@ -101,11 +108,11 @@ const BookingManagement = () => {
     indexOfLastBooking
   );
   const totalPages = Math.ceil(bookings.length / bookingsPerPage);
-  const paginate = (pageNumber:number) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
   return (
     <>
       {isModalOpen && selectedBooking && (
-        <div className="fixed inset-0 bg-gradient-to-br min-h-max from-black via-gray-800 to-gray-900 bg-opacity-75 flex items-center justify-center transition-opacity duration-300">
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center transition-opacity duration-300 z-50">
           <div className="bg-white p-8 rounded-lg shadow-2xl w-full sm:w-1/2 md:w-1/3 lg:w-1/4 relative space-y-6">
             <h2 className="text-3xl font-extrabold text-gray-800 mb-6 text-center border-b pb-4">
               Booking Details
@@ -118,8 +125,11 @@ const BookingManagement = () => {
                 {selectedBooking.slotNumber}
               </p>
               <p>
-                <strong className="font-bold text-gray-900">Customer Name:</strong>{" "}
-                {selectedBooking.firstName || "N/A"} {selectedBooking.lastName || "N/A"}
+                <strong className="font-bold text-gray-900">
+                  Customer Name:
+                </strong>{" "}
+                {selectedBooking.firstName || "N/A"}{" "}
+                {selectedBooking.lastName || ""}
               </p>
               <p>
                 <strong className="font-bold text-gray-900">Email:</strong>{" "}
@@ -138,6 +148,10 @@ const BookingManagement = () => {
                 {`${selectedBooking.date} ${selectedBooking.time}`}
               </p>
               <p>
+                <strong className="font-bold text-gray-900">Turf Size:</strong>{" "}
+                {selectedBooking.turfSizes}
+              </p>
+              <p>
                 <strong className="font-bold text-gray-900">Price:</strong>{" "}
                 {`${selectedBooking.price}`}
               </p>
@@ -147,14 +161,6 @@ const BookingManagement = () => {
               </p>
             </div>
             <div className="flex justify-center gap-4 mt-6">
-              <button
-                onClick={() => {
-                  setIsModalOpen(false);
-                }}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-md shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
-              >
-                Ticket
-              </button>
               <button
                 onClick={() => setIsModalOpen(false)}
                 className="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-8 rounded-md shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
@@ -260,7 +266,7 @@ const BookingManagement = () => {
                       {booking.status === "pending" && (
                         <button
                           onClick={() =>
-                            cancellBooking(booking.slotId,booking._id)
+                            cancellBooking(booking.slotId, booking._id)
                           }
                           className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg"
                         >

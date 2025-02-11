@@ -210,7 +210,7 @@ export class TurfBookSlotRepositoryImpl implements TurfBookSlotRepository {
 
   async getBookings(id: string): Promise<any[]> {
     const bookings = await BookingModel.find({ turfId: id })
-      .populate('slotId', '_id time slotNumber date')
+      .populate('slotId', '_id time slotNumber turfSizes date')
       .populate('userId', 'firstName lastName mobileNumber email')
       .sort({ createdAt: -1 })
       .exec();
@@ -230,7 +230,8 @@ export class TurfBookSlotRepositoryImpl implements TurfBookSlotRepository {
         firstName: user?.firstName || '',
         lastName: user?.lastName || '',
         mobileNumber: user?.mobileNumber ?? '',
-        email: user?.email || ''
+        email: user?.email || '',
+        turfSizes:slot?.turfSizes || ''
       };
     });
   }
