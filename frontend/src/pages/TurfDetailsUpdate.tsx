@@ -1,4 +1,4 @@
-import React, { useEffect,useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import apiClient from "../apiClient";
@@ -11,7 +11,6 @@ type RegisterFormData = {
 };
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string;
 const TurfDetailsUpdate = () => {
-
   const {
     register,
     handleSubmit,
@@ -24,6 +23,8 @@ const TurfDetailsUpdate = () => {
   const [gallery, setGallery] = useState<FileList | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [map, setMap] = useState<google.maps.Map | null>(null);
+  const [turftypes, setTurfTypes] = useState<string[] | null>([]);
+  const [turfSizes, setTurfSizes] = useState<string[] | null>([]);
   const [marker, setMarker] = useState<google.maps.Marker | null>(null);
   const [selectedTurfTypes, setSelectedTurfTypes] = useState<string[]>([]);
   const [selectedTurfSizes, setSelectedTurfSizes] = useState<string[]>([]);
@@ -52,6 +53,8 @@ const TurfDetailsUpdate = () => {
         setOverView(data.turfOverview);
         setFacilities(data.facilities);
         setAddress(data.turfAddress);
+        setTurfSizes(data.turfSizes);
+        setTurfTypes(data.turfTypes);
       } catch (error) {
         console.error("Error fetching turf details:", error);
       }
@@ -77,7 +80,7 @@ const TurfDetailsUpdate = () => {
     };
   }, []);
 
-  let previousMarker : google.maps.Marker | null= null;
+  let previousMarker: google.maps.Marker | null = null;
   const initMap = () => {
     const mapInstance = new window.google.maps.Map(
       document.getElementById("map") as HTMLElement,
@@ -91,9 +94,9 @@ const TurfDetailsUpdate = () => {
     autocomplete.setFields(["place_id", "geometry", "name"]);
     autocomplete.addListener("place_changed", () => {
       const place = autocomplete.getPlace();
-      if (place.geometry && place.geometry.location) {  
+      if (place.geometry && place.geometry.location) {
         if (previousMarker) {
-          previousMarker.setMap(null);  // Remove previous marker if exists
+          previousMarker.setMap(null); // Remove previous marker if exists
         }
         const location = place.geometry.location;
         mapInstance.setCenter(location);
@@ -113,7 +116,6 @@ const TurfDetailsUpdate = () => {
       } else {
         setIsLocationErrorModel(true);
       }
-      
     });
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position) => {
@@ -134,7 +136,7 @@ const TurfDetailsUpdate = () => {
       });
     }
 
-    mapInstance.addListener("click", (event:any) => {
+    mapInstance.addListener("click", (event: any) => {
       if (previousMarker) {
         previousMarker.setMap(null);
       }
@@ -148,7 +150,7 @@ const TurfDetailsUpdate = () => {
       const userPosition = {
         lat: newPosition?.lat() as number,
         lng: newPosition?.lng() as number,
-      }
+      };
       mapInstance.setCenter(userPosition);
       const userMarker = new window.google.maps.Marker({
         position: userPosition,
@@ -162,7 +164,7 @@ const TurfDetailsUpdate = () => {
     setMap(mapInstance);
   };
 
-  const addMarker = (latLng:any) => {
+  const addMarker = (latLng: any) => {
     if (marker) marker.setMap(null);
     const newMarker = new window.google.maps.Marker({
       position: latLng,
@@ -178,7 +180,7 @@ const TurfDetailsUpdate = () => {
     getAddressFromCoordinates(latLng.lat(), latLng.lng());
   };
 
-  const getAddressFromCoordinates = async (lat:any, lng:any) => {
+  const getAddressFromCoordinates = async (lat: any, lng: any) => {
     try {
       const response = await axios.get(
         `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${GOOGLE_MAPS_API_KEY}`
@@ -271,7 +273,7 @@ const TurfDetailsUpdate = () => {
     setIsModalOpen(false);
   };
 
-  const handleCheckboxChange = (e:any) => {
+  const handleCheckboxChange = (e: any) => {
     const { value, checked } = e.target;
     if (checked) {
       setSelectedTurfTypes((prev) => [...prev, value]);
@@ -279,7 +281,7 @@ const TurfDetailsUpdate = () => {
       setSelectedTurfTypes((prev) => prev.filter((type) => type !== value));
     }
   };
-  const handleSizeCheckboxChange = (e:any) => {
+  const handleSizeCheckboxChange = (e: any) => {
     const { value, checked } = e.target;
     if (checked) {
       setSelectedTurfSizes((prev) => [...prev, value]);
@@ -474,6 +476,7 @@ const TurfDetailsUpdate = () => {
                     name="turfType"
                     value={turf}
                     onChange={handleCheckboxChange}
+                    checked={turftypes?.includes(turf)}
                     className="mr-2"
                   />
                   <label htmlFor={turf.toLowerCase()} className="text-gray-300">
@@ -493,10 +496,11 @@ const TurfDetailsUpdate = () => {
                 <div key={size} className="flex items-center">
                   <input
                     type="checkbox"
-                    id={size.replace(/\s+/g, "").toLowerCase()} // Create a unique ID by removing spaces and making lowercase
+                    id={size.replace(/\s+/g, "").toLowerCase()} // Create a unique ID
                     name="turfSize"
                     value={size}
                     onChange={handleSizeCheckboxChange}
+                    checked={turfSizes?.includes(size)} // Pre-check if size exists in turfSizes
                     className="mr-2"
                   />
                   <label
@@ -509,6 +513,7 @@ const TurfDetailsUpdate = () => {
               ))}
             </div>
           </div>
+
           {errorMessage && (
             <div className="text-red-500 text-center">{errorMessage}</div>
           )}
