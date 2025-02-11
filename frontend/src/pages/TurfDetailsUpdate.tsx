@@ -23,8 +23,6 @@ const TurfDetailsUpdate = () => {
   const [gallery, setGallery] = useState<FileList | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [turftypes, setTurfTypes] = useState<string[] | null>([]);
-  const [turfSizes, setTurfSizes] = useState<string[] | null>([]);
   const [marker, setMarker] = useState<google.maps.Marker | null>(null);
   const [selectedTurfTypes, setSelectedTurfTypes] = useState<string[]>([]);
   const [selectedTurfSizes, setSelectedTurfSizes] = useState<string[]>([]);
@@ -53,8 +51,8 @@ const TurfDetailsUpdate = () => {
         setOverView(data.turfOverview);
         setFacilities(data.facilities);
         setAddress(data.turfAddress);
-        setTurfSizes(data.turfSizes);
-        setTurfTypes(data.turfTypes);
+        setSelectedTurfSizes(data.turfSizes);
+        setSelectedTurfTypes(data.turfTypes);
       } catch (error) {
         console.error("Error fetching turf details:", error);
       }
@@ -476,7 +474,7 @@ const TurfDetailsUpdate = () => {
                     name="turfType"
                     value={turf}
                     onChange={handleCheckboxChange}
-                    checked={turftypes?.includes(turf)}
+                    checked={selectedTurfTypes?.includes(turf)}
                     className="mr-2"
                   />
                   <label htmlFor={turf.toLowerCase()} className="text-gray-300">
@@ -500,7 +498,7 @@ const TurfDetailsUpdate = () => {
                     name="turfSize"
                     value={size}
                     onChange={handleSizeCheckboxChange}
-                    checked={turfSizes?.includes(size)} // Pre-check if size exists in turfSizes
+                    checked={selectedTurfSizes?.includes(size)} // Pre-check if size exists in turfSizes
                     className="mr-2"
                   />
                   <label

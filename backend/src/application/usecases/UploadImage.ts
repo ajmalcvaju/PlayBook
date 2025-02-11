@@ -10,9 +10,7 @@ export const uploadedImage = async (files: Express.Multer.File[]): Promise<strin
   const uploadedImages: string[] = [];
   try {
     for (const file of files) {
-      const result = await cloudinary.uploader.upload(file.path, {
-        folder: "turf_images",
-      });
+      const result = await cloudinary.uploader.upload(file.path);
       uploadedImages.push(result.url);
     }
     return uploadedImages;
