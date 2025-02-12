@@ -215,7 +215,7 @@ export class TurfBookSlotRepositoryImpl implements TurfBookSlotRepository {
       .sort({ createdAt: -1 })
       .exec();
 
-    return bookings.map((booking) => {
+    return bookings.map((booking:any) => {
       const user = booking.userId as any;
       const slot = booking.slotId as any;
       
