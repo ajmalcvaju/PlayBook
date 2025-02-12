@@ -38,7 +38,7 @@ const AdminLogin = () => {
         setErrorMessage(result.message);
       }
     } catch (error) {
-      setErrorMessage("Unable to Login. Please try again later.");
+      setErrorMessage("Invalid email or password. Please try again later.");
     } finally {
       setIsLoading(false);
     }

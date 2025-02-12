@@ -61,14 +61,7 @@ console.log(paths);
 
 connectDB();
  
-// app.use((req,res,next)=>{
-//   console.log(req.cookies)
-//   next()
-// });
-// app.use((req, res, next) => {
-//   console.log('Request Headers:', req.headers);
-//   next();
-// });
+
 
 app.use('/api/users', userRoutes);
 app.use('/api/turfs', turfRoutes);

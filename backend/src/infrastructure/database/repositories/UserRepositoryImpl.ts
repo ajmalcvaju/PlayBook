@@ -349,7 +349,7 @@ export class TeamRepositoryImpl implements TeamRepository {
 
   async getSlotsForSell(id: string): Promise<any[]> {
     const bookings = await BookingModel.find()
-      .populate("slotId", "_id time slotNumber date")
+      .populate("slotId", "_id time slotNumber date turfSizes")
       .populate("turfId", "_id turfName mobileNumber email locationName latitude longitude")
       .populate("userId", "_id firstName lastName mobileNumber")
       .sort({ createdAt: -1 })
@@ -367,6 +367,7 @@ export class TeamRepositoryImpl implements TeamRepository {
         status: booking.status || "",
         time: slot?.time || "",
         date: slot?.date || "",
+        turfSize:slot?.turfSizes||"",
         slotNumber: slot?.slotNumber || 0,
         turfName: turf?.turfName || "",
         mobileNumber: turf?.mobileNumber || "",

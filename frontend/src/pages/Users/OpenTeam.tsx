@@ -35,6 +35,7 @@ type Booking = {
   date: string;
   turfName: string;
   time: string;
+  turfSize:string;
   price: string;
   mobileNumber: string;
   email: string;
@@ -414,6 +415,12 @@ const OpenTeam = () => {
                 </p>
                 <p>
                   <span className="font-semibold text-gray-600">
+                    📏 Turf Size:
+                  </span>{" "}
+                  {selectedViewBooking.turfSize}
+                </p>
+                <p>
+                  <span className="font-semibold text-gray-600">
                     📞 Mobile Number:
                   </span>{" "}
                   {selectedViewBooking.userMobileNumber}
@@ -535,12 +542,13 @@ const OpenTeam = () => {
             </div>
           </div>
         )}
-        <div className="bg-gray-800/80 backdrop-blur-lg w-3/4 max-w-full rounded-xl shadow-2xl p-6 border border-gray-700">
-          <h1 className="text-4xl font-bold text-center mb-6 text-white drop-shadow-md">
+        <div className="bg-gray-800/80 backdrop-blur-lg w-full md:w-3/4 max-w-lg md:max-w-2xl lg:max-w-3xl rounded-xl shadow-2xl p-4 md:p-6 border border-gray-700 mx-auto">
+          <h1 className="text-2xl md:text-4xl font-bold text-center mb-4 md:mb-6 text-white drop-shadow-md break-words">
             {team?.teamName}
           </h1>
+
           {team?.secretCode && (
-            <p className="text-center text-lg text-yellow-400 font-semibold mt-2">
+            <p className="text-center text-base md:text-lg text-yellow-400 font-semibold mt-2">
               Secret Code:{" "}
               <span className="font-mono bg-gray-800 px-2 py-1 rounded">
                 {team.secretCode}
@@ -600,7 +608,7 @@ const OpenTeam = () => {
                           )}
 
                           {/* Show Remove Button if Current User is Admin */}
-                          {isAdmin&&!member.isAdmin&& (
+                          {isAdmin && !member.isAdmin && (
                             <button
                               onClick={() => {
                                 setShowModalRemove(true);
@@ -639,133 +647,130 @@ const OpenTeam = () => {
             {activeTab === "Slots" && (
               <div className="max-w-2xl mx-auto p-6 bg-gray-900 rounded-lg shadow-lg text-white">
                 {/* Tab Buttons */}
-                <div className="flex justify-center space-x-4 mb-6">
-                  <button
-                    className={`px-5 py-2 text-lg font-semibold rounded-full transition-all duration-300 ${
-                      activeSlotTab === "Slots"
-                        ? "bg-green-500 text-white shadow-md"
-                        : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                    }`}
-                    onClick={() => setActiveSlotTab("Slots")}
-                  >
-                    Available Slots
-                  </button>
-                  <button
-                    className={`px-5 py-2 text-lg font-semibold rounded-full transition-all duration-300 ${
-                      activeSlotTab === "Sell"
-                        ? "bg-blue-500 text-white shadow-md"
-                        : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                    }`}
-                    onClick={() => setActiveSlotTab("Sell")}
-                  >
-                    Sell Your Slots
-                  </button>
-                  <button
-                    className={`px-5 py-2 text-lg font-semibold rounded-full transition-all duration-300 ${
-                      activeSlotTab === "Booked"
-                        ? "bg-purple-500 text-white shadow-md"
-                        : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                    }`}
-                    onClick={() => setActiveSlotTab("Booked")}
-                  >
-                    Your Booked Slots
-                  </button>
-                </div>
+                <div className="flex flex-wrap justify-center gap-2 md:gap-4 mb-6">
+  <button
+    className={`w-full sm:w-auto px-4 md:px-5 py-1 md:py-2 text-sm md:text-lg font-semibold rounded-full transition-all duration-300 ${
+      activeSlotTab === "Slots"
+        ? "bg-green-500 text-white shadow-md"
+        : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+    }`}
+    onClick={() => setActiveSlotTab("Slots")}
+  >
+    Available Slots
+  </button>
+  <button
+    className={`w-full sm:w-auto px-4 md:px-5 py-1 md:py-2 text-sm md:text-lg font-semibold rounded-full transition-all duration-300 ${
+      activeSlotTab === "Sell"
+        ? "bg-blue-500 text-white shadow-md"
+        : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+    }`}
+    onClick={() => setActiveSlotTab("Sell")}
+  >
+    Sell Your Slots
+  </button>
+  <button
+    className={`w-full sm:w-auto px-4 md:px-5 py-1 md:py-2 text-sm md:text-lg font-semibold rounded-full transition-all duration-300 ${
+      activeSlotTab === "Booked"
+        ? "bg-purple-500 text-white shadow-md"
+        : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+    }`}
+    onClick={() => setActiveSlotTab("Booked")}
+  >
+    Your Booked Slots
+  </button>
+</div>
+
 
                 {/* Tab Content */}
                 <div className="p-6 border border-gray-700 rounded-lg bg-gray-800">
                   {activeSlotTab === "Slots" && (
-                    <div className="text-center">
-                      <h3 className="font-bold text-3xl mb-4 text-green-400">
-                        Available Slots
-                      </h3>
-                      <p className="text-gray-300 text-lg mb-6">
-                        Explore the available slots and book them before they’re
-                        gone!
-                      </p>
-
-                      {/* Card Layout for Available Bookings */}
-                      <div className="grid grid-cols-1 gap-6 px-4">
-                        {currentAvailableBookings.length > 0 ? (
-                          currentAvailableBookings.map((booking) => (
-                            <div
-                              key={booking._id}
-                              className="bg-gray-800 border border-gray-700 rounded-lg shadow-md p-6 hover:shadow-lg transition-all"
+                    <div className="text-center px-4 sm:px-6 md:px-8">
+                    <h3 className="font-bold text-2xl sm:text-3xl mb-4 text-green-400">
+                      Available Slots
+                    </h3>
+                    <p className="text-gray-300 text-base sm:text-lg mb-6">
+                      Explore the available slots and book them before they’re gone!
+                    </p>
+                  
+                    {/* Card Layout for Available Bookings */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {currentAvailableBookings.length > 0 ? (
+                        currentAvailableBookings.map((booking) => (
+                          <div
+                            key={booking._id}
+                            className="bg-gray-800 border border-gray-700 rounded-lg shadow-md p-6 hover:shadow-lg transition-all max-w-md w-full mx-auto"
+                          >
+                            <h4 className="text-lg sm:text-xl font-semibold text-green-400">
+                              {booking.turfName}
+                            </h4>
+                            <p className="text-gray-300 mt-2">
+                              <span className="font-semibold">Mobile Number:</span>{" "}
+                              {booking.userMobileNumber}
+                            </p>
+                            <p className="text-gray-300 mt-2">
+                              <span className="font-semibold">Location:</span> {booking.location}
+                            </p>
+                            <p className="text-gray-300 mt-1">
+                              <span className="font-semibold">Date:</span> {booking.date}
+                            </p>
+                            <p className="text-gray-300 mt-1">
+                              <span className="font-semibold">Time:</span> {booking.time}
+                            </p>
+                            <p className="text-gray-300 mt-1">
+                              <span className="font-semibold">Turf Size:</span> {booking.turfSize}
+                            </p>
+                            <p className="text-gray-300 mt-1">
+                              <span className="font-semibold">Distance:</span> {booking.distance} km
+                            </p>
+                  
+                            <button
+                              className="mt-4 bg-green-500 hover:bg-green-600 text-white font-bold py-2 rounded-md transition-all w-full sm:w-1/2 md:w-1/3"
+                              onClick={() => openModal(booking)}
                             >
-                              <h4 className="text-xl font-semibold text-green-400">
-                                {booking.turfName}
-                              </h4>
-                              <p className="text-gray-300 mt-2">
-                                <span className="font-semibold">
-                                  Mobile Number:
-                                </span>{" "}
-                                {booking.userMobileNumber}
-                              </p>
-                              <p className="text-gray-300 mt-2">
-                                <span className="font-semibold">Location:</span>{" "}
-                                {booking.location}
-                              </p>
-                              <p className="text-gray-300 mt-1">
-                                <span className="font-semibold">Date:</span>{" "}
-                                {booking.date}
-                              </p>
-                              <p className="text-gray-300 mt-1">
-                                <span className="font-semibold">Time:</span>{" "}
-                                {booking.time}
-                              </p>
-                              <p className="text-gray-300 mt-1">
-                                <span className="font-semibold">Distance:</span>{" "}
-                                {booking.distance} km
-                              </p>
-
-                              <button
-                                className="mt-4 bg-green-500 hover:bg-green-600 text-white font-bold py-2 rounded-md transition-all w-1/2"
-                                onClick={() => openModal(booking)}
-                              >
-                                Join
-                              </button>
-                            </div>
-                          ))
-                        ) : (
-                          <p className="col-span-full text-gray-400 text-center">
-                            No available slots at the moment.
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Pagination Controls */}
-                      <div className="flex justify-center mt-6 space-x-2">
-                        <button
-                          className={`px-4 py-2 rounded-md ${
-                            currentPage === 1
-                              ? "bg-gray-600 cursor-not-allowed"
-                              : "bg-blue-500 hover:bg-blue-600 text-white"
-                          }`}
-                          disabled={currentPage === 1}
-                          onClick={handlePrevPage}
-                        >
-                          Previous
-                        </button>
-                        <span className="text-gray-300 px-4 py-2">
-                          Page {currentPage}
-                        </span>
-                        <button
-                          className={`px-4 py-2 rounded-md ${
-                            indexOfLastItem >= availableBookings.length
-                              ? "bg-gray-600 cursor-not-allowed"
-                              : "bg-blue-500 hover:bg-blue-600 text-white"
-                          }`}
-                          disabled={indexOfLastItem >= availableBookings.length}
-                          onClick={handleNextPage}
-                        >
-                          Next
-                        </button>
-                      </div>
+                              Join
+                            </button>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="col-span-full text-gray-400 text-center">
+                          No available slots at the moment.
+                        </p>
+                      )}
                     </div>
+                  
+                    {/* Pagination Controls */}
+                    <div className="flex justify-center mt-6 space-x-2">
+                      <button
+                        className={`px-4 py-2 rounded-md text-sm sm:text-base ${
+                          currentPage === 1
+                            ? "bg-gray-600 cursor-not-allowed text-gray-400"
+                            : "bg-blue-500 hover:bg-blue-600 text-white"
+                        }`}
+                        disabled={currentPage === 1}
+                        onClick={handlePrevPage}
+                      >
+                        Previous
+                      </button>
+                      <span className="text-gray-300 px-4 py-2 text-sm sm:text-base">
+                        Page {currentPage}
+                      </span>
+                      <button
+                        className={`px-4 py-2 rounded-md text-sm sm:text-base ${
+                          indexOfLastItem >= availableBookings.length
+                            ? "bg-gray-600 cursor-not-allowed text-gray-400"
+                            : "bg-blue-500 hover:bg-blue-600 text-white"
+                        }`}
+                        disabled={indexOfLastItem >= availableBookings.length}
+                        onClick={handleNextPage}
+                      >
+                        Next
+                      </button>
+                    </div>
+                  </div>                  
                   )}
                   {activeSlotTab === "Sell" && (
                     <div className="text-center px-4">
-                      <h3 className="font-bold text-3xl mb-4 text-blue-400">
+                      <h3 className="font-bold text-2xl sm:text-3xl mb-4 text-blue-400">
                         Sell Your Slots
                       </h3>
                       <p className="text-gray-300 text-lg mb-6">
@@ -838,7 +843,7 @@ const OpenTeam = () => {
 
                   {activeSlotTab === "Booked" && (
                     <div className="text-center">
-                      <h3 className="font-bold text-3xl mb-4 text-green-400">
+                      <h3 className="font-bold text-2xl sm:text-3xl mb-4 text-green-400">
                         Your Booked Slots
                       </h3>
                       <p className="text-gray-300 text-lg mb-6">

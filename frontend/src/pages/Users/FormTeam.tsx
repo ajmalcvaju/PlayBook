@@ -138,7 +138,7 @@ const FormTeam = () => {
       }
     };
     fetchTeams();
-  }, [successMessage,showTable]);
+  }, [successMessage, showTable]);
   const table = (mode: "new" | "current") => {
     let userId = currentUser._id;
     if (mode === "new") {
@@ -240,89 +240,94 @@ const FormTeam = () => {
       )}
 
       {showTable && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 space-y-4">
-            <div className="flex justify-between">
-              <h2 className="text-xl font-bold text-gray-800 mb-4">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4 sm:p-6 md:p-8">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl p-4 sm:p-6 space-y-4 overflow-auto max-h-[90vh]">
+            <div className="flex justify-between items-center">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-800">
                 Available Teams
               </h2>
               <button
-                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg"
+                className="bg-red-500 hover:bg-red-600 text-white px-3 sm:px-4 py-2 rounded-lg"
                 onClick={() => setShowTable(false)}
               >
                 Close
               </button>
             </div>
-            <table className="w-full border-collapse border border-gray-300">
-              <thead className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white">
-                <tr>
-                  <th className="border border-gray-300 px-6 py-4 text-left text-lg font-bold uppercase tracking-wider">
-                    Team Name
-                  </th>
-                  <th className="border border-gray-300 px-6 py-4 text-left text-lg font-bold uppercase tracking-wider">
-                    Max Members
-                  </th>
-                  <th className="border border-gray-300 px-6 py-4 text-left text-lg font-bold uppercase tracking-wider">
-                    Privacy
-                  </th>
-                  <th className="border border-gray-300 px-6 py-4 text-left text-lg font-bold uppercase tracking-wider">
-                    Action
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentTeams.length === 0 ? (
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse border border-gray-300 text-sm sm:text-base">
+                <thead className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white">
                   <tr>
-                    <td className="text-center py-4 text-gray-600 font-semibold">
-                      No teams found
-                    </td>
+                    <th className="border border-gray-300 px-4 sm:px-6 py-3 text-left font-bold uppercase">
+                      Team Name
+                    </th>
+                    <th className="border border-gray-300 px-4 sm:px-6 py-3 text-left font-bold uppercase">
+                      Max Members
+                    </th>
+                    <th className="border border-gray-300 px-4 sm:px-6 py-3 text-left font-bold uppercase">
+                      Privacy
+                    </th>
+                    <th className="border border-gray-300 px-4 sm:px-6 py-3 text-left font-bold uppercase">
+                      Action
+                    </th>
                   </tr>
-                ) : (
-                  currentTeams.map((team, index) => (
-                    <tr
-                      key={team._id}
-                      className={`${
-                        index % 2 === 0 ? "bg-gray-100" : "bg-white"
-                      } hover:bg-yellow-100 transition-colors`}
-                    >
-                      <td className="border border-gray-300 px-6 py-4 font-semibold text-gray-800">
-                        {team.teamName}
-                      </td>
-                      <td className="border border-gray-300 px-6 py-4 text-center text-gray-600">
-                        {team.maxMembers}
-                      </td>
-                      <td className="border border-gray-300 px-6 py-4 text-center">
-                        <span
-                          className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                            team.privacy === "public"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-red-100 text-red-800"
-                          }`}
-                        >
-                          {team.privacy}
-                        </span>
-                      </td>
-                      <td className="border border-gray-300 px-6 py-4 text-center">
-                        <button
-                          className="bg-gradient-to-r from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 text-white px-4 py-2 rounded-full shadow-md font-medium transform hover:scale-105 transition-all duration-200"
-                          onClick={() =>
-                            mode === "new"
-                              ? handleJoinClick(team)
-                              : handleOpen(team._id)
-                          }
-                        >
-                          {mode === "new" ? "Join" : "Open"}
-                        </button>
+                </thead>
+                <tbody>
+                  {currentTeams.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={4}
+                        className="text-center py-4 text-gray-600 font-semibold"
+                      >
+                        No teams found
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (
+                    currentTeams.map((team, index) => (
+                      <tr
+                        key={team._id}
+                        className={`${
+                          index % 2 === 0 ? "bg-gray-100" : "bg-white"
+                        } hover:bg-yellow-100 transition-colors`}
+                      >
+                        <td className="border border-gray-300 px-4 sm:px-6 py-3 font-semibold text-gray-800">
+                          {team.teamName}
+                        </td>
+                        <td className="border border-gray-300 px-4 sm:px-6 py-3 text-center text-gray-600">
+                          {team.maxMembers}
+                        </td>
+                        <td className="border border-gray-300 px-4 sm:px-6 py-3 text-center">
+                          <span
+                            className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold ${
+                              team.privacy === "public"
+                                ? "bg-green-100 text-green-800"
+                                : "bg-red-100 text-red-800"
+                            }`}
+                          >
+                            {team.privacy}
+                          </span>
+                        </td>
+                        <td className="border border-gray-300 px-4 sm:px-6 py-3 text-center">
+                          <button
+                            className="bg-gradient-to-r from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 text-white px-3 sm:px-4 py-2 rounded-full shadow-md font-medium transform hover:scale-105 transition-all duration-200"
+                            onClick={() =>
+                              mode === "new"
+                                ? handleJoinClick(team)
+                                : handleOpen(team._id)
+                            }
+                          >
+                            {mode === "new" ? "Join" : "Open"}
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
             {/* Pagination Controls */}
             <div className="flex justify-between items-center mt-4">
               <button
-                className={`px-4 py-2 rounded-lg ${
+                className={`px-3 sm:px-4 py-2 rounded-lg ${
                   currentPage === 1
                     ? "bg-gray-300 cursor-not-allowed"
                     : "bg-yellow-500 hover:bg-yellow-600"
@@ -332,11 +337,11 @@ const FormTeam = () => {
               >
                 Previous
               </button>
-              <span className="text-gray-700 font-medium">
+              <span className="text-gray-700 font-medium text-sm sm:text-base">
                 Page {currentPage} of {totalPages}
               </span>
               <button
-                className={`px-4 py-2 rounded-lg ${
+                className={`px-3 sm:px-4 py-2 rounded-lg ${
                   currentPage === totalPages
                     ? "bg-gray-300 cursor-not-allowed"
                     : "bg-yellow-500 hover:bg-yellow-600"

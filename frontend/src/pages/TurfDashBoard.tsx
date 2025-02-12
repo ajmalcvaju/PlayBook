@@ -14,7 +14,6 @@ type Booking = {
   lastName: string;
   mobileNumber: string;
   email: string;
-  
 };
 
 const TurfDashBoard: React.FC = () => {
@@ -173,7 +172,7 @@ const TurfDashBoard: React.FC = () => {
     revenueChartInstance = new Chart(revenueCtx, {
       type: "line",
       data: {
-        labels: revenueLabels.reverse(), // Reverses the order of labels (dates)
+        labels: revenueLabels, // Reverses the order of labels (dates)
         datasets: [
           {
             label: "Revenue per Day",
@@ -239,7 +238,7 @@ const TurfDashBoard: React.FC = () => {
   }, [totalPrice, totalPaid]);
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
-  
+
   const itemsPerPage = 4;
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -250,89 +249,100 @@ const TurfDashBoard: React.FC = () => {
   return (
     <div className="overflow-x-auto bg-gray-900 text-white p-6">
       <div className="bg-gray-800 shadow-lg rounded-lg p-8 mb-10 hover:shadow-xl transition-all duration-300">
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-8 rounded-lg w-3/4 lg:w-1/2 max-w-4xl shadow-lg transform transition-all duration-300 ease-in-out scale-95 hover:scale-100">
-            <h2 className="text-3xl font-semibold text-teal-600 mb-6">
-              Payment History
-            </h2>
+        {isModalOpen && (
+          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50">
+            <div className="bg-white p-8 rounded-lg w-3/4 lg:w-1/2 max-w-4xl shadow-lg transform transition-all duration-300 ease-in-out scale-95 hover:scale-100">
+              <h2 className="text-3xl font-semibold text-teal-600 mb-6">
+                Payment History
+              </h2>
 
-            {/* Table for History */}
-            <table className="min-w-full table-auto mb-6 shadow-lg rounded-lg overflow-hidden">
-              <thead>
-                <tr className="bg-teal-600 text-white">
-                  <th className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">
-                    Amount
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">
-                    Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">
-                    Time
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentHistory.map((entry, index) => (
-                  <tr
-                    key={index}
-                    className="border-t border-gray-200 hover:bg-teal-50 transition-all duration-300"
-                  >
-                    <td className="px-6 py-4 text-lg font-semibold text-teal-600">
-                      {entry.amount.toFixed(2)}{" "}
-                      {/* Formatting for better display */}
-                    </td>
-                    <td className="px-6 py-4 text-lg text-gray-800">
-                      {new Date(entry.date).toLocaleDateString("en-US", {
-                        weekday: "short",
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      })}{" "}
-                      {/* Formatted Date */}
-                    </td>
-                    <td className="px-6 py-4 text-lg text-gray-800">
-                      {new Date(entry.date).toLocaleTimeString("en-US", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        second: "2-digit",
-                      })}{" "}
-                      {/* Formatted Time */}
-                    </td>
+              {/* Table for History */}
+              <table className="min-w-full table-auto mb-6 shadow-lg rounded-lg overflow-hidden">
+                <thead>
+                  <tr className="bg-teal-600 text-white">
+                    <th className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">
+                      Amount
+                    </th>
+                    <th className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">
+                      Date
+                    </th>
+                    <th className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">
+                      Time
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {currentHistory.length > 0 ? (
+                    currentHistory.map((entry, index) => (
+                      <tr
+                        key={index}
+                        className="border-t border-gray-200 hover:bg-teal-50 transition-all duration-300"
+                      >
+                        <td className="px-6 py-4 text-lg font-semibold text-teal-600">
+                          {entry.amount.toFixed(2)}{" "}
+                          {/* Formatting for better display */}
+                        </td>
+                        <td className="px-6 py-4 text-lg text-gray-800">
+                          {new Date(entry.date).toLocaleDateString("en-US", {
+                            weekday: "short",
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          })}{" "}
+                          {/* Formatted Date */}
+                        </td>
+                        <td className="px-6 py-4 text-lg text-gray-800">
+                          {new Date(entry.date).toLocaleTimeString("en-US", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            second: "2-digit",
+                          })}{" "}
+                          {/* Formatted Time */}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan={3}
+                        className="px-6 py-4 text-lg text-gray-500 text-center"
+                      >
+                        🚫 No transactions available
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
 
-            {/* Pagination Controls */}
-            <div className="flex justify-center space-x-3 mt-4">
-              {Array.from(
-                { length: Math.ceil(history.length / itemsPerPage) },
-                (_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => paginate(index + 1)}
-                    className={`px-4 py-2 rounded-full transition-all duration-300 ease-in-out ${
-                      currentPage === index + 1
-                        ? "bg-teal-600 text-white shadow-md"
-                        : "bg-teal-100 text-teal-500 hover:bg-teal-500 hover:text-white"
-                    }`}
-                  >
-                    {index + 1}
-                  </button>
-                )
-              )}
+              {/* Pagination Controls */}
+              <div className="flex justify-center space-x-3 mt-4">
+                {Array.from(
+                  { length: Math.ceil(history.length / itemsPerPage) },
+                  (_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => paginate(index + 1)}
+                      className={`px-4 py-2 rounded-full transition-all duration-300 ease-in-out ${
+                        currentPage === index + 1
+                          ? "bg-teal-600 text-white shadow-md"
+                          : "bg-teal-100 text-teal-500 hover:bg-teal-500 hover:text-white"
+                      }`}
+                    >
+                      {index + 1}
+                    </button>
+                  )
+                )}
+              </div>
+
+              <button
+                onClick={closeModal}
+                className="mt-6 w-full py-3 bg-red-500 text-white font-semibold rounded-md transition-all duration-300 ease-in-out hover:bg-red-600"
+              >
+                Close
+              </button>
             </div>
-
-            <button
-              onClick={closeModal}
-              className="mt-6 w-full py-3 bg-red-500 text-white font-semibold rounded-md transition-all duration-300 ease-in-out hover:bg-red-600"
-            >
-              Close
-            </button>
           </div>
-        </div>
-      )}
+        )}
         {/* Date Range Filter Section */}
         <div className="flex flex-col lg:flex-row items-center justify-between mb-6 space-y-6 lg:space-x-6 lg:space-y-0">
           <div className="flex flex-col space-y-2 w-full lg:w-1/3">

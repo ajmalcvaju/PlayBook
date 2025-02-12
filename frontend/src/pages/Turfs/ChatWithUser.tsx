@@ -577,7 +577,7 @@ const ChatWithUser = () => {
           </button>
         </div>
       )}
-      <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-20">
+      <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50">
         <div className="bg-white flex flex-col rounded-lg shadow-2xl w-full md:w-3/4 h-full md:h-5/6">
           {/* Header */}
           <div

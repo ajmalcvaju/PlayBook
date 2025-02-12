@@ -34,7 +34,6 @@ declare global {
   }
 }
 
-
 const AdminDashboard = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
@@ -48,7 +47,7 @@ const AdminDashboard = () => {
   const [history, setHistory] = useState<{ amount: number; date: Date }[]>([]);
   const [balance, setBalance] = useState<number>(0);
   const [turfs, setTurfs] = useState<Turf[]>([]);
-  const [turf, setTurf] = useState<Turf|null>(null);
+  const [turf, setTurf] = useState<Turf | null>(null);
   let chartInstance: Chart | null = null;
   let revenueChartInstance: Chart | null = null;
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -68,7 +67,7 @@ const AdminDashboard = () => {
         const turfs = Array.from(
           new Set(data.bookings.map((b: Booking) => b.turfName))
         );
-        setUniqueTurfs(["all", ...turfs as string[]]);
+        setUniqueTurfs(["all", ...(turfs as string[])]);
       } catch (error) {
         console.error("Error fetching bookings:", error);
       }
@@ -78,7 +77,7 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     const filterBookings = () => {
-      console.log("hi")
+      console.log("hi");
       let filtered = bookings;
       if (filter !== "custom") {
         const today = new Date();
@@ -86,7 +85,7 @@ const AdminDashboard = () => {
 
         switch (filter) {
           case "today":
-            start = today; 
+            start = today;
             break;
           case "1week":
             start = new Date();
@@ -286,7 +285,7 @@ const AdminDashboard = () => {
   }, [turfName, filter, turf]);
   useEffect(() => {
     setBalance((totalPrice ? totalPrice * 0.8 : 0) - (totalPaid ?? 0));
-  }, [totalPrice, totalPaid])
+  }, [totalPrice, totalPaid]);
 
   const openRazorpay = async () => {
     if (!window.Razorpay) {
@@ -302,7 +301,7 @@ const AdminDashboard = () => {
       name: "PlayBook",
       description: "Turf Balance Payment",
       image: "https://i.imgur.com/1eyM5kC.png",
-      handler: async (response:Response) => {
+      handler: async (response: Response) => {
         console.log("Payment successful:", response);
         try {
           const res = await apiClient.post("/admin/pay-balance", {
@@ -318,7 +317,7 @@ const AdminDashboard = () => {
           // };
           // socket.emit("send-notification", notificationData);
           // setIsBookingSuccess(true);
-        } catch (error:any) {
+        } catch (error: any) {
           console.error("Error confirming booking:", error);
           // setIsBookingFailed(true);
           throw new Error(
@@ -335,9 +334,9 @@ const AdminDashboard = () => {
     };
 
     const rzp = new window.Razorpay(options);
-    rzp.on("payment.failed", async (response:Response) => {
+    rzp.on("payment.failed", async (response: Response) => {
       try {
-        console.log(response)
+        console.log(response);
         const res = await apiClient.post("/admin/pay-balance", {
           turfId: turf?._id,
           balance,
@@ -383,34 +382,45 @@ const AdminDashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {currentHistory.map((entry, index) => (
-                  <tr
-                    key={index}
-                    className="border-t border-gray-200 hover:bg-teal-50 transition-all duration-300"
-                  >
-                    <td className="px-6 py-4 text-lg font-semibold text-teal-600">
-                      {entry.amount.toFixed(2)}{" "}
-                      {/* Formatting for better display */}
-                    </td>
-                    <td className="px-6 py-4 text-lg text-gray-800">
-                      {new Date(entry.date).toLocaleDateString("en-US", {
-                        weekday: "short",
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      })}{" "}
-                      {/* Formatted Date */}
-                    </td>
-                    <td className="px-6 py-4 text-lg text-gray-800">
-                      {new Date(entry.date).toLocaleTimeString("en-US", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        second: "2-digit",
-                      })}{" "}
-                      {/* Formatted Time */}
+                {currentHistory.length > 0 ? (
+                  currentHistory.map((entry, index) => (
+                    <tr
+                      key={index}
+                      className="border-t border-gray-200 hover:bg-teal-50 transition-all duration-300"
+                    >
+                      <td className="px-6 py-4 text-lg font-semibold text-teal-600">
+                        {entry.amount.toFixed(2)}{" "}
+                        {/* Formatting for better display */}
+                      </td>
+                      <td className="px-6 py-4 text-lg text-gray-800">
+                        {new Date(entry.date).toLocaleDateString("en-US", {
+                          weekday: "short",
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}{" "}
+                        {/* Formatted Date */}
+                      </td>
+                      <td className="px-6 py-4 text-lg text-gray-800">
+                        {new Date(entry.date).toLocaleTimeString("en-US", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          second: "2-digit",
+                        })}{" "}
+                        {/* Formatted Time */}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan={3}
+                      className="px-6 py-4 text-lg text-gray-500 text-center"
+                    >
+                      🚫 No transactions available
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
 
@@ -517,7 +527,7 @@ const AdminDashboard = () => {
             All bookings
           </button>
         </div>
-        {turfName !== "all" &&filter==="custom"&&(
+        {turfName !== "all" && filter === "custom" && (
           <div className="bg-gray-800 p-6 rounded-xl text-lg font-semibold shadow-lg flex flex-col lg:flex-row items-center justify-between space-y-6 lg:space-y-0 lg:space-x-6">
             {/* Total Price and Paid Section */}
             <div className="space-y-2 lg:space-y-0 flex flex-col lg:flex-row lg:items-center lg:space-x-6">
