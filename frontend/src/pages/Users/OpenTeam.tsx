@@ -840,7 +840,7 @@ const OpenTeam = () => {
                       </div>
                     </div>
                   )}
-
+ 
                   {activeSlotTab === "Booked" && (
                     <div className="text-center">
                       <h3 className="font-bold text-2xl sm:text-3xl mb-4 text-green-400">
