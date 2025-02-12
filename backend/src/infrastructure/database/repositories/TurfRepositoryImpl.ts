@@ -6,7 +6,7 @@ import { Slot } from "../../../domain/entities/Turf";
 import { SlotModel } from "../models/slotModel";
 import { User } from "../../../domain/entities/User";
 import { UserModel } from "../models/userModel";
-import { BookingModel } from "../models/BookingModel";
+import { BookingModel } from "../models/bookingModel";
 const { RRule, RRuleSet } = require('rrule');
 import mongoose from "mongoose";
 import { sendOtpEmail } from "../../services/emailService";

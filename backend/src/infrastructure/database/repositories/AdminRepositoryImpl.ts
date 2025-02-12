@@ -4,7 +4,7 @@ import { UserModel } from "../models/userModel";
 import { User } from "../../../domain/entities/User";
 import { Slot } from "../../../domain/entities/Turf";
 import { TurfModel } from "../models/turfModel";
-import { BookingModel } from "../models/BookingModel";
+import { BookingModel } from "../models/bookingModel";
 import ReportModel from "../models/reportModel";
 import { ReviewModel } from "../models/reviewModel";
 
