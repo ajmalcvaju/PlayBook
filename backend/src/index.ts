@@ -60,6 +60,7 @@ app.use(express.static('public'));
 console.log(paths);
 
 connectDB();
+console.log(process.env.MONGODB_CONNECTION_STRING)
  
 
 
