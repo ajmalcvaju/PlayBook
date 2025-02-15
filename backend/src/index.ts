@@ -32,7 +32,7 @@ app.use(errorMiddleware);
 
 
 app.use((req, res, next) => {
-  const allowedOrigins = [process.env.FRONTEND_URL,"https://api.play-book.xyz"];
+  const allowedOrigins = [process.env.FRONTEND_URL,'https://play-book.xyz'];
   const origin = req.headers.origin as string;
   if (allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
