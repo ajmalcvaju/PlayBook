@@ -40,7 +40,7 @@ import AdminProtectedRoute, { AdminAuthProtectedRoute } from './AdminProtectedRo
 import FormTeam from './pages/Users/FormTeam'
 import OpenTeam from './pages/Users/OpenTeam'
 
-
+ 
 
 
 function App() {
