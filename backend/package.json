@@ -1,10 +1,10 @@
 {
   "name": "playbook",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
     "build": "tsc",
-    "start": "nodemon dist/index.js",
+    "start": "nodemon dist/index.ts",
     "dev": "nodemon src/index.ts"
   },
   "keywords": [],
