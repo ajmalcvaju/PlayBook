@@ -29,14 +29,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // app.use(cors());
 app.use(errorMiddleware);
-app.use(cors({ 
-  origin: 'https://play-book.xyz', 
-  methods: 'GET,POST,PUT,DELETE,PATCH,OPTIONS',
-  allowedHeaders: 'Content-Type, Authorization',
-  credentials: true
-}));
-
-app.options('*', cors()); 
 
 
 app.use((req, res, next) => {
