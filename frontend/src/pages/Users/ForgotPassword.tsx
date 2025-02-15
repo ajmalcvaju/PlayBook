@@ -101,7 +101,7 @@ const ForgotPassword = () => {
   });
   const resendOtp = async () => {
     const email = localStorage.getItem("userEmail");
-    const response = await fetch("http://localhost:7000/api/users/resend-otp", {
+    const response = await fetch("https://api.play-book.xyz/api/users/resend-otp", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
