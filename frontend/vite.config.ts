@@ -11,10 +11,10 @@ export default defineConfig({
   server:{
     proxy:{
       '/api':{
-        target:'http://api.play-book.xyz:7000/',
+        target:'https://api.play-book.xyz/',
         changeOrigin: true,
         secure:false
       }
     }
   }
-}) 
+})  
