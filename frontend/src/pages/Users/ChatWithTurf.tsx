@@ -69,7 +69,7 @@ const ChatWithTurf = () => {
   const location = useLocation(); // Get the location object
   const { videoCallConnection, videoCallDecline } = location.state || {};
   const [showPopup, setShowPopup] = useState(false);
-  const socket = io("http://api.play-book.xyz", { transports: ["websocket"] });
+  const socket = io("https://api.play-book.xyz", { transports: ["websocket"] })
   const [declinePopup, setDeclinePopup] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isRecording, setIsRecording] = useState(false);

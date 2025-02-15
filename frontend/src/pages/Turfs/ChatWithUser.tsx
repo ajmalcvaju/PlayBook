@@ -99,7 +99,7 @@ const ChatWithUser = () => {
     (state: { turf: TurfState }) => state.turf
   );
   const turfId = currentTurf?._id || recieverId;
-  const socket = io("http://api.play-book.xyz", { transports: ["websocket"] });
+  const socket = io("https://api.play-book.xyz", { transports: ["websocket"] })
   useEffect(() => {
     socket.emit("joinTurf", { turfId, userId });
     socket.on("message", (data) => {

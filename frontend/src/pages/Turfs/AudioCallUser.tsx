@@ -43,7 +43,7 @@ interface TurfState {
   error: boolean;
 }
 
-const socket = io("http://api.play-book.xyz", { transports: ["websocket"] });
+const socket = io("https://api.play-book.xyz", { transports: ["websocket"] })
 const AudioCallUser = () => {
   const remoteAudioRef = useRef<HTMLAudioElement | null>(null);
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);

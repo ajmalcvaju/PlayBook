@@ -31,7 +31,7 @@ type Slot = {
 };
 
 const PaymentConfirmation = () => {
-  const socket = io("http://api.play-book.xyz", { transports: ["websocket"] });
+  const socket = io("https://api.play-book.xyz", { transports: ["websocket"] })
   const location = useLocation();
   const { selectedSlots = [] }: { selectedSlots: Slot[] } =
     location.state ?? {};
