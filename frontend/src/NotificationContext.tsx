@@ -40,7 +40,7 @@ interface TurfState {
   loading: boolean;
   error: boolean;
 }
-const socket = io("http://localhost:7000");
+const socket = io("http://api.play-book.xyz", { transports: ["websocket"] });
 export const NotificationProvider: React.FC<NotificationProviderProps> = ({ children }) => {
   const navigate = useNavigate();
   const [joinedRoomId, setJoinedRoomId] = useState<string | null>(null);

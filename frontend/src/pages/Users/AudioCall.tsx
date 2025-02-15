@@ -4,7 +4,7 @@ import { io } from "socket.io-client";
 import { useSelector } from "react-redux";
 import apiClient from "../../apiClient";
 
-const socket = io("http://localhost:7000");
+const socket = io("http://api.play-book.xyz", { transports: ["websocket"] });
 
 interface CurrentUser {
   _id: string;
