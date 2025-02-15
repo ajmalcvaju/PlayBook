@@ -7,7 +7,7 @@ export default defineConfig({
   server:{
     proxy:{
       '/api':{
-        target:'http://localhost:7000',
+        target:'http://api.play-book.xyz:7000/',
         changeOrigin: true,
         secure:false
       }
