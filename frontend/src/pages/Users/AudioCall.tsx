@@ -4,7 +4,7 @@ import { io } from "socket.io-client";
 import { useSelector } from "react-redux";
 import apiClient from "../../apiClient";
 
-const socket = io("https://api.play-book.xyz")
+const socket = io("https://api.play-book.xyz");
 
 interface CurrentUser {
   _id: string;

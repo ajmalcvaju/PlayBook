@@ -36,7 +36,7 @@ interface TurfState {
   error: boolean;
 }
 
-const socket = io("https://api.play-book.xyz")
+const socket = io("https://api.play-book.xyz");
 const VideoCallUser = () => {
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);

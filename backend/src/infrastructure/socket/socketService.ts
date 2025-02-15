@@ -16,7 +16,7 @@ declare module "socket.io" {
 export const createSocketConnectionForChat = (server: any) => {
   const io = new Server(server, {
     cors: {
-      origin: ['https://play-book.xyz'],
+      origin: ["https://play-book.xyz"],
       methods: ["GET", "POST"],
       credentials: true,
     },

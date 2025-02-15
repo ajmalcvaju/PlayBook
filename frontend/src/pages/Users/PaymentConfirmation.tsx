@@ -31,7 +31,7 @@ type Slot = {
 };
 
 const PaymentConfirmation = () => {
-  const socket = io("https://api.play-book.xyz")
+  const socket = io("https://api.play-book.xyz");
   const location = useLocation();
   const { selectedSlots = [] }: { selectedSlots: Slot[] } =
     location.state ?? {};
