@@ -142,7 +142,7 @@ const ChatWithTurf = () => {
     socket.emit("joinTurf", { turfId, userId });
     socket.on("message", (data) => {
       console.log(data);
-      console.log("hi")
+      loadPreviousMessages();
       if (data.receiverId == userId) {
         loadPreviousMessages();
         // setMessages((prev) => [
